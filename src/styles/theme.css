@@ -1,0 +1,13 @@
+:root {
+  --bg: #020302;
+  --panel: #080b09;
+  --panel-dark: #040504;
+  --green: #12c970;
+  --green-soft: rgba(18, 201, 112, 0.16);
+  --purple: #9146ff;
+  --red: #e8302a;
+  --text: #f7f7f7;
+  --muted: #a8aaa8;
+  --line: rgba(18, 201, 112, 0.24);
+  --line-soft: rgba(255, 255, 255, 0.09);
+}
