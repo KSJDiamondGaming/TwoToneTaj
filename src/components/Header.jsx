@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { NavLink, Link } from 'react-router-dom'
 import logo from '../assets/logo.png'
 
 export default function Header() {
@@ -7,17 +7,17 @@ export default function Header() {
       <Link className="brand" to="/">
         <img src={logo} alt="TwoToneTaj logo" />
         <span>
-          TwoToneTaj
+          <strong>TwoToneTaj</strong>
           <small>Average Gamer • Est. 1989</small>
         </span>
       </Link>
 
       <nav>
-        <Link to="/">Home</Link>
-        <Link to="/about">About</Link>
-        <Link to="/content">Content</Link>
-        <Link to="/community">Community</Link>
-        <Link to="/contact">Contact</Link>
+        <NavLink to="/">Home</NavLink>
+        <NavLink to="/about">About</NavLink>
+        <NavLink to="/content">Content</NavLink>
+        <NavLink to="/community">Community</NavLink>
+        <NavLink to="/contact">Contact</NavLink>
       </nav>
 
       <a className="join-btn" href="https://discord.gg/WcbtQPuByd">
