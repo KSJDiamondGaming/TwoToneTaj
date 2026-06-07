@@ -5,20 +5,20 @@
 
 .merch-hero {
   position: relative;
-  min-height: 420px;
+  min-height: 430px;
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 24px;
+  grid-template-columns: 1fr 0.85fr;
+  gap: 28px;
   align-items: center;
-  overflow: hidden;
   padding: 52px;
-  border: 1px solid rgba(18, 201, 112, 0.28);
-  border-radius: 26px;
+  overflow: hidden;
+  border: 1px solid rgba(18, 201, 112, 0.34);
+  border-radius: 24px;
   background:
-    radial-gradient(circle at 82% 42%, rgba(255, 47, 18, 0.22), transparent 30%),
-    radial-gradient(circle at 74% 80%, rgba(18, 201, 112, 0.24), transparent 38%),
-    linear-gradient(135deg, rgba(3, 5, 4, 0.98), rgba(7, 14, 9, 0.96));
-  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.72);
+    radial-gradient(circle at 84% 48%, rgba(223, 55, 24, 0.34), transparent 26%),
+    radial-gradient(circle at 74% 54%, rgba(18, 201, 112, 0.22), transparent 38%),
+    linear-gradient(180deg, rgba(8, 11, 9, 0.96), rgba(2, 4, 3, 0.98));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.74);
 }
 
 .merch-hero::before {
@@ -26,8 +26,17 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.22), transparent),
-    radial-gradient(circle at 88% 86%, rgba(18, 201, 112, 0.16), transparent 34%);
+    linear-gradient(90deg, rgba(18, 201, 112, 0.12), transparent 42%),
+    radial-gradient(circle at 78% 84%, rgba(255, 89, 28, 0.2), transparent 34%);
+  pointer-events: none;
+}
+
+.merch-hero::after {
+  content: '';
+  position: absolute;
+  inset: 18px;
+  border: 1px solid rgba(18, 201, 112, 0.22);
+  border-radius: 18px;
   pointer-events: none;
 }
 
@@ -38,24 +47,25 @@
 }
 
 .merch-hero h1 {
-  max-width: 740px;
-  margin: 8px 0 18px;
+  display: grid;
+  gap: 2px;
+  margin-bottom: 18px;
   color: #fff;
   font-family: 'Russo One', sans-serif;
-  font-size: clamp(54px, 7vw, 104px);
-  line-height: 0.9;
+  font-size: clamp(50px, 7vw, 104px);
+  line-height: 0.88;
+  letter-spacing: -2px;
   text-transform: uppercase;
-  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
 }
 
 .merch-hero h1 span {
-  display: block;
   color: var(--green);
+  text-shadow: 0 0 32px rgba(18, 201, 112, 0.26);
 }
 
 .merch-subtitle {
   max-width: 560px;
-  color: #e4e4e4;
+  color: #dedede;
   font-size: 17px;
   line-height: 1.65;
 }
@@ -68,84 +78,50 @@
 }
 
 .merch-hero-brand {
-  min-height: 300px;
   display: grid;
   place-items: center;
-  align-content: center;
-  gap: 8px;
-  text-align: center;
+  min-height: 310px;
 }
 
-.merch-dragon-orb {
-  width: min(310px, 68vw);
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  border: 2px solid rgba(18, 201, 112, 0.76);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 42%, rgba(255, 55, 20, 0.35), transparent 33%),
-    radial-gradient(circle, rgba(18, 201, 112, 0.18), rgba(0, 0, 0, 0.38) 62%);
-  box-shadow:
-    0 0 45px rgba(18, 201, 112, 0.22),
-    inset 0 0 42px rgba(18, 201, 112, 0.12);
-}
-
-.merch-dragon-orb span {
-  color: #fff;
-  font-family: 'Russo One', sans-serif;
-  font-size: clamp(72px, 9vw, 132px);
-  text-shadow:
-    0 0 18px rgba(18, 201, 112, 0.38),
-    0 0 34px rgba(255, 64, 20, 0.22);
-}
-
-.merch-hero-brand strong,
-.merch-hero-brand small {
-  color: var(--green);
-  font-family: 'Bebas Neue', sans-serif;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-}
-
-.merch-hero-brand strong {
-  font-size: 30px;
+.merch-hero-brand img {
+  width: min(360px, 88%);
+  height: auto;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 0 28px rgba(18, 201, 112, 0.26))
+    drop-shadow(0 28px 35px rgba(0, 0, 0, 0.9));
 }
 
 .merch-carousel {
   position: relative;
-  overflow: hidden;
   margin-top: 18px;
-  padding: 18px 0 22px;
-  border: 1px solid rgba(18, 201, 112, 0.32);
-  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(18, 201, 112, 0.36);
+  border-radius: 18px;
   background:
-    radial-gradient(circle at 50% 100%, rgba(18, 201, 112, 0.18), transparent 42%),
-    linear-gradient(180deg, rgba(5, 9, 7, 0.96), rgba(1, 2, 2, 0.94));
+    radial-gradient(circle at 40% 100%, rgba(18, 201, 112, 0.18), transparent 42%),
+    linear-gradient(180deg, rgba(8, 11, 9, 0.96), rgba(2, 3, 3, 0.96));
 }
 
 .merch-carousel-head {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
-  margin-bottom: 10px;
-  color: #fff;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 24px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.merch-carousel-head span {
+  gap: 10px;
+  padding: 16px 18px 0;
   color: var(--green);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
 }
 
 .merch-carousel-track {
   display: flex;
   width: max-content;
-  gap: 18px;
-  animation: merch-scroll 28s linear infinite;
+  gap: 28px;
+  padding: 18px 28px 24px;
+  animation: merch-scroll 34s linear infinite;
 }
 
 .merch-carousel:hover .merch-carousel-track {
@@ -153,32 +129,34 @@
 }
 
 .merch-carousel-item {
-  width: 190px;
-  flex: 0 0 auto;
-  display: grid;
-  gap: 8px;
-  justify-items: center;
-  padding: 10px;
-}
-
-.merch-carousel-item img {
   width: 150px;
-  height: 120px;
-  object-fit: contain;
-  filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.7));
-}
-
-.merch-carousel-item span {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  flex: 0 0 auto;
   color: #fff;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 17px;
-  letter-spacing: 0.9px;
+  letter-spacing: 0.8px;
+  text-align: center;
   text-transform: uppercase;
 }
 
+.merch-carousel-item img {
+  width: 132px;
+  height: 112px;
+  object-fit: contain;
+  border-radius: 14px;
+  filter: drop-shadow(0 16px 18px rgba(0, 0, 0, 0.7));
+}
+
 @keyframes merch-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .merch-section {
@@ -188,6 +166,7 @@
 .merch-toolbar {
   display: grid;
   gap: 16px;
+  margin-bottom: 10px;
 }
 
 .merch-tabs {
@@ -200,18 +179,18 @@
 .merch-tabs button,
 .merch-controls select,
 .merch-buy-btn {
-  border: 1px solid rgba(18, 201, 112, 0.24);
-  border-radius: 10px;
-  background: rgba(4, 7, 6, 0.9);
+  border: 1px solid rgba(18, 201, 112, 0.26);
+  background: rgba(8, 11, 9, 0.92);
   color: #fff;
   font-family: 'Bebas Neue', sans-serif;
-  letter-spacing: 1px;
+  letter-spacing: 0.9px;
   text-transform: uppercase;
 }
 
 .merch-tabs button {
   min-width: 120px;
   padding: 13px 18px;
+  border-radius: 10px;
   cursor: pointer;
   transition: 0.18s ease;
 }
@@ -219,8 +198,8 @@
 .merch-tabs button:hover,
 .merch-tabs button.active {
   border-color: var(--green);
-  background: rgba(18, 201, 112, 0.22);
-  box-shadow: 0 0 24px rgba(18, 201, 112, 0.14);
+  background: linear-gradient(135deg, rgba(18, 201, 112, 0.95), rgba(9, 103, 58, 0.92));
+  box-shadow: 0 0 22px rgba(18, 201, 112, 0.2);
 }
 
 .merch-controls {
@@ -232,59 +211,59 @@
 
 .merch-controls label {
   display: grid;
-  gap: 5px;
-  color: var(--muted);
+  gap: 6px;
+  color: #a9a9a9;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 900;
+  letter-spacing: 1px;
   text-transform: uppercase;
 }
 
 .merch-controls select {
-  min-width: 180px;
+  min-width: 190px;
   padding: 12px 14px;
+  border-radius: 10px;
   outline: none;
 }
 
 .merch-price-note {
-  margin: 12px 0 0;
-  color: var(--muted);
+  margin-bottom: 16px;
+  color: #9c9c9c;
   font-size: 13px;
   text-align: center;
 }
 
 .merch-product-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
-  margin-top: 18px;
 }
 
 .merch-product-card {
   position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 395px;
   overflow: hidden;
-  min-height: 375px;
-  display: flex;
-  flex-direction: column;
-  padding: 14px;
-  border: 1px solid rgba(18, 201, 112, 0.2);
+  border: 1px solid rgba(18, 201, 112, 0.24);
   border-radius: 14px;
   background:
-    radial-gradient(circle at 50% 14%, rgba(18, 201, 112, 0.14), transparent 42%),
-    linear-gradient(180deg, rgba(8, 11, 9, 0.96), rgba(3, 4, 4, 0.96));
+    radial-gradient(circle at 50% 20%, rgba(18, 201, 112, 0.12), transparent 42%),
+    linear-gradient(180deg, rgba(8, 11, 9, 0.98), rgba(4, 5, 4, 0.98));
   transition: 0.18s ease;
 }
 
 .merch-product-card:hover {
   transform: translateY(-4px);
   border-color: var(--green);
-  box-shadow: 0 18px 42px rgba(18, 201, 112, 0.14);
+  box-shadow: 0 18px 44px rgba(18, 201, 112, 0.13);
 }
 
 .merch-badges {
   position: absolute;
-  z-index: 2;
-  top: 12px;
-  left: 12px;
+  z-index: 3;
+  top: 14px;
+  left: 14px;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -292,48 +271,50 @@
 
 .merch-badges span {
   padding: 5px 8px;
-  border-radius: 7px;
+  border-radius: 6px;
   background: rgba(18, 201, 112, 0.9);
   color: #041006;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 13px;
-  letter-spacing: 0.7px;
+  font-size: 12px;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
 }
 
 .merch-product-image-wrap {
-  height: 195px;
+  min-height: 218px;
   display: grid;
   place-items: center;
-  margin-bottom: 12px;
+  padding: 28px 22px 14px;
 }
 
 .merch-product-image-wrap img {
-  max-width: 100%;
-  max-height: 180px;
+  width: 100%;
+  max-width: 210px;
+  height: 180px;
   object-fit: contain;
-  filter: drop-shadow(0 20px 22px rgba(0, 0, 0, 0.74));
+  filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.82));
 }
 
 .merch-product-copy {
   display: grid;
   gap: 6px;
-  margin-top: auto;
+  padding: 0 18px 18px;
 }
 
 .merch-product-copy span {
-  color: var(--muted);
+  color: #a9a9a9;
   font-size: 13px;
 }
 
 .merch-product-copy h2 {
   color: #fff;
   font-family: 'Russo One', sans-serif;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.25;
 }
 
 .merch-product-copy strong {
+  margin-top: 4px;
   color: var(--green);
   font-family: 'Bebas Neue', sans-serif;
   font-size: 24px;
@@ -341,79 +322,81 @@
 }
 
 .merch-buy-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 12px;
-  padding: 12px;
+  display: grid;
+  place-items: center;
+  margin: 0 18px 18px;
+  padding: 12px 14px;
+  border-radius: 10px;
   text-decoration: none;
   cursor: pointer;
-  transition: 0.18s ease;
 }
 
 .merch-buy-btn:not(.disabled):hover {
   border-color: var(--green);
   background: var(--green);
-  color: #041006;
+  color: #031006;
 }
 
 .merch-buy-btn.disabled {
-  opacity: 0.7;
+  opacity: 0.65;
   cursor: not-allowed;
 }
 
 .merch-trust-strip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  margin-top: 32px;
-  overflow: hidden;
-  border: 1px solid rgba(18, 201, 112, 0.18);
-  border-radius: 18px;
-  background: rgba(18, 201, 112, 0.18);
+  gap: 14px;
+  margin-top: 22px;
+  padding: 20px 0 4px;
+  border-top: 1px solid rgba(18, 201, 112, 0.18);
 }
 
 .merch-trust-strip article {
-  display: grid;
-  gap: 8px;
-  padding: 24px;
-  background: rgba(4, 7, 6, 0.96);
+  display: flex;
+  gap: 14px;
+  min-height: 120px;
+  padding: 22px;
+  border: 1px solid rgba(18, 201, 112, 0.16);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(8, 11, 9, 0.92), rgba(4, 5, 4, 0.96));
 }
 
-.merch-trust-strip span {
+.merch-trust-strip article > span {
   color: var(--green);
-  font-size: 28px;
+  font-size: 26px;
 }
 
 .merch-trust-strip strong {
+  display: block;
+  margin-bottom: 7px;
   color: var(--green);
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 23px;
-  letter-spacing: 0.9px;
+  font-size: 21px;
+  letter-spacing: 1px;
   text-transform: uppercase;
 }
 
 .merch-trust-strip p {
-  color: #d6d6d6;
+  color: #d0d0d0;
   font-size: 13px;
-  line-height: 1.55;
+  line-height: 1.45;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1050px) {
   .merch-product-grid,
   .merch-trust-strip {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 900px) {
   .merch-hero {
     grid-template-columns: 1fr;
-    padding: 38px 30px;
+    padding: 36px 28px;
   }
 
   .merch-hero-brand {
-    min-height: 240px;
+    min-height: 220px;
   }
 }
 
@@ -423,38 +406,19 @@
     margin-top: 28px;
   }
 
-  .merch-hero {
-    padding: 30px 22px;
+  .merch-hero h1 {
+    font-size: clamp(42px, 13vw, 64px);
   }
 
   .merch-actions .btn,
-  .merch-controls,
+  .merch-tabs button,
   .merch-controls label,
   .merch-controls select {
     width: 100%;
   }
 
-  .merch-tabs {
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding-bottom: 6px;
-  }
-
-  .merch-tabs button {
-    min-width: max-content;
-  }
-
   .merch-product-grid,
   .merch-trust-strip {
     grid-template-columns: 1fr;
-  }
-
-  .merch-carousel-item {
-    width: 150px;
-  }
-
-  .merch-carousel-item img {
-    width: 120px;
   }
 }
