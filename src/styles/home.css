@@ -1,8 +1,12 @@
-/* =========================
-   HOME HERO
-========================= */
+/* =========================================================
+   HOME PAGE
+========================================================= */
 
-.tt-hero {
+/* =========================================================
+   1. HERO
+========================================================= */
+
+.hero-panel {
   position: relative;
   min-height: 430px;
   display: flex;
@@ -16,7 +20,7 @@
     linear-gradient(90deg, #000 0%, #000 36%, rgba(0, 0, 0, 0.65) 58%, #000 100%);
 }
 
-.tt-hero::after {
+.hero-panel::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -25,27 +29,27 @@
   pointer-events: none;
 }
 
-.tt-hero-copy {
+.hero-copy {
   position: relative;
   z-index: 4;
   width: min(570px, 45%);
 }
 
-.tt-hero-copy .eyebrow,
+.hero-eyebrow,
 .hero-est {
   color: var(--green);
   font-family: 'Bebas Neue', sans-serif;
   text-transform: uppercase;
 }
 
-.tt-hero-copy .eyebrow {
+.hero-eyebrow {
   display: block;
   margin-bottom: 12px;
   font-size: 24px;
   letter-spacing: 1.5px;
 }
 
-.tt-hero-copy h1 {
+.hero-copy h1 {
   margin: 0;
   color: #f2f2f2;
   font-family: 'Russo One', sans-serif;
@@ -79,39 +83,25 @@
   box-shadow: 0 0 18px rgba(18, 201, 112, 0.5);
 }
 
-.tt-hero-copy p {
+.hero-copy p {
   max-width: 480px;
   color: #eee;
   font-size: 18px;
   line-height: 1.55;
 }
 
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 18px;
-  margin-top: 28px;
-}
-
-.hero-actions .btn {
-  min-width: 190px;
-}
-
-.hero-banner-dragon {
+.hero-dragon {
   position: absolute !important;
-
   right: -100px !important;
   bottom: -115px !important;
-
   width: 700px !important;
   height: 650px !important;
-
   max-width: none !important;
 }
 
-/* =========================
-   MAIN 2x2 GRID
-========================= */
+/* =========================================================
+   2. MAIN GRID
+========================================================= */
 
 .home-grid {
   display: grid;
@@ -128,9 +118,13 @@
 .twitch-panel { grid-area: twitch; }
 .youtube-panel { grid-area: youtube; }
 
-.panel {
+/* =========================================================
+   3. SHARED HOME PANEL
+========================================================= */
+
+.home .panel {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   padding: 24px;
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 10px;
@@ -142,7 +136,7 @@
     0 18px 40px rgba(0, 0, 0, 0.48);
 }
 
-.panel h2 {
+.home .panel h2 {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -155,21 +149,17 @@
   text-transform: uppercase;
 }
 
-.panel h2 img {
+.home .panel h2 img {
   width: 34px;
   height: 34px;
   object-fit: contain;
 }
 
-.twitch-panel h2 {
-  color: #9b35ff;
-}
+/* =========================================================
+   4. ABOUT PANEL
+========================================================= */
 
-/* =========================
-   ABOUT
-========================= */
-
-.about-home-image {
+.about-image {
   width: 100%;
   height: 250px;
   display: block;
@@ -184,7 +174,7 @@
   line-height: 1.55;
 }
 
-.about-panel a {
+.about-link {
   display: inline-flex;
   margin-top: 18px;
   padding: 10px 28px;
@@ -196,9 +186,9 @@
   text-transform: uppercase;
 }
 
-/* =========================
-   SCHEDULE
-========================= */
+/* =========================================================
+   5. SCHEDULE PANEL
+========================================================= */
 
 .schedule-list {
   display: grid;
@@ -221,13 +211,13 @@
   text-transform: uppercase;
 }
 
-.timezone {
+.schedule-timezone {
   margin-top: 24px;
   padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.13);
 }
 
-.timezone small {
+.schedule-timezone small {
   color: var(--green);
   font-family: 'Bebas Neue', sans-serif;
   font-size: 17px;
@@ -235,13 +225,13 @@
   text-transform: uppercase;
 }
 
-.timezone strong {
+.schedule-timezone strong {
   display: block;
   color: var(--green);
   font-size: 30px;
 }
 
-.timezone p {
+.schedule-timezone p {
   max-width: 220px;
   margin-top: 12px;
   color: #bdbdbd;
@@ -249,231 +239,343 @@
   line-height: 1.45;
 }
 
-/* =========================
-   TWITCH
-========================= */
+/* =========================================================
+   6. TWITCH PANEL
+========================================================= */
+
+.twitch-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.twitch-panel h2 {
+  color: #9b35ff !important;
+}
 
 .twitch-preview {
   position: relative;
-  min-height: 270px;
+  height: 330px;
   border: 1px solid rgba(155, 53, 255, 0.45);
   border-radius: 8px;
-  background:
-    linear-gradient(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.12)),
-    url('../assets/home/setup.png') center / cover;
+  overflow: hidden;
+  background: #000;
   box-shadow: 0 0 18px rgba(155, 53, 255, 0.12);
 }
 
-.live-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 6px 10px;
-  border-radius: 4px;
-  background: #e41d1d;
-  color: #fff;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 16px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.stream-meta-card {
-  display: grid;
-  grid-template-columns: 58px 1fr auto;
-  gap: 14px;
-  align-items: center;
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.stream-meta-card img {
-  width: 58px;
-  height: 58px;
-  object-fit: contain;
-}
-
-.stream-meta-card strong {
-  color: #fff;
-  font-size: 15px;
-}
-
-.stream-meta-card span {
+.twitch-preview iframe {
+  width: 100%;
+  height: 330px;
   display: block;
-  margin-top: 4px;
-  color: var(--green);
-  font-size: 13px;
+  border: 0;
+  background: #000;
 }
 
-.stream-meta-card a {
-  padding: 10px 14px;
-  border-radius: 6px;
-  background: #6c2bd9;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-/* =========================
-   YOUTUBE
-========================= */
-
-.panel-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 18px;
-}
-
-.panel-head h2 {
-  margin-bottom: 0;
-}
-
-.panel-head a {
-  color: var(--green);
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.video-list {
-  display: grid;
-  gap: 16px;
-}
-
-.video-row {
-  display: grid;
-  grid-template-columns: 150px 1fr;
-  gap: 16px;
-  align-items: center;
-}
-
-.video-thumb {
-  height: 86px;
-  display: grid;
-  place-items: end start;
-  padding: 10px;
-  border-radius: 8px;
-  background:
-    linear-gradient(135deg, rgba(18, 201, 112, 0.16), rgba(232, 48, 42, 0.22)),
-    url('../assets/home/setup.png') center / cover;
-  color: #4ffcff;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  text-shadow: 0 3px 8px #000;
-}
-
-.video-row strong {
-  color: #fff;
-  font-size: 18px;
-  line-height: 1.25;
-}
-
-.video-row span {
-  display: block;
-  margin-top: 8px;
-  color: #bdbdbd;
-  font-size: 13px;
-}
-
-/* =========================
-   LOWER SECTIONS
-========================= */
-
-.home-lower-grid {
+.twitch-meta-card {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  margin-top: 18px;
-}
-
-.features h2,
-.socials h2 {
   justify-content: center;
-  color: var(--green);
-}
-
-.feature-grid,
-.social-grid {
-  display: flex;
+  align-items: center;
   gap: 14px;
-
-  width: 100%;
-
-  overflow-x: auto;
-  overflow-y: hidden;
-
-  padding-bottom: 8px;
-
-  scrollbar-width: thin;
-  scrollbar-color: var(--green) transparent;
-}
-
-.feature-grid::-webkit-scrollbar,
-.social-grid::-webkit-scrollbar {
-  height: 8px;
-}
-
-.feature-grid::-webkit-scrollbar-thumb,
-.social-grid::-webkit-scrollbar-thumb {
-  background: rgba(18, 201, 112, 0.6);
-  border-radius: 999px;
-}
-
-.feature-card,
-.social {
-  flex: 1 1 0;
-  min-width: 150px;
-  min-height: 1px;
-  padding: 18px 14px;
-  border: 1px solid rgba(255,255,255,.13);
-  border-radius: 25px;
-  background: rgba(0,0,0,.22);
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   text-align: center;
 }
 
-.feature-card {
-  flex-basis: 190px;
-}
-
-.feature-card img,
-.social img {
-  width: 58px;
-  height: 58px;
-  object-fit: contain;
-  margin-bottom: 12px;
-}
-
-.feature-card strong,
-.social strong {
-  display: block;
+.twitch-meta-card strong {
   color: #fff;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.twitch-meta-card span {
+  display: block;
+  max-width: 340px;
+  color: var(--green);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.twitch-meta-card a {
+  padding: 11px 22px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #9146ff, #6c2bd9);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.twitch-meta-card a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 18px rgba(145, 70, 255, 0.4);
+}
+
+/* =========================================================
+   7. YOUTUBE PANEL
+========================================================= */
+.youtube-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.youtube-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.youtube-panel-head h2 {
+  margin: 0;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+}
+
+.youtube-panel-head a {
+  margin-top: -25px;
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+/* YouTubeFeed component classes */
+.youtube-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding-top: 0px;
+}
+
+.youtube-card {
+  display: block;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 215px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(8, 12, 10, 0.95),
+      rgba(2, 3, 3, 0.98)
+    );
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.youtube-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(18, 201, 112, 0.55);
+  box-shadow: 0 0 18px rgba(18, 201, 112, 0.12);
+}
+
+.youtube-thumb {
+  position: relative;
+  height: 120px;
+  background:
+    linear-gradient(135deg, rgba(18, 201, 112, 0.16), rgba(232, 48, 42, 0.22)),
+    url('../assets/home/setup.png') center / cover;
+}
+
+.youtube-thumb span {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.78);
+  color: var(--green);
+  font-family: 'Bebas Neue', sans-serif;
   font-size: 15px;
+  letter-spacing: 1px;
   text-transform: uppercase;
 }
 
-.feature-card p,
-.social small {
-  display: block;
-  margin-top: 8px;
-  color: #c8c8c8;
-  font-size: 13px;
-  line-height: 1.45;
+.youtube-card-body {
+  padding: 12px;
 }
 
-/* =========================
-   MERCH PREVIEW
-========================= */
+.youtube-card-body strong {
+  display: -webkit-box;
+  overflow: hidden;
+  min-height: 54px;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
 
-.merch-preview-home {
+.youtube-card-body small {
+  display: block;
+  margin-top: 10px;
+  color: #8a8a8a;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* =========================================================
+   8. SOCIALS PANEL
+========================================================= */
+
+.socials-panel {
+  margin-top: 18px;
+  min-height: auto !important;
+  padding: 24px 24px !important;
+}
+
+.socials-panel h2 {
+  justify-content: center;
+  color: var(--green) !important;
+  margin-bottom: 14px !important;
+  line-height: 1;
+}
+
+.socials-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+
+.social-card {
+  min-width: 0;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at top, rgba(18, 201, 112, 0.08), transparent 55%),
+    rgba(0, 0, 0, 0.28);
+  text-align: center;
+  text-decoration: none;
+  overflow: hidden;
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease;
+}
+
+.social-card:hover {
+  transform: translateY(0);
+  border-color: rgba(18, 201, 112, 0.75);
+  background:
+    radial-gradient(circle at top, rgba(18, 201, 112, 0.16), transparent 58%),
+    rgba(0, 0, 0, 0.42);
+  box-shadow:
+    inset 0 0 0 1px rgba(18, 201, 112, 0.18),
+    0 0 24px rgba(18, 201, 112, 0.22);
+}
+
+.social-card img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  margin-bottom: 8px;
+  transition: transform 0.22s ease;
+}
+
+.social-card:hover img {
+  transform: scale(1.06);
+}
+
+.social-handle {
+  display: block;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* =========================================================
+   9. EXPECT PANEL
+========================================================= */
+
+.expect-panel {
+  margin-top: 18px;
+  min-height: auto !important;
+  padding: 30px 24px 20px !important;
+}
+
+.expect-panel h2 {
+  justify-content: center;
+  color: var(--green) !important;
+  margin-bottom: 16px !important;
+  line-height: 1;
+}
+
+.expect-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.expect-card {
+  min-width: 0;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at top, rgba(18, 201, 112, 0.08), transparent 55%),
+    rgba(0, 0, 0, 0.28);
+  text-align: center;
+  text-decoration: none;
+}
+
+.expect-card img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.expect-card strong {
+  display: block;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.expect-card p {
+  margin-top: 7px;
+  color: #c8c8c8;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* =========================================================
+   10. MERCH PREVIEW
+========================================================= */
+
+.merch-panel {
   margin-top: 18px;
 }
 
-.merch-home-card {
+.merch-card {
   padding: 40px 32px;
   border: 1px solid var(--line-soft);
   border-radius: 18px;
@@ -483,12 +585,20 @@
   text-align: center;
 }
 
-.merch-home-content {
+.merch-content {
   max-width: 720px;
   margin: 0 auto;
 }
 
-.merch-home-content h2 {
+.merch-eyebrow {
+  color: var(--green);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.merch-content h2 {
   margin-bottom: 16px;
   color: #fff;
   font-family: 'Russo One', sans-serif;
@@ -497,7 +607,7 @@
   text-transform: uppercase;
 }
 
-.merch-home-content p {
+.merch-content p {
   max-width: 620px;
   margin: 0 auto 26px;
   color: #d8d8d8;

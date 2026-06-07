@@ -149,8 +149,6 @@ h1 {
 }
 
 .panel,
-.feature-card,
-.social,
 .footer,
 .page-panel {
   background: linear-gradient(180deg, rgba(8, 11, 9, 0.96), rgba(4, 5, 4, 0.96));
@@ -159,13 +157,10 @@ h1 {
 }
 
 .panel {
-  min-height: 300px;
   padding: 18px;
 }
 
-.panel h2,
-.features h2,
-.socials h2 {
+.panel h2 {
   color: var(--green);
   font-family: 'Bebas Neue', sans-serif;
   font-size: 26px;

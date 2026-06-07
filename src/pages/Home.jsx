@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import YouTubeFeed from '../components/YouTubeFeed'
 
 import heroDragon from '../assets/home/dragon.png'
 import setupImage from '../assets/home/setup.png'
@@ -13,30 +14,17 @@ import tiktokIcon from '../assets/home/tiktok.png'
 import youtubeIcon from '../assets/home/youtube.png'
 import kIcon from '../assets/home/k.png'
 import instaIcon from '../assets/home/insta.png'
-// import twitterIcon from '../assets/home/twitter.png'
 
-const videos = [
-  {
-    image: null,
-    tag: 'Victory!',
-    title: 'Insane WIN in Warzone!',
-    meta: '2.4K views • 3 days ago',
-  },
-  {
-    image: null,
-    tag: 'Funny',
-    title: 'Funniest Moments with the Squad!',
-    meta: '1.8K views • 6 days ago',
-  },
-  {
-    image: null,
-    tag: 'Ranked',
-    title: 'Ranked Grind to Diamond',
-    meta: '2.1K views • 1 week ago',
-  },
-]
+const twitchUrl = 'https://www.twitch.tv/twotonetaj'
+const youtubeUrl = 'https://www.youtube.com/@twotonetaj'
+const tiktokUrl = 'https://www.tiktok.com/@twotonetaj'
+const kickUrl = 'https://kick.com/twotonetaj'
+const instagramUrl = 'https://www.instagram.com/twotonetaj'
 
-const schedule = [
+const twitchEmbedUrl =
+  'https://player.twitch.tv/?channel=twotonetaj&parent=localhost&muted=true'
+
+const streamSchedule = [
   ['Mon', '7:00 PM - 11:00 PM'],
   ['Tue', '7:00 PM - 11:00 PM'],
   ['Wed', 'Offline'],
@@ -46,70 +34,52 @@ const schedule = [
   ['Sun', '12:00 PM - 10:00 PM'],
 ]
 
-const features = [
+const socialLinks = [
+  [twitchIcon, 'Twitch', 'TwoToneTaj', twitchUrl],
+  [tiktokIcon, 'TikTok', 'TwoToneTaj', tiktokUrl],
+  [youtubeIcon, 'YouTube', 'TwoToneTaj', youtubeUrl],
+  [kIcon, 'Kick', 'TwoToneTaj', kickUrl],
+  [instaIcon, 'Instagram', 'TwoToneTaj', instagramUrl],
+]
+
+const expectCards = [
   [controllerIcon, 'Live Streams', 'Join me live on Twitch for gameplay, chaos, and good times.'],
   [playIcon, 'Videos', 'Watch highlights, funny moments, and full gameplay videos.'],
   [peopleIcon, 'Community', 'Join the TajSquad. Good vibes, great people, and memories.'],
   [trophyIcon, 'Competitive Play', 'Grinding ranks and taking on the best. Let’s go!'],
 ]
 
-const socials = [
-  [twitchIcon, 'Twitch', '/twotonetaj'],
-  [tiktokIcon, 'TikTok', '@twotonetaj'],
-  [youtubeIcon, 'YouTube', '/twotonetaj'],
-  [kIcon, 'Kick', '/twotonetaj'],
-  [instaIcon, 'Instagram', '/twotonetaj'],
-  // [twitterIcon, 'Twitter', '/twotonetaj'],
-]
-
 export default function Home() {
   return (
     <main className="home">
-      <section className="tt-hero">
-        <div className="tt-hero-copy">
-          <span className="eyebrow">Average gamer. Legendary vibes.</span>
+      {/* 1. HERO */}
+      <section className="hero-panel">
+        <div className="hero-copy">
+          <span className="hero-eyebrow">Average gamer. Legendary vibes.</span>
 
           <h1>TwoToneTaj</h1>
 
           <div className="hero-est">Est. 1989</div>
 
           <p>
-            Welcome to the lair! I’m TwoToneTaj — an average gamer with a passion
-            for epic games, good laughs, and an awesome community.
+            TwoToneTaj, an average gamer with a passion for games, a pure heart,
+            good laughs, and an awesome community.
           </p>
-
-          <div className="hero-actions">
-            <a
-              className="btn primary"
-              href="https://www.twitch.tv/twotonetaj"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Watch Live
-            </a>
-
-            <a
-              className="btn ghost"
-              href="https://www.youtube.com"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Latest Video
-            </a>
-          </div>
         </div>
 
-        <img className="hero-banner-dragon" src={heroDragon} alt="TwoToneTaj dragon" />
+        <img className="hero-dragon" src={heroDragon} alt="TwoToneTaj dragon" />
       </section>
 
+      {/* 2. MAIN GRID */}
       <section className="home-grid">
+        {/* 2.1 ABOUT */}
         <article className="panel about-panel">
           <h2>
             <img src={peopleIcon} alt="" />
             About Me
           </h2>
 
-          <img className="about-home-image" src={setupImage} alt="TwoToneTaj gaming setup" />
+          <img className="about-image" src={setupImage} alt="TwoToneTaj gaming setup" />
 
           <p>
             I’ve been gaming since 1989 and I’m here for the fun, the challenge,
@@ -117,9 +87,12 @@ export default function Home() {
             unforgettable moments with the TajSquad.
           </p>
 
-          <Link to="/about">Learn More</Link>
+          <Link className="about-link" to="/about">
+            Learn More
+          </Link>
         </article>
 
+        {/* 2.2 SCHEDULE */}
         <article className="panel schedule-panel">
           <h2>
             <img src={playIcon} alt="" />
@@ -127,7 +100,7 @@ export default function Home() {
           </h2>
 
           <div className="schedule-list">
-            {schedule.map(([day, time]) => (
+            {streamSchedule.map(([day, time]) => (
               <p key={day}>
                 <strong>{day}</strong>
                 <span>{time}</span>
@@ -135,13 +108,14 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="timezone">
+          <div className="schedule-timezone">
             <small>Times shown in</small>
             <strong>GMT</strong>
             <p>Schedule is subject to change. Follow on social media for updates!</p>
           </div>
         </article>
 
+        {/* 2.3 TWITCH */}
         <article className="panel twitch-panel">
           <h2>
             <img src={twitchIcon} alt="" />
@@ -149,88 +123,91 @@ export default function Home() {
           </h2>
 
           <div className="twitch-preview">
-            <div className="live-badge">● Live</div>
+            <iframe
+              src={twitchEmbedUrl}
+              title="TwoToneTaj Twitch live stream"
+              allowFullScreen
+            />
           </div>
 
-          <div className="stream-meta-card">
-            <img src={heroDragon} alt="" />
+          <div className="twitch-meta-card">
+            <strong>Live Gameplay & Community Streams</strong>
+            <span>
+              Join the stream, chat with TajSquad, and catch the latest gaming content.
+            </span>
 
-            <div>
-              <strong>Live Gameplay & Good Vibes!</strong>
-              <span>Playing Warzone</span>
-            </div>
-
-            <a href="https://www.twitch.tv/twotonetaj" target="_blank" rel="noreferrer">
+            <a href={twitchUrl} target="_blank" rel="noreferrer">
               Follow
             </a>
           </div>
         </article>
 
+        {/* 2.4 YOUTUBE */}
         <article className="panel youtube-panel">
-          <div className="panel-head">
+          <div className="youtube-panel-head">
             <h2>
               <img src={youtubeIcon} alt="" />
               Latest YouTube Videos
             </h2>
 
-            <a href="https://www.youtube.com" target="_blank" rel="noreferrer">
+            <a href={youtubeUrl} target="_blank" rel="noreferrer">
               View all videos →
             </a>
           </div>
 
-          <div className="video-list">
-            {videos.map((video) => (
-              <div className="video-row" key={video.title}>
-                <div className="video-thumb">{video.tag}</div>
-
-                <div>
-                  <strong>{video.title}</strong>
-                  <span>{video.meta}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          <YouTubeFeed />
         </article>
       </section>
 
-      <section className="home-lower-grid">
-        <section className="socials panel">
-          <h2>Stay Connected</h2>
+      {/* 3. SOCIALS */}
+      <section className="socials-panel panel">
+        <h2>Stay Connected</h2>
 
-          <div className="social-grid">
-            {socials.map(([icon, title, text]) => (
-              <article className="social" key={title}>
-                <img src={icon} alt="" />
-                <strong>{title}</strong>
-                <small>{text}</small>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="features panel">
-          <h2>What to Expect</h2>
-
-          <div className="feature-grid">
-            {features.map(([icon, title, text]) => (
-              <article className="feature-card" key={title}>
-                <img src={icon} alt="" />
-                <strong>{title}</strong>
-                <p>{text}</p>
-              </article>
-            ))}
-          </div>
-        </section>
+        <div className="socials-grid">
+          {socialLinks.map(([icon, title, handle, url]) => (
+            <a
+              className="social-card"
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              key={title}
+              aria-label={`Open TwoToneTaj ${title}`}
+            >
+              <img src={icon} alt="" />
+              <strong className="social-handle">{handle}</strong>
+            </a>
+          ))}
+        </div>
       </section>
 
-      <section className="merch-preview-home">
-        <div className="merch-home-card">
-          <div className="merch-home-content">
-            <span className="eyebrow">Coming Soon</span>
-            <h2>Official TwoToneTaj Merch</h2>
-            <p>Hoodies, creator apparel, and exclusive TajSquad merchandise are in development.</p>
+      {/* 4. WHAT TO EXPECT */}
+      <section className="expect-panel panel">
+        <h2>What to Expect</h2>
 
-            <div className="merch-home-actions">
+        <div className="expect-grid">
+          {expectCards.map(([icon, title, text]) => (
+            <article className="expect-card" key={title}>
+              <img src={icon} alt="" />
+              <strong>{title}</strong>
+              <p>{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* 5. MERCH PREVIEW */}
+      <section className="merch-panel">
+        <div className="merch-card">
+          <div className="merch-content">
+            <span className="merch-eyebrow">Coming Soon</span>
+
+            <h2>Official TwoToneTaj Merch</h2>
+
+            <p>
+              Hoodies, creator apparel, and exclusive TajSquad merchandise are in development.
+            </p>
+
+            <div className="merch-actions">
               <Link to="/merch" className="btn primary">
                 View Merch
               </Link>
