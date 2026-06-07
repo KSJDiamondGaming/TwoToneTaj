@@ -62,7 +62,7 @@ export const merchProducts = [
     id: 'ttt-dragon-cap',
     name: 'TwoToneTaj Dragon Cap',
     category: 'Apparel',
-    type: 'Cap',
+    type: 'Hat',
     tags: ['Coming Soon'],
     priceGBP: 16.99,
     image: '/assets/merch/apparel/dragon-cap.png',
