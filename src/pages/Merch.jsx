@@ -12,6 +12,10 @@ import '../styles/merch.css'
 
 const DISCORD_URL = 'https://discord.gg/WcbtQPuByd'
 
+function getProductTags(product) {
+  return Array.isArray(product.tags) ? product.tags : []
+}
+
 function getProductMedia(product) {
   return merchMedia[product.imageId] || null
 }
@@ -27,10 +31,13 @@ function formatPrice(priceGBP, currencyKey) {
 }
 
 function productMatchesCategory(product, category) {
+  const tags = getProductTags(product)
+
   if (category === 'All') return true
   if (category === 'Featured') return product.featured
-  if (category === 'Limited Drops') return product.limited || product.tags.includes('Limited Drops')
-  if (category === 'Coming Soon') return product.status === 'Coming Soon' || product.tags.includes('Coming Soon')
+  if (category === 'Limited Drops') return product.limited || tags.includes('Limited Drops')
+  if (category === 'Coming Soon') return product.status === 'Coming Soon' || tags.includes('Coming Soon')
+
   return product.category === category
 }
 
@@ -97,6 +104,12 @@ export default function Merch() {
     const filtered = merchProducts.filter((product) => productMatchesCategory(product, activeCategory))
     return sortProducts(filtered, sortBy)
   }, [activeCategory, sortBy])
+
+  const resetFilters = () => {
+    setActiveCategory('All')
+    setSelectedCurrency('GBP')
+    setSortBy('featured')
+  }
 
   return (
     <main className="merch-page">
@@ -183,41 +196,61 @@ export default function Merch() {
                 ))}
               </select>
             </label>
+
+            <button className="merch-reset-btn" type="button" onClick={resetFilters}>
+              Reset
+            </button>
           </div>
         </div>
 
-        <p className="merch-price-note">Estimated price. Final checkout price may vary.</p>
-
-        <div className="merch-product-grid">
-          {visibleProducts.map((product) => (
-            <article className="merch-product-card" key={product.id}>
-              <div className="merch-badges">
-                {product.featured && <span>Featured</span>}
-                {product.limited && <span>Limited</span>}
-                {product.status === 'Coming Soon' && <span>Coming Soon</span>}
-              </div>
-
-              <MerchImage product={product} />
-
-              <div className="merch-product-copy">
-                <h2>{product.name}</h2>
-                <span>{product.type}</span>
-                <p>{product.description}</p>
-                <strong>{formatPrice(product.priceGBP, selectedCurrency)}</strong>
-              </div>
-
-              {product.checkoutUrl ? (
-                <a className="merch-buy-btn" href={product.checkoutUrl} target="_blank" rel="noreferrer">
-                  Buy Now
-                </a>
-              ) : (
-                <button className="merch-buy-btn disabled" type="button" disabled>
-                  Coming Soon
-                </button>
-              )}
-            </article>
-          ))}
+        <div className="merch-results-row">
+          <p className="merch-price-note">Estimated price. Final checkout price may vary.</p>
+          <p className="merch-result-count">
+            Showing {visibleProducts.length} of {merchProducts.length} products
+          </p>
         </div>
+
+        {visibleProducts.length > 0 ? (
+          <div className="merch-product-grid">
+            {visibleProducts.map((product) => (
+              <article className="merch-product-card" key={product.id}>
+                <div className="merch-badges">
+                  {product.featured && <span>Featured</span>}
+                  {product.limited && <span>Limited</span>}
+                  {product.status === 'Coming Soon' && <span>Coming Soon</span>}
+                </div>
+
+                <MerchImage product={product} />
+
+                <div className="merch-product-copy">
+                  <h2>{product.name}</h2>
+                  <span>{product.type}</span>
+                  <p>{product.description}</p>
+                  <strong>{formatPrice(product.priceGBP, selectedCurrency)}</strong>
+                </div>
+
+                {product.checkoutUrl ? (
+                  <a className="merch-buy-btn" href={product.checkoutUrl} target="_blank" rel="noreferrer">
+                    Buy Now
+                  </a>
+                ) : (
+                  <button className="merch-buy-btn disabled" type="button" disabled>
+                    Coming Soon
+                  </button>
+                )}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="merch-empty-state">
+            <img src={logo} alt="" aria-hidden="true" loading="lazy" />
+            <strong>No merch found</strong>
+            <p>Try another category, currency, or sort option.</p>
+            <button type="button" onClick={resetFilters}>
+              Reset Filters
+            </button>
+          </div>
+        )}
       </section>
 
       <section className="merch-trust-strip" aria-label="Merch information">
