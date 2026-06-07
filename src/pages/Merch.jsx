@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 
+import logo from '../assets/logo.png'
 import {
   merchCategories,
   merchCurrencies,
@@ -37,10 +38,14 @@ function sortProducts(products, sortBy) {
   })
 }
 
+function handleImageFallback(event) {
+  event.currentTarget.src = logo
+}
+
 function MerchImage({ product }) {
   return (
     <div className="merch-product-image-wrap">
-      <img src={product.image} alt={product.name} loading="lazy" />
+      <img src={product.image} alt={product.name} loading="lazy" onError={handleImageFallback} />
     </div>
   )
 }
@@ -85,10 +90,8 @@ export default function Merch() {
           </div>
         </div>
 
-        <div className="merch-hero-brand" aria-label="TwoToneTaj merch preview">
-          <div className="merch-dragon-orb">
-            <span>TT</span>
-          </div>
+        <div className="merch-hero-brand" aria-label="TwoToneTaj official merch branding">
+          <img src={logo} alt="TwoToneTaj official logo" />
           <strong>Average Gamer</strong>
           <small>Est. 1989</small>
         </div>
@@ -103,7 +106,7 @@ export default function Merch() {
         <div className="merch-carousel-track">
           {[...carouselItems, ...carouselItems].map((product, index) => (
             <article className="merch-carousel-item" key={`${product.id}-${index}`}>
-              <img src={product.image} alt="" loading="lazy" />
+              <img src={product.image} alt="" loading="lazy" onError={handleImageFallback} />
               <span>{product.type}</span>
             </article>
           ))}
