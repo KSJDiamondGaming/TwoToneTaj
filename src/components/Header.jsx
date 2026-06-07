@@ -6,6 +6,7 @@ export default function Header() {
     <header className="site-header">
       <Link className="brand" to="/">
         <img src={logo} alt="TwoToneTaj logo" />
+
         <span>
           <strong>TwoToneTaj</strong>
           <small>Average Gamer • Est. 1989</small>
@@ -17,10 +18,16 @@ export default function Header() {
         <NavLink to="/about">About</NavLink>
         <NavLink to="/content">Content</NavLink>
         <NavLink to="/community">Community</NavLink>
+        <NavLink to="/merch">Merch</NavLink>
         <NavLink to="/contact">Contact</NavLink>
       </nav>
 
-      <a className="join-btn" href="https://discord.gg/WcbtQPuByd">
+      <a
+        className="join-btn"
+        href="https://discord.gg/WcbtQPuByd"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         Join TajSquad
       </a>
     </header>

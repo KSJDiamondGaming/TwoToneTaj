@@ -1,0 +1,82 @@
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1200px) {
+  .home-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tt-hero .hero-banner-dragon {
+    right: -260px !important;
+    width: 760px !important;
+  }
+}
+
+@media (max-width: 850px) {
+  .tt-hero {
+    min-height: auto;
+    display: grid;
+    padding: 36px 24px 0;
+  }
+
+  .tt-hero-copy {
+    width: 100%;
+  }
+
+  .tt-hero .hero-banner-dragon {
+    position: relative !important;
+    right: -45px !important;
+    bottom: auto !important;
+    width: min(440px, 96%) !important;
+    margin: 18px auto -20px;
+  }
+
+  .home-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "about"
+      "schedule"
+      "twitch"
+      "youtube";
+  }
+}
+
+@media (max-width: 560px) {
+  .tt-hero {
+    margin-top: 28px;
+    padding: 30px 22px 0;
+  }
+
+  .tt-hero-copy h1 {
+    font-size: clamp(44px, 14vw, 62px);
+    letter-spacing: -1px;
+  }
+
+  .hero-est::before,
+  .hero-est::after {
+    width: 38px;
+  }
+
+  .hero-actions,
+  .merch-home-actions {
+    flex-direction: column;
+  }
+
+  .hero-actions .btn,
+  .merch-home-actions .btn {
+    width: 100%;
+  }
+
+  .panel {
+    padding: 18px;
+  }
+
+  .video-row {
+    grid-template-columns: 1fr;
+  }
+
+  .video-thumb {
+    height: 150px;
+  }
+}

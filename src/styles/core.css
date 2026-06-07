@@ -1,0 +1,274 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Russo+One&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+:root {
+  --site-width: 1180px;
+}
+
+body {
+  background: #000;
+  color: var(--text);
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.site-header,
+.home,
+.footer,
+.about-page {
+  width: min(var(--site-width), calc(100% - 40px));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* HEADER */
+
+.site-header {
+  height: 86px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.brand img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+}
+
+.brand strong,
+h1 {
+  font-family: 'Russo One', sans-serif;
+}
+
+.brand small {
+  display: block;
+  color: var(--green);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.site-header nav {
+  display: flex;
+  gap: 36px;
+}
+
+.site-header nav a {
+  color: #d7d7d7;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.site-header nav a.active {
+  color: var(--green);
+  position: relative;
+}
+
+.site-header nav a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -28px;
+  height: 2px;
+  background: var(--green);
+  box-shadow: 0 0 16px rgba(18, 201, 112, 0.8);
+}
+
+.join-btn {
+  padding: 14px 26px;
+  border: 1px solid var(--green);
+  border-radius: 9px;
+  color: var(--green);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  letter-spacing: 1px;
+  font-weight: 400;
+  text-transform: uppercase;
+  box-shadow: 0 0 24px rgba(18, 201, 112, 0.22);
+}
+
+/* SHARED UI */
+
+.eyebrow {
+  color: var(--green);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 11px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 24px;
+  border-radius: 7px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #18d879, #07964e);
+  color: #001a0c;
+}
+
+.btn.ghost {
+  border: 1px solid var(--line-soft);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.panel,
+.feature-card,
+.social,
+.footer,
+.page-panel {
+  background: linear-gradient(180deg, rgba(8, 11, 9, 0.96), rgba(4, 5, 4, 0.96));
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+}
+
+.panel {
+  min-height: 300px;
+  padding: 18px;
+}
+
+.panel h2,
+.features h2,
+.socials h2 {
+  color: var(--green);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+/* FOOTER */
+
+.footer {
+  min-height: 90px;
+  margin-top: 14px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #999;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-brand img {
+  width: 58px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.footer-brand strong {
+  display: block;
+  color: white;
+  font-family: 'Russo One', sans-serif;
+  text-transform: uppercase;
+}
+
+.footer-brand small {
+  color: var(--green);
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 28px;
+}
+
+.footer a:hover {
+  color: var(--green);
+}
+
+/* SIMPLE PAGES */
+
+.page {
+  width: min(var(--site-width), calc(100% - 40px));
+  margin: 80px auto;
+  padding-top: 40px;
+}
+
+.page h1 {
+  font-size: 56px;
+  margin-bottom: 24px;
+}
+
+.page-panel {
+  padding: 28px;
+  color: #ddd;
+  line-height: 1.7;
+}
+
+.page-panel h2 {
+  color: var(--green);
+  margin-bottom: 14px;
+}
+
+/* RESPONSIVE SHARED */
+
+@media (max-width: 850px) {
+  .site-header nav {
+    display: none;
+  }
+
+  .footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 560px) {
+  .site-header,
+  .home,
+  .footer,
+  .about-page,
+  .page {
+    width: min(100% - 28px, var(--site-width));
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+}
