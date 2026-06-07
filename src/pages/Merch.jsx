@@ -10,6 +10,14 @@ import {
 import '../styles/merch.css'
 
 const DISCORD_URL = 'https://discord.gg/WcbtQPuByd'
+const merchImageModules = import.meta.glob('../assets/merch/**/*.{png,jpg,jpeg,webp,svg}', {
+  eager: true,
+  import: 'default',
+})
+
+function resolveMerchImage(imagePath) {
+  return merchImageModules[imagePath] || logo
+}
 
 function formatPrice(priceGBP, currencyKey) {
   const currency = merchCurrencies[currencyKey] || merchCurrencies.GBP
@@ -45,7 +53,7 @@ function handleImageFallback(event) {
 function MerchImage({ product }) {
   return (
     <div className="merch-product-image-wrap">
-      <img src={product.image} alt={product.name} loading="lazy" onError={handleImageFallback} />
+      <img src={resolveMerchImage(product.image)} alt={product.name} loading="lazy" onError={handleImageFallback} />
     </div>
   )
 }
@@ -106,7 +114,7 @@ export default function Merch() {
         <div className="merch-carousel-track">
           {[...carouselItems, ...carouselItems].map((product, index) => (
             <article className="merch-carousel-item" key={`${product.id}-${index}`}>
-              <img src={product.image} alt="" loading="lazy" onError={handleImageFallback} />
+              <img src={resolveMerchImage(product.image)} alt="" loading="lazy" onError={handleImageFallback} />
               <span>{product.type}</span>
             </article>
           ))}
