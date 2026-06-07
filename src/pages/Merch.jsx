@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 
 import logo from '../assets/logo.png'
+import { merchMedia } from '../data/merchMedia'
 import {
   merchCategories,
   merchCurrencies,
@@ -10,13 +11,14 @@ import {
 import '../styles/merch.css'
 
 const DISCORD_URL = 'https://discord.gg/WcbtQPuByd'
-const merchImageModules = import.meta.glob('../assets/merch/**/*.{png,jpg,jpeg,webp,svg}', {
-  eager: true,
-  import: 'default',
-})
 
-function resolveMerchImage(imagePath) {
-  return merchImageModules[imagePath] || logo
+function getProductMedia(product) {
+  return merchMedia[product.imageId] || null
+}
+
+function getMediaUrl(product) {
+  const media = getProductMedia(product)
+  return media?.url?.trim() || ''
 }
 
 function formatPrice(priceGBP, currencyKey) {
@@ -46,14 +48,37 @@ function sortProducts(products, sortBy) {
   })
 }
 
-function handleImageFallback(event) {
-  event.currentTarget.src = logo
+function MerchProductVisual({ product, compact = false }) {
+  const [hasImageError, setHasImageError] = useState(false)
+  const media = getProductMedia(product)
+  const imageUrl = getMediaUrl(product)
+  const shouldShowImage = imageUrl && !hasImageError
+  const placeholderLabel = product.fallbackImage || 'default'
+
+  if (shouldShowImage) {
+    return (
+      <img
+        src={imageUrl}
+        alt={media?.alt || product.name}
+        loading="lazy"
+        onError={() => setHasImageError(true)}
+      />
+    )
+  }
+
+  return (
+    <div className={`merch-image-placeholder ${compact ? 'compact' : ''}`} data-placeholder={placeholderLabel}>
+      <img src={logo} alt="" aria-hidden="true" loading="lazy" />
+      <span>{product.type}</span>
+      <small>Image coming soon</small>
+    </div>
+  )
 }
 
 function MerchImage({ product }) {
   return (
     <div className="merch-product-image-wrap">
-      <img src={resolveMerchImage(product.image)} alt={product.name} loading="lazy" onError={handleImageFallback} />
+      <MerchProductVisual product={product} />
     </div>
   )
 }
@@ -114,7 +139,7 @@ export default function Merch() {
         <div className="merch-carousel-track">
           {[...carouselItems, ...carouselItems].map((product, index) => (
             <article className="merch-carousel-item" key={`${product.id}-${index}`}>
-              <img src={resolveMerchImage(product.image)} alt="" loading="lazy" onError={handleImageFallback} />
+              <MerchProductVisual product={product} compact />
               <span>{product.type}</span>
             </article>
           ))}
@@ -175,8 +200,9 @@ export default function Merch() {
               <MerchImage product={product} />
 
               <div className="merch-product-copy">
-                <span>{product.type}</span>
                 <h2>{product.name}</h2>
+                <span>{product.type}</span>
+                <p>{product.description}</p>
                 <strong>{formatPrice(product.priceGBP, selectedCurrency)}</strong>
               </div>
 
