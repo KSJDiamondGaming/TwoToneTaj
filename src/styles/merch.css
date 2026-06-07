@@ -182,7 +182,9 @@
 
 .merch-tabs button,
 .merch-controls select,
-.merch-buy-btn {
+.merch-buy-btn,
+.merch-reset-btn,
+.merch-empty-state button {
   border: 1px solid rgba(18, 201, 112, 0.26);
   background: rgba(8, 11, 9, 0.92);
   color: #fff;
@@ -209,6 +211,7 @@
 .merch-controls {
   display: flex;
   flex-wrap: wrap;
+  align-items: end;
   justify-content: center;
   gap: 12px;
 }
@@ -230,11 +233,40 @@
   outline: none;
 }
 
-.merch-price-note {
+.merch-reset-btn {
+  min-height: 44px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.merch-reset-btn:hover,
+.merch-empty-state button:hover {
+  border-color: var(--green);
+  background: var(--green);
+  color: #031006;
+}
+
+.merch-results-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 18px;
   margin-bottom: 16px;
   color: #9c9c9c;
   font-size: 13px;
   text-align: center;
+}
+
+.merch-price-note,
+.merch-result-count {
+  margin: 0;
+}
+
+.merch-result-count {
+  color: var(--green);
+  font-weight: 900;
 }
 
 .merch-product-grid {
@@ -420,6 +452,51 @@
   cursor: not-allowed;
 }
 
+.merch-empty-state {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  min-height: 260px;
+  padding: 34px;
+  border: 1px dashed rgba(18, 201, 112, 0.28);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at center, rgba(18, 201, 112, 0.12), transparent 46%),
+    linear-gradient(180deg, rgba(8, 11, 9, 0.94), rgba(3, 4, 3, 0.96));
+  color: #d7d7d7;
+  text-align: center;
+}
+
+.merch-empty-state img {
+  width: 82px;
+  max-height: 82px;
+  object-fit: contain;
+  opacity: 0.45;
+}
+
+.merch-empty-state strong {
+  color: var(--green);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.merch-empty-state p {
+  max-width: 360px;
+  color: #b9b9b9;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.merch-empty-state button {
+  margin-top: 4px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
 .merch-trust-strip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -491,7 +568,8 @@
   .merch-actions .btn,
   .merch-tabs button,
   .merch-controls label,
-  .merch-controls select {
+  .merch-controls select,
+  .merch-reset-btn {
     width: 100%;
   }
 
