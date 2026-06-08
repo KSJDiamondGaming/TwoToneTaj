@@ -42,7 +42,7 @@ export default function Contact() {
         </article>
 
         <article className="contact-panel">
-          <div className="contact-icon" aria-hidden="true">✉️</div>
+          <div className="contact-icon" aria-hidden="true">📧</div>
           <h2>Business Enquiries</h2>
           <p>
             For partnerships, collaborations, media enquiries, or anything business related,

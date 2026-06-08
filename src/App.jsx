@@ -1,9 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
+// Layout
 import Header from './components/Header'
 import Footer from './components/Footer'
 import FloatingNotice from './components/FloatingNotice'
 
+// Pages
 import Home from './pages/Home'
 import About from './pages/About'
 import Content from './pages/Content'
@@ -13,31 +15,42 @@ import Contact from './pages/Contact'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
 
+// Global Styles
 import './styles/theme.css'
 import './styles/core.css'
-import './styles/home.css'
-import './styles/about.css'
-import './styles/merch.css'
 import './styles/responsive.css'
 
-export default function App() {
+// Page Styles
+import './styles/home.css'
+import './styles/about.css'
+import './styles/content.css'
+import './styles/community.css'
+import './styles/merch.css'
+import './styles/contact.css'
+import './styles/legal.css'
+
+function App() {
   return (
     <BrowserRouter>
       <Header />
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/content" element={<Content />} />
-        <Route path="/community" element={<Community />} />
-        <Route path="/merch" element={<Merch />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms" element={<Terms />} />
-      </Routes>
+      <main>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/content" element={<Content />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/merch" element={<Merch />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+        </Routes>
+      </main>
 
       <Footer />
       <FloatingNotice />
     </BrowserRouter>
   )
 }
+
+export default App
