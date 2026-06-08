@@ -1,11 +1,14 @@
 import { useRef, useState } from 'react'
 import '../styles/MiniPlayer.css'
 
+// Drop MP3/audio files into: public/assets/tracks/
+// Then add them below using src: '/assets/tracks/your-file-name.mp3'
 const tracks = [
-  {
-    title: 'Audio coming soon',
-    src: '',
-  },
+  // Example:
+  // {
+  //   title: 'Taj Radio 01',
+  //   src: '/assets/tracks/taj-radio-01.mp3',
+  // },
 ]
 
 export default function AudioControls() {
@@ -19,6 +22,7 @@ export default function AudioControls() {
 
   const currentTrack = tracks[trackIndex]
   const hasTrack = Boolean(currentTrack?.src)
+  const trackTitle = hasTrack ? currentTrack.title : 'No track loaded'
 
   const togglePlay = async () => {
     if (!hasTrack || !audioRef.current) return
@@ -119,30 +123,36 @@ export default function AudioControls() {
             </button>
           </div>
 
-          <input
-            className="mini-player__progress"
-            type="range"
-            min="0"
-            max={duration || 0}
-            step="0.01"
-            value={progress}
-            onChange={handleProgressChange}
-            disabled={!hasTrack}
-            aria-label="Track progress"
-          />
+          <label className="mini-player__slider">
+            <span>Track</span>
+            <input
+              className="mini-player__progress"
+              type="range"
+              min="0"
+              max={duration || 0}
+              step="0.01"
+              value={progress}
+              onChange={handleProgressChange}
+              disabled={!hasTrack}
+              aria-label="Track progress"
+            />
+          </label>
 
-          <input
-            className="mini-player__volume"
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={volume}
-            onChange={handleVolumeChange}
-            aria-label="Volume"
-          />
+          <label className="mini-player__slider">
+            <span>Volume</span>
+            <input
+              className="mini-player__volume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={handleVolumeChange}
+              aria-label="Volume"
+            />
+          </label>
 
-          <p className="mini-player__track">{currentTrack.title}</p>
+          <p className="mini-player__track">{trackTitle}</p>
         </>
       )}
     </aside>
