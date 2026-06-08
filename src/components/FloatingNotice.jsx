@@ -1,19 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 const STORAGE_KEY_PREFIX = 'twotonetaj_notice_dismissed'
 const SUPPORT_EMAIL = 'support@ksjdigital.co.uk'
 
 export default function FloatingNotice() {
-  const location = useLocation()
-  const [isVisible, setIsVisible] = useState(false)
+  const { pathname } = useLocation()
+  const storageKey = `${STORAGE_KEY_PREFIX}_${pathname}`
 
-  const storageKey = `${STORAGE_KEY_PREFIX}_${location.pathname}`
-
-  useEffect(() => {
-    const hasDismissed = sessionStorage.getItem(storageKey)
-    setIsVisible(!hasDismissed)
-  }, [storageKey])
+  const [isVisible, setIsVisible] = useState(() => {
+    return sessionStorage.getItem(storageKey) !== 'true'
+  })
 
   const dismissNotice = () => {
     sessionStorage.setItem(storageKey, 'true')
