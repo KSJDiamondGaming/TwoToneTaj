@@ -20,6 +20,7 @@ import Terms from './pages/Terms'
 import './styles/theme.css'
 import './styles/core.css'
 import './styles/responsive.css'
+import './styles/MiniPlayerLabels.css'
 
 // Page Styles
 import './styles/home.css'
