@@ -11,6 +11,7 @@ const tracks = [
 export default function AudioControls() {
   const audioRef = useRef(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isMinimized, setIsMinimized] = useState(false)
   const [volume, setVolume] = useState(0.35)
   const [trackIndex, setTrackIndex] = useState(0)
   const [progress, setProgress] = useState(0)
@@ -79,7 +80,7 @@ export default function AudioControls() {
   }
 
   return (
-    <aside className="mini-player" aria-label="TwoToneTaj mini audio player">
+    <aside className={`mini-player${isMinimized ? ' mini-player--minimized' : ''}`} aria-label="TwoToneTaj mini audio player">
       {hasTrack && (
         <audio
           ref={audioRef}
@@ -91,45 +92,59 @@ export default function AudioControls() {
         />
       )}
 
-      <div className="mini-player__controls">
-        <button type="button" onClick={() => changeTrack('previous')} disabled={tracks.length <= 1} aria-label="Previous track">
-          ⏮
-        </button>
-        <button type="button" className="mini-player__play" onClick={togglePlay} disabled={!hasTrack} aria-label={isPlaying ? 'Pause audio' : 'Play audio'}>
-          {isPlaying ? '⏸' : '▶'}
-        </button>
-        <button type="button" onClick={stopAudio} disabled={!hasTrack} aria-label="Stop audio">
-          ⏹
-        </button>
-        <button type="button" onClick={() => changeTrack('next')} disabled={tracks.length <= 1} aria-label="Next track">
-          ⏭
-        </button>
-      </div>
+      <button
+        type="button"
+        className="mini-player__minimize"
+        onClick={() => setIsMinimized((current) => !current)}
+        aria-label={isMinimized ? 'Expand audio player' : 'Minimize audio player'}
+        title={isMinimized ? 'Expand player' : 'Minimize player'}
+      >
+        {isMinimized ? '♫' : '−'}
+      </button>
 
-      <input
-        className="mini-player__progress"
-        type="range"
-        min="0"
-        max={duration || 0}
-        step="0.01"
-        value={progress}
-        onChange={handleProgressChange}
-        disabled={!hasTrack}
-        aria-label="Track progress"
-      />
+      {!isMinimized && (
+        <>
+          <div className="mini-player__controls">
+            <button type="button" onClick={() => changeTrack('previous')} disabled={tracks.length <= 1} aria-label="Previous track">
+              ⏮
+            </button>
+            <button type="button" className="mini-player__play" onClick={togglePlay} disabled={!hasTrack} aria-label={isPlaying ? 'Pause audio' : 'Play audio'}>
+              {isPlaying ? '⏸' : '▶'}
+            </button>
+            <button type="button" onClick={stopAudio} disabled={!hasTrack} aria-label="Stop audio">
+              ⏹
+            </button>
+            <button type="button" onClick={() => changeTrack('next')} disabled={tracks.length <= 1} aria-label="Next track">
+              ⏭
+            </button>
+          </div>
 
-      <input
-        className="mini-player__volume"
-        type="range"
-        min="0"
-        max="1"
-        step="0.01"
-        value={volume}
-        onChange={handleVolumeChange}
-        aria-label="Volume"
-      />
+          <input
+            className="mini-player__progress"
+            type="range"
+            min="0"
+            max={duration || 0}
+            step="0.01"
+            value={progress}
+            onChange={handleProgressChange}
+            disabled={!hasTrack}
+            aria-label="Track progress"
+          />
 
-      <p className="mini-player__track">{currentTrack.title}</p>
+          <input
+            className="mini-player__volume"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={volume}
+            onChange={handleVolumeChange}
+            aria-label="Volume"
+          />
+
+          <p className="mini-player__track">{currentTrack.title}</p>
+        </>
+      )}
     </aside>
   )
 }
