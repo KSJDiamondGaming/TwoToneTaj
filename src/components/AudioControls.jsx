@@ -1,19 +1,20 @@
 import { useRef, useState } from 'react'
 import '../styles/MiniPlayer.css'
 
+const tracks = [
+  {
+    title: 'Audio coming soon',
+    src: '',
+  },
+]
+
 export default function AudioControls() {
   const audioRef = useRef(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [volume, setVolume] = useState(0.35)
   const [trackIndex, setTrackIndex] = useState(0)
-
-  const tracks = [
-    {
-      title: 'TwoToneTaj Radio',
-      artist: 'Coming Soon',
-      src: '',
-    },
-  ]
+  const [progress, setProgress] = useState(0)
+  const [duration, setDuration] = useState(0)
 
   const currentTrack = tracks[trackIndex]
   const hasTrack = Boolean(currentTrack?.src)
@@ -42,6 +43,7 @@ export default function AudioControls() {
 
     audioRef.current.pause()
     audioRef.current.currentTime = 0
+    setProgress(0)
     setIsPlaying(false)
   }
 
@@ -54,7 +56,17 @@ export default function AudioControls() {
         : (trackIndex - 1 + tracks.length) % tracks.length
 
     setTrackIndex(nextIndex)
+    setProgress(0)
     setIsPlaying(false)
+  }
+
+  const handleProgressChange = (event) => {
+    const nextTime = Number(event.target.value)
+    setProgress(nextTime)
+
+    if (audioRef.current) {
+      audioRef.current.currentTime = nextTime
+    }
   }
 
   const handleVolumeChange = (event) => {
@@ -68,16 +80,16 @@ export default function AudioControls() {
 
   return (
     <aside className="mini-player" aria-label="TwoToneTaj mini audio player">
-      {hasTrack && <audio ref={audioRef} src={currentTrack.src} preload="metadata" />}
-
-      <div className="mini-player__status">
-        <span className="mini-player__pulse" aria-hidden="true" />
-        <div>
-          <p className="mini-player__eyebrow">Taj Radio</p>
-          <h2>{currentTrack.title}</h2>
-          <p>{currentTrack.artist}</p>
-        </div>
-      </div>
+      {hasTrack && (
+        <audio
+          ref={audioRef}
+          src={currentTrack.src}
+          preload="metadata"
+          onLoadedMetadata={(event) => setDuration(event.currentTarget.duration || 0)}
+          onTimeUpdate={(event) => setProgress(event.currentTarget.currentTime || 0)}
+          onEnded={() => setIsPlaying(false)}
+        />
+      )}
 
       <div className="mini-player__controls">
         <button type="button" onClick={() => changeTrack('previous')} disabled={tracks.length <= 1} aria-label="Previous track">
@@ -94,12 +106,30 @@ export default function AudioControls() {
         </button>
       </div>
 
-      <label className="mini-player__volume">
-        <span>Vol</span>
-        <input type="range" min="0" max="1" step="0.01" value={volume} onChange={handleVolumeChange} disabled={!hasTrack} />
-      </label>
+      <input
+        className="mini-player__progress"
+        type="range"
+        min="0"
+        max={duration || 0}
+        step="0.01"
+        value={progress}
+        onChange={handleProgressChange}
+        disabled={!hasTrack}
+        aria-label="Track progress"
+      />
 
-      {!hasTrack && <p className="mini-player__note">Audio coming soon</p>}
+      <input
+        className="mini-player__volume"
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        value={volume}
+        onChange={handleVolumeChange}
+        aria-label="Volume"
+      />
+
+      <p className="mini-player__track">{currentTrack.title}</p>
     </aside>
   )
 }
