@@ -28,7 +28,8 @@ a {
 .site-header,
 .home,
 .footer,
-.about-page {
+.about-page,
+.page {
   width: min(var(--site-width), calc(100% - 40px));
   margin-left: auto;
   margin-right: auto;
@@ -65,11 +66,11 @@ h1 {
 
 .brand small {
   display: block;
+  margin-top: 4px;
   color: var(--green);
   font-family: 'Bebas Neue', sans-serif;
   font-size: 14px;
   letter-spacing: 1px;
-  margin-top: 4px;
 }
 
 .site-header nav {
@@ -81,14 +82,14 @@ h1 {
   color: #d7d7d7;
   font-family: 'Bebas Neue', sans-serif;
   font-size: 15px;
-  letter-spacing: 1px;
   font-weight: 400;
+  letter-spacing: 1px;
   text-transform: uppercase;
 }
 
 .site-header nav a.active {
-  color: var(--green);
   position: relative;
+  color: var(--green);
 }
 
 .site-header nav a.active::after {
@@ -109,8 +110,8 @@ h1 {
   color: var(--green);
   font-family: 'Bebas Neue', sans-serif;
   font-size: 16px;
-  letter-spacing: 1px;
   font-weight: 400;
+  letter-spacing: 1px;
   text-transform: uppercase;
   box-shadow: 0 0 24px rgba(18, 201, 112, 0.22);
 }
@@ -118,12 +119,12 @@ h1 {
 /* SHARED UI */
 
 .eyebrow {
+  margin-bottom: 11px;
   color: var(--green);
   font-family: 'Bebas Neue', sans-serif;
   font-size: 20px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  margin-bottom: 11px;
 }
 
 .btn {
@@ -149,11 +150,10 @@ h1 {
 }
 
 .panel,
-.footer,
 .page-panel {
-  background: linear-gradient(180deg, rgba(8, 11, 9, 0.96), rgba(4, 5, 4, 0.96));
   border: 1px solid var(--line-soft);
   border-radius: 14px;
+  background: linear-gradient(180deg, rgba(8, 11, 9, 0.96), rgba(4, 5, 4, 0.96));
 }
 
 .panel {
@@ -161,54 +161,83 @@ h1 {
 }
 
 .panel h2 {
+  margin-bottom: 16px;
   color: var(--green);
   font-family: 'Bebas Neue', sans-serif;
   font-size: 26px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  margin-bottom: 16px;
 }
 
 /* FOOTER */
 
 .footer {
-  min-height: 90px;
-  margin-top: 14px;
-  padding: 18px;
+  min-height: 86px;
+  margin: 18px auto 28px;
+  padding: 20px 24px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 24px;
+
   color: #999;
+
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 90% 25%, rgba(18, 201, 112, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(8, 11, 9, 0.96), rgba(4, 5, 4, 0.96));
 }
 
 .footer-brand {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.footer-brand img {
-  width: 58px;
-  height: 48px;
-  object-fit: contain;
-}
-
-.footer-brand strong {
+.footer-brand strong,
+.footer-brand h3 {
   display: block;
-  color: white;
+  color: #fff;
   font-family: 'Russo One', sans-serif;
+  font-size: 15px;
   text-transform: uppercase;
 }
 
-.footer-brand small {
+.footer-brand small,
+.footer-brand p {
+  display: block;
+  margin-top: 3px;
   color: var(--green);
   font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
   letter-spacing: 1px;
 }
 
-.footer-links {
+.footer-copy,
+.footer-bottom p {
+  color: #9b9b9b;
+  font-size: 13px;
+  text-align: center;
+}
+
+.footer-links,
+.footer-bottom div {
   display: flex;
-  gap: 28px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 24px;
+}
+
+.footer-links a,
+.footer-bottom a {
+  color: #d7d7d7;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .footer a:hover {
@@ -218,14 +247,14 @@ h1 {
 /* SIMPLE PAGES */
 
 .page {
-  width: min(var(--site-width), calc(100% - 40px));
-  margin: 80px auto;
+  margin-top: 80px;
+  margin-bottom: 80px;
   padding-top: 40px;
 }
 
 .page h1 {
-  font-size: 56px;
   margin-bottom: 24px;
+  font-size: 56px;
 }
 
 .page-panel {
@@ -235,8 +264,8 @@ h1 {
 }
 
 .page-panel h2 {
-  color: var(--green);
   margin-bottom: 14px;
+  color: var(--green);
 }
 
 /* RESPONSIVE SHARED */
@@ -251,6 +280,18 @@ h1 {
     flex-direction: column;
     gap: 16px;
   }
+
+  .footer-copy,
+  .footer-bottom p {
+    text-align: left;
+  }
+
+  .footer-links,
+  .footer-bottom div {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
 }
 
 @media (max-width: 560px) {
@@ -262,8 +303,24 @@ h1 {
     width: min(100% - 28px, var(--site-width));
   }
 
-  .footer-links {
-    flex-wrap: wrap;
-    gap: 16px;
+  .site-header {
+    height: auto;
+    min-height: 78px;
+    padding: 12px 0;
+    gap: 12px;
+  }
+
+  .brand img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .join-btn {
+    padding: 11px 18px;
+    font-size: 14px;
+  }
+
+  .footer {
+    padding: 18px;
   }
 }

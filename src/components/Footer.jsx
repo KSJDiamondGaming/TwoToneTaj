@@ -2,30 +2,27 @@ import { Link } from 'react-router-dom'
 
 export default function Footer() {
   return (
-    <footer className="site-footer">
-      <div className="footer-inner">
-        <div className="footer-brand">
-          <h3>TwoToneTaj</h3>
-          <p>Average Gamer • Est. 1989</p>
+    <footer className="footer">
+      <div className="footer-brand">
+        <div>
+          <strong>TwoToneTaj</strong>
+          <small>Average Gamer • Est. 1989</small>
         </div>
+      </div>
 
-        <div className="footer-links">
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-          <Link to="/content">Content</Link>
-          <Link to="/community">Community</Link>
-          <Link to="/merch">Merch</Link>
-          <Link to="/contact">Contact</Link>
-        </div>
+      <p className="footer-copy">
+        © {new Date().getFullYear()} TwoToneTaj. All rights reserved.
+      </p>
 
-        <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} TwoToneTaj. All rights reserved.</p>
-
-          <div>
-            <Link to="/privacy">Privacy</Link>
-            <Link to="/terms">Terms</Link>
-          </div>
-        </div>
+      <div className="footer-links">
+        <Link to="/">Home</Link>
+        <Link to="/about">About</Link>
+        <Link to="/content">Content</Link>
+        <Link to="/community">Community</Link>
+        <Link to="/merch">Merch</Link>
+        <Link to="/contact">Contact</Link>
+        <Link to="/privacy">Privacy</Link>
+        <Link to="/terms">Terms</Link>
       </div>
     </footer>
   )
