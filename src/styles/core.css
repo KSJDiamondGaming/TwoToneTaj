@@ -170,7 +170,6 @@ h1 {
 }
 
 /* FLOATING NOTICE */
-
 .floating-notice {
   position: fixed;
   right: 24px;
@@ -243,8 +242,8 @@ h1 {
   top: 12px;
   right: 12px;
 
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
 
   display: grid;
   place-items: center;
@@ -255,7 +254,7 @@ h1 {
   color: #cfcfcf;
   cursor: pointer;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 11px;
+  font-size: 14px;
   letter-spacing: 0.8px;
   text-transform: uppercase;
 }
@@ -266,7 +265,6 @@ h1 {
 }
 
 /* FOOTER */
-
 .footer {
   min-height: 86px;
   margin: 18px auto 28px;
