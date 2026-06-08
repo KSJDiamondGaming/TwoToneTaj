@@ -17,6 +17,34 @@
   color: #ffffff;
 }
 
+.mini-player--minimized {
+  width: auto;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(2, 10, 7, 0.88);
+}
+
+.mini-player__minimize {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 24px;
+  min-height: 24px !important;
+  padding: 0;
+  border-radius: 999px !important;
+  font-size: 0.9rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.mini-player--minimized .mini-player__minimize {
+  position: static;
+  width: 42px;
+  min-height: 42px !important;
+  font-size: 1rem;
+  color: #00ff88;
+}
+
 .mini-player__controls {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -79,9 +107,14 @@
 @media (max-width: 720px) {
   .mini-player {
     left: 12px;
-    right: 12px;
+    right: auto;
     bottom: 12px;
-    width: auto;
+    width: min(245px, calc(100vw - 24px));
     padding: 10px;
+  }
+
+  .mini-player--minimized {
+    width: auto;
+    padding: 0;
   }
 }
