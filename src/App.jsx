@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 import Header from './components/Header'
 import Footer from './components/Footer'
+import FloatingNotice from './components/FloatingNotice'
 
 import Home from './pages/Home'
 import About from './pages/About'
@@ -20,21 +21,23 @@ import './styles/merch.css'
 import './styles/responsive.css'
 
 export default function App() {
-return ( <BrowserRouter> <Header />
+  return (
+    <BrowserRouter>
+      <Header />
 
-  <Routes>
-    <Route path="/" element={<Home />} />
-    <Route path="/about" element={<About />} />
-    <Route path="/content" element={<Content />} />
-    <Route path="/community" element={<Community />} />
-    <Route path="/merch" element={<Merch />} />
-    <Route path="/contact" element={<Contact />} />
-    <Route path="/privacy" element={<Privacy />} />
-    <Route path="/terms" element={<Terms />} />
-  </Routes>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/content" element={<Content />} />
+        <Route path="/community" element={<Community />} />
+        <Route path="/merch" element={<Merch />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+      </Routes>
 
-  <Footer />
-</BrowserRouter>
-
+      <Footer />
+      <FloatingNotice />
+    </BrowserRouter>
   )
 }
