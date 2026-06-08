@@ -13,13 +13,14 @@ export default function Header() {
         </span>
       </Link>
 
-      <nav>
-        <NavLink to="/">Home</NavLink>
+      <nav aria-label="Main navigation">
+        <NavLink to="/" end>
+          Home
+        </NavLink>
         <NavLink to="/about">About</NavLink>
         <NavLink to="/content">Content</NavLink>
         <NavLink to="/community">Community</NavLink>
         <NavLink to="/merch">Merch</NavLink>
-        <NavLink to="/contact">Contact</NavLink>
       </nav>
 
       <a
