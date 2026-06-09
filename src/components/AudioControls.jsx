@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import '../styles/player.css'
 
 // Drop MP3/audio files into: public/assets/tracks/
@@ -11,10 +11,18 @@ const tracks = [
   // },
 ]
 
+const DEFAULT_POSITION = { x: 555, y: 82 }
+const STORAGE_KEY = 'twotonetaj-mini-player-position'
+
 export default function AudioControls() {
   const audioRef = useRef(null)
+  const playerRef = useRef(null)
+  const dragRef = useRef({ isDragging: false, startX: 0, startY: 0, originX: 0, originY: 0 })
+
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const [position, setPosition] = useState(DEFAULT_POSITION)
   const [volume, setVolume] = useState(0.35)
   const [trackIndex, setTrackIndex] = useState(0)
   const [progress, setProgress] = useState(0)
@@ -23,6 +31,83 @@ export default function AudioControls() {
   const currentTrack = tracks[trackIndex]
   const hasTrack = Boolean(currentTrack?.src)
   const trackTitle = hasTrack ? currentTrack.title : 'No track loaded'
+
+  useEffect(() => {
+    const savedPosition = window.localStorage.getItem(STORAGE_KEY)
+    if (!savedPosition) return
+
+    try {
+      const parsedPosition = JSON.parse(savedPosition)
+      if (Number.isFinite(parsedPosition.x) && Number.isFinite(parsedPosition.y)) {
+        setPosition(parsedPosition)
+      }
+    } catch (error) {
+      window.localStorage.removeItem(STORAGE_KEY)
+    }
+  }, [])
+
+  const clampPosition = (nextX, nextY) => {
+    const player = playerRef.current
+    const playerWidth = player?.offsetWidth || 245
+    const playerHeight = player?.offsetHeight || 120
+    const padding = 8
+
+    return {
+      x: Math.min(Math.max(padding, nextX), Math.max(padding, window.innerWidth - playerWidth - padding)),
+      y: Math.min(Math.max(padding, nextY), Math.max(padding, window.innerHeight - playerHeight - padding)),
+    }
+  }
+
+  const savePosition = (nextPosition) => {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextPosition))
+  }
+
+  const startDrag = (event) => {
+    if (event.target.closest('button, input, label')) return
+
+    event.preventDefault()
+    event.currentTarget.setPointerCapture(event.pointerId)
+
+    dragRef.current = {
+      isDragging: true,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: position.x,
+      originY: position.y,
+    }
+
+    setIsDragging(true)
+  }
+
+  const moveDrag = (event) => {
+    if (!dragRef.current.isDragging) return
+
+    const nextPosition = clampPosition(
+      dragRef.current.originX + event.clientX - dragRef.current.startX,
+      dragRef.current.originY + event.clientY - dragRef.current.startY,
+    )
+
+    setPosition(nextPosition)
+  }
+
+  const endDrag = (event) => {
+    if (!dragRef.current.isDragging) return
+
+    const finalPosition = clampPosition(position.x, position.y)
+    dragRef.current.isDragging = false
+    setPosition(finalPosition)
+    setIsDragging(false)
+    savePosition(finalPosition)
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+  }
+
+  const resetPosition = () => {
+    setPosition(DEFAULT_POSITION)
+    savePosition(DEFAULT_POSITION)
+  }
 
   const togglePlay = async () => {
     if (!hasTrack || !audioRef.current) return
@@ -84,7 +169,16 @@ export default function AudioControls() {
   }
 
   return (
-    <aside className={`mini-player${isMinimized ? ' mini-player--minimized' : ''}`} aria-label="TwoToneTaj mini audio player">
+    <aside
+      ref={playerRef}
+      className={`mini-player${isMinimized ? ' mini-player--minimized' : ''}${isDragging ? ' mini-player--dragging' : ''}`}
+      style={{ left: `${position.x}px`, top: `${position.y}px` }}
+      aria-label="TwoToneTaj mini audio player"
+      onPointerDown={startDrag}
+      onPointerMove={moveDrag}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+    >
       {hasTrack && (
         <audio
           ref={audioRef}
@@ -108,6 +202,8 @@ export default function AudioControls() {
 
       {!isMinimized && (
         <>
+          <div className="mini-player__drag-hint" onDoubleClick={resetPosition}>Drag player</div>
+
           <div className="mini-player__controls">
             <button type="button" onClick={() => changeTrack('previous')} disabled={tracks.length <= 1} aria-label="Previous track">
               ⏮

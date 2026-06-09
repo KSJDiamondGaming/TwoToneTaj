@@ -1,8 +1,6 @@
 .mini-player {
-  position: absolute;
-  top: 82px;
-  left: 555px;
-  z-index: 60;
+  position: fixed;
+  z-index: 80;
   width: min(245px, calc(100vw - 36px));
   padding: 10px;
   border: 1px solid rgba(0, 255, 136, 0.34);
@@ -11,6 +9,13 @@
   box-shadow: 0 16px 34px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(14px);
   color: #ffffff;
+  cursor: grab;
+  user-select: none;
+}
+
+.mini-player--dragging {
+  cursor: grabbing;
+  opacity: 0.96;
 }
 
 .mini-player--minimized {
@@ -18,6 +23,17 @@
   padding: 0;
   border-radius: 999px;
   background: rgba(2, 10, 7, 0.88);
+}
+
+.mini-player__drag-hint {
+  margin: 0 0 7px;
+  color: rgba(255, 255, 255, 0.46);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .mini-player__minimize {
@@ -116,9 +132,6 @@
 
 @media (max-width: 720px) {
   .mini-player {
-    top: 76px;
-    left: 18px;
-    right: auto;
     width: min(245px, calc(100vw - 36px));
     padding: 10px;
   }
