@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import '../styles/MiniPlayer.css'
+import '../styles/player.css'
 
 // Drop MP3/audio files into: public/assets/tracks/
 // Then add them below using src: '/assets/tracks/your-file-name.mp3'
