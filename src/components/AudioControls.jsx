@@ -43,6 +43,7 @@ export default function AudioControls() {
   const playerRef = useRef(null)
   const shouldAutoPlayNextRef = useRef(false)
   const hasTriedInitialAutoplayRef = useRef(false)
+  const waitingForInteractionRef = useRef(false)
   const dragRef = useRef({ isDragging: false, startX: 0, startY: 0, originX: 0, originY: 0 })
 
   const [isPlaying, setIsPlaying] = useState(false)
@@ -65,10 +66,12 @@ export default function AudioControls() {
     try {
       audioRef.current.volume = volume
       await audioRef.current.play()
+      waitingForInteractionRef.current = false
       setIsPlaying(true)
       setAutoplayBlocked(false)
       return true
     } catch (error) {
+      waitingForInteractionRef.current = true
       setIsPlaying(false)
       setAutoplayBlocked(true)
       return false
@@ -110,6 +113,23 @@ export default function AudioControls() {
       playCurrentTrack()
     }
   }, [trackIndex, hasTrack])
+
+  useEffect(() => {
+    if (!AUTO_PLAY || !hasTrack) return undefined
+
+    const startAfterInteraction = () => {
+      if (!waitingForInteractionRef.current || isPlaying) return
+      playCurrentTrack()
+    }
+
+    window.addEventListener('pointerdown', startAfterInteraction, { passive: true })
+    window.addEventListener('keydown', startAfterInteraction)
+
+    return () => {
+      window.removeEventListener('pointerdown', startAfterInteraction)
+      window.removeEventListener('keydown', startAfterInteraction)
+    }
+  }, [hasTrack, isPlaying, volume, trackIndex])
 
   const clampPosition = (nextX, nextY) => {
     const player = playerRef.current
@@ -178,6 +198,7 @@ export default function AudioControls() {
     if (!hasTrack || !audioRef.current) return
 
     if (isPlaying) {
+      waitingForInteractionRef.current = false
       audioRef.current.pause()
       setIsPlaying(false)
       return
@@ -189,6 +210,7 @@ export default function AudioControls() {
   const stopAudio = () => {
     if (!audioRef.current) return
 
+    waitingForInteractionRef.current = false
     audioRef.current.pause()
     audioRef.current.currentTime = 0
     setProgress(0)
@@ -203,6 +225,7 @@ export default function AudioControls() {
       : (trackIndex - 1 + tracks.length) % tracks.length
 
     shouldAutoPlayNextRef.current = shouldPlay
+    waitingForInteractionRef.current = shouldPlay
     setTrackIndex(nextIndex)
     setProgress(0)
     setDuration(0)
@@ -302,7 +325,7 @@ export default function AudioControls() {
             />
           </label>
 
-          <p className="mini-player__track">{autoplayBlocked ? 'Tap play to start audio' : trackTitle}</p>
+          <p className="mini-player__track">{autoplayBlocked ? 'Tap anywhere to start audio' : trackTitle}</p>
         </>
       )}
     </aside>
