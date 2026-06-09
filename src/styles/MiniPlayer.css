@@ -76,16 +76,29 @@
   color: #00ff88 !important;
 }
 
+.mini-player__slider {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.mini-player__slider span {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
 .mini-player__progress,
 .mini-player__volume {
   display: block;
   width: 100%;
-  margin: 8px 0 0;
+  margin: 0;
   accent-color: #00ff88;
-}
-
-.mini-player__progress {
-  margin-top: 9px;
 }
 
 .mini-player__track {
