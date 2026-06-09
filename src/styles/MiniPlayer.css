@@ -1,7 +1,7 @@
 .mini-player {
   position: absolute;
   top: 82px;
-  left: max(18px, calc((100vw - 980px) / 2));
+  left: 32px;
   z-index: 60;
   width: min(245px, calc(100vw - 36px));
   padding: 10px;
@@ -104,9 +104,9 @@
 @media (max-width: 720px) {
   .mini-player {
     top: 76px;
-    left: 12px;
+    left: 18px;
     right: auto;
-    width: min(245px, calc(100vw - 24px));
+    width: min(245px, calc(100vw - 36px));
     padding: 10px;
   }
 
