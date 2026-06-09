@@ -1,7 +1,7 @@
 .mini-player {
   position: absolute;
   top: 82px;
-  left: 32px;
+  left: 18px;
   z-index: 60;
   width: min(245px, calc(100vw - 36px));
   padding: 10px;
