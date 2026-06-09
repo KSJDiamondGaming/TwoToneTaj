@@ -1,15 +1,29 @@
 import { useEffect, useRef, useState } from 'react'
 import '../styles/player.css'
 
-// Drop MP3/audio files into: public/assets/tracks/
-// Then add them below using src: '/assets/tracks/your-file-name.mp3'
-const tracks = [
-  // Example:
-  // {
-  //   title: 'Taj Radio 01',
-  //   src: '/assets/tracks/taj-radio-01.mp3',
-  // },
-]
+const trackModules = import.meta.glob('../assets/tracks/*.{mp3,wav,ogg,m4a}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+})
+
+const formatTrackTitle = (path) => {
+  const fileName = path.split('/').pop() || 'Untitled Track'
+  const titleWithoutExtension = fileName.replace(/\.[^/.]+$/, '')
+
+  return titleWithoutExtension
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
+const tracks = Object.entries(trackModules)
+  .map(([path, src]) => ({
+    title: formatTrackTitle(path),
+    src,
+  }))
+  .sort((a, b) => a.title.localeCompare(b.title))
 
 const DEFAULT_POSITION = { x: 555, y: 82 }
 const STORAGE_KEY = 'twotonetaj-mini-player-position'
@@ -44,6 +58,10 @@ export default function AudioControls() {
     } catch (error) {
       window.localStorage.removeItem(STORAGE_KEY)
     }
+  }, [])
+
+  useEffect(() => {
+    setTrackIndex((currentIndex) => Math.min(currentIndex, Math.max(tracks.length - 1, 0)))
   }, [])
 
   const clampPosition = (nextX, nextY) => {
@@ -82,12 +100,12 @@ export default function AudioControls() {
   const moveDrag = (event) => {
     if (!dragRef.current.isDragging) return
 
-    const nextPosition = clampPosition(
-      dragRef.current.originX + event.clientX - dragRef.current.startX,
-      dragRef.current.originY + event.clientY - dragRef.current.startY,
+    setPosition(
+      clampPosition(
+        dragRef.current.originX + event.clientX - dragRef.current.startX,
+        dragRef.current.originY + event.clientY - dragRef.current.startY,
+      ),
     )
-
-    setPosition(nextPosition)
   }
 
   const endDrag = (event) => {
@@ -140,13 +158,13 @@ export default function AudioControls() {
   const changeTrack = (direction) => {
     if (tracks.length <= 1) return
 
-    const nextIndex =
-      direction === 'next'
-        ? (trackIndex + 1) % tracks.length
-        : (trackIndex - 1 + tracks.length) % tracks.length
+    const nextIndex = direction === 'next'
+      ? (trackIndex + 1) % tracks.length
+      : (trackIndex - 1 + tracks.length) % tracks.length
 
     setTrackIndex(nextIndex)
     setProgress(0)
+    setDuration(0)
     setIsPlaying(false)
   }
 
@@ -182,11 +200,12 @@ export default function AudioControls() {
       {hasTrack && (
         <audio
           ref={audioRef}
+          key={currentTrack.src}
           src={currentTrack.src}
           preload="metadata"
           onLoadedMetadata={(event) => setDuration(event.currentTarget.duration || 0)}
           onTimeUpdate={(event) => setProgress(event.currentTarget.currentTime || 0)}
-          onEnded={() => setIsPlaying(false)}
+          onEnded={() => changeTrack('next')}
         />
       )}
 
@@ -205,18 +224,12 @@ export default function AudioControls() {
           <div className="mini-player__drag-hint" onDoubleClick={resetPosition}>Drag player</div>
 
           <div className="mini-player__controls">
-            <button type="button" onClick={() => changeTrack('previous')} disabled={tracks.length <= 1} aria-label="Previous track">
-              ⏮
-            </button>
+            <button type="button" onClick={() => changeTrack('previous')} disabled={tracks.length <= 1} aria-label="Previous track">⏮</button>
             <button type="button" className="mini-player__play" onClick={togglePlay} disabled={!hasTrack} aria-label={isPlaying ? 'Pause audio' : 'Play audio'}>
               {isPlaying ? '⏸' : '▶'}
             </button>
-            <button type="button" onClick={stopAudio} disabled={!hasTrack} aria-label="Stop audio">
-              ⏹
-            </button>
-            <button type="button" onClick={() => changeTrack('next')} disabled={tracks.length <= 1} aria-label="Next track">
-              ⏭
-            </button>
+            <button type="button" onClick={stopAudio} disabled={!hasTrack} aria-label="Stop audio">⏹</button>
+            <button type="button" onClick={() => changeTrack('next')} disabled={tracks.length <= 1} aria-label="Next track">⏭</button>
           </div>
 
           <label className="mini-player__slider">
