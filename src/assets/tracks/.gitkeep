@@ -1,0 +1,8 @@
+Drop MP3, WAV, OGG, or M4A files for the mini player in this folder.
+
+Supported examples:
+- taj-radio-01.mp3
+- stream-theme.wav
+- intro.ogg
+
+The player auto-detects files in src/assets/tracks during npm run build.
