@@ -126,22 +126,6 @@ export default function Merch() {
             Official creator apparel, accessories and digital drops are being prepared for the TajSquad.
             The shop is in development, with GBP pricing previews ready below.
           </p>
-
-          <div className="merch-status-row" aria-label="Merch development status">
-            <span>Store in development</span>
-            <span>GBP pricing previews</span>
-            <span>Checkout coming later</span>
-          </div>
-
-          <div className="merch-actions">
-            <a className="btn primary" href="#merch-drops">
-              Preview Drops
-            </a>
-
-            <a className="btn ghost" href={DISCORD_URL} target="_blank" rel="noopener noreferrer">
-              Join TajSquad
-            </a>
-          </div>
         </div>
 
         <div className="merch-hero-brand" aria-label="TwoToneTaj official merch branding">
@@ -286,26 +270,34 @@ export default function Merch() {
       <section className="merch-trust-strip" aria-label="Merch information">
         <article>
           <span>✓</span>
-          <strong>Official Merch</strong>
-          <p>100% official TwoToneTaj and TajSquad gear.</p>
+          <div>
+            <strong>Official Merch</strong>
+            <p>100% official TwoToneTaj and TajSquad gear.</p>
+          </div>
         </article>
 
         <article>
           <span>🔒</span>
-          <strong>Secure Checkout</strong>
-          <p>Safe, encrypted and trusted checkout when the store goes live.</p>
+          <div>
+            <strong>Secure Checkout</strong>
+            <p>Safe and trusted checkout when the store goes live.</p>
+          </div>
         </article>
 
         <article>
           <span>🚚</span>
-          <strong>Delivery Info</strong>
-          <p>Delivery options and returns information will be added before launch.</p>
+          <div>
+            <strong>Delivery Info</strong>
+            <p>Delivery and returns information will be added before launch.</p>
+          </div>
         </article>
 
         <article>
           <span>★</span>
-          <strong>Limited Drops</strong>
-          <p>Exclusive creator designs with limited availability.</p>
+          <div>
+            <strong>Limited Drops</strong>
+            <p>Exclusive creator designs with limited availability.</p>
+          </div>
         </article>
       </section>
 
