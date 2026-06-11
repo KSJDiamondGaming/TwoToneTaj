@@ -22,7 +22,7 @@ const kickUrl = 'https://kick.com/twotonetaj'
 const instagramUrl = 'https://www.instagram.com/twotonetaj'
 
 const twitchEmbedUrl =
-  'https://player.twitch.tv/?channel=twotonetaj&parent=localhost&muted=true'
+  'https://player.twitch.tv/?channel=twotonetaj&parent=twotonetaj.ksjdigital.co.uk&parent=localhost&muted=true'
 
 const streamSchedule = [
   ['Mon', '7:00 PM - 11:00 PM'],
@@ -131,13 +131,14 @@ export default function Home() {
           </div>
 
           <div className="twitch-meta-card">
+            <small className="live-state">Live Soon / Offline</small>
             <strong>Live Gameplay & Community Streams</strong>
             <span>
-              Join the stream, chat with TajSquad, and catch the latest gaming content.
+              Follow on Twitch for live alerts, community streams, and the latest gaming sessions.
             </span>
 
             <a href={twitchUrl} target="_blank" rel="noreferrer">
-              Follow
+              Follow on Twitch
             </a>
           </div>
         </article>
