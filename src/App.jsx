@@ -28,6 +28,7 @@ import './styles/content.css'
 import './styles/community.css'
 import './styles/merch.css'
 import './styles/merch-polish.css'
+import './styles/merch-final-fixes.css'
 import './styles/contact.css'
 import './styles/legal.css'
 
