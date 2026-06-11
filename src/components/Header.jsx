@@ -4,7 +4,7 @@ import logo from '../assets/logo.png'
 export default function Header() {
   return (
     <header className="site-header">
-      <Link className="brand" to="/">
+      <Link className="brand" to="/" aria-label="TwoToneTaj home">
         <img src={logo} alt="TwoToneTaj logo" />
 
         <span>
@@ -21,6 +21,7 @@ export default function Header() {
         <NavLink to="/content">Content</NavLink>
         <NavLink to="/community">Community</NavLink>
         <NavLink to="/merch">Merch</NavLink>
+        <NavLink to="/contact">Contact</NavLink>
       </nav>
 
       <a
