@@ -8,35 +8,35 @@ const PROXY_URL = `https://api.allorigins.win/raw?url=${encodeURIComponent(RSS_U
 const fallbackVideos = [
   {
     id: 'fallback-1',
-    title: 'Latest YouTube Video',
+    title: 'Latest TwoToneTaj Upload',
     url: CHANNEL_URL,
     thumbnail: null,
-    meta: 'Latest upload',
-    label: 'Video',
+    meta: 'Feed loading / coming soon',
+    label: 'Latest',
   },
   {
     id: 'fallback-2',
-    title: 'More From The Channel',
+    title: 'Gameplay Highlights',
     url: CHANNEL_URL,
     thumbnail: null,
-    meta: 'Latest upload',
+    meta: 'YouTube channel',
     label: 'Video',
   },
   {
     id: 'fallback-3',
-    title: 'Featured Gameplay',
+    title: 'Funny Moments & Shorts',
     url: CHANNEL_URL,
     thumbnail: null,
-    meta: 'Latest upload',
-    label: 'Video',
+    meta: 'YouTube channel',
+    label: 'Shorts',
   },
   {
     id: 'fallback-4',
-    title: 'TajSquad Moments',
+    title: 'TajSquad Community Clips',
     url: CHANNEL_URL,
     thumbnail: null,
-    meta: 'Latest upload',
-    label: 'Video',
+    meta: 'YouTube channel',
+    label: 'Clips',
   },
 ]
 
@@ -78,7 +78,6 @@ export default function YouTubeFeed() {
 
         const parser = new DOMParser()
         const xml = parser.parseFromString(xmlText, 'application/xml')
-
         const entries = Array.from(xml.querySelectorAll('entry')).slice(0, 4)
 
         if (!entries.length) return
