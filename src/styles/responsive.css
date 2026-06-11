@@ -1,35 +1,65 @@
 /* =========================
-   RESPONSIVE
+   RESPONSIVE POLISH
 ========================= */
 
-@media (max-width: 1200px) {
-  .home-grid {
-    grid-template-columns: 1fr 1fr;
+@media (max-width: 1100px) {
+  .site-header nav {
+    gap: 22px;
   }
 
-  .tt-hero .hero-banner-dragon {
-    right: -260px !important;
-    width: 760px !important;
+  .join-btn {
+    padding: 12px 20px;
+  }
+
+  .hero-dragon {
+    right: -170px !important;
+    bottom: -110px !important;
+    width: 670px !important;
+    height: 620px !important;
   }
 }
 
-@media (max-width: 850px) {
-  .tt-hero {
-    min-height: auto;
-    display: grid;
-    padding: 36px 24px 0;
+@media (max-width: 950px) {
+  .site-header {
+    min-height: 92px;
+    height: auto;
+    padding: 12px 0;
+    flex-wrap: wrap;
+    gap: 12px 18px;
   }
 
-  .tt-hero-copy {
+  .site-header nav {
+    order: 3;
     width: 100%;
+    justify-content: center;
+    gap: 18px;
+    padding-top: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 
-  .tt-hero .hero-banner-dragon {
-    position: relative !important;
-    right: -45px !important;
-    bottom: auto !important;
-    width: min(440px, 96%) !important;
-    margin: 18px auto -20px;
+  .site-header nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .site-header nav a.active::after {
+    bottom: -10px;
+  }
+
+  .hero-panel {
+    min-height: 390px;
+    padding: 46px 34px;
+  }
+
+  .hero-copy {
+    width: min(540px, 58%);
+  }
+
+  .hero-dragon {
+    right: -220px !important;
+    bottom: -105px !important;
+    width: 660px !important;
+    height: 610px !important;
   }
 
   .home-grid {
@@ -40,17 +70,81 @@
       "twitch"
       "youtube";
   }
-}
 
-@media (max-width: 560px) {
-  .tt-hero {
-    margin-top: 28px;
-    padding: 30px 22px 0;
+  .socials-grid,
+  .expect-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .tt-hero-copy h1 {
-    font-size: clamp(44px, 14vw, 62px);
-    letter-spacing: -1px;
+  .youtube-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .site-header {
+    align-items: center;
+  }
+
+  .brand {
+    min-width: 0;
+  }
+
+  .brand img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .brand strong {
+    font-size: 15px;
+  }
+
+  .brand small {
+    font-size: 12px;
+  }
+
+  .site-header nav {
+    justify-content: flex-start;
+    gap: 16px;
+    padding: 8px 0 2px;
+  }
+
+  .site-header nav a {
+    flex: 0 0 auto;
+  }
+
+  .join-btn {
+    padding: 10px 15px;
+    font-size: 14px;
+  }
+
+  .hero-panel {
+    display: grid;
+    min-height: auto;
+    padding: 34px 24px 0;
+  }
+
+  .hero-panel::after {
+    background: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.7) 38%, transparent 72%);
+  }
+
+  .hero-copy {
+    width: 100%;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(44px, 15vw, 68px);
+    letter-spacing: -0.5px;
+  }
+
+  .hero-copy p {
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  .hero-est {
+    margin: 12px 0 18px;
+    font-size: 26px;
   }
 
   .hero-est::before,
@@ -58,25 +152,110 @@
     width: 38px;
   }
 
-  .hero-actions,
-  .merch-home-actions {
+  .hero-dragon {
+    position: relative !important;
+    right: -18px !important;
+    bottom: auto !important;
+    justify-self: center;
+    width: min(460px, 110%) !important;
+    height: auto !important;
+    margin: 10px auto -46px;
+  }
+
+  .home .panel,
+  .socials-panel,
+  .expect-panel {
+    padding: 20px !important;
+  }
+
+  .twitch-preview,
+  .twitch-preview iframe {
+    height: 245px;
+  }
+
+  .youtube-panel-head {
+    align-items: flex-start;
     flex-direction: column;
   }
 
-  .hero-actions .btn,
-  .merch-home-actions .btn {
-    width: 100%;
+  .youtube-panel-head a {
+    margin-top: -10px;
   }
 
-  .panel {
-    padding: 18px;
-  }
-
-  .video-row {
+  .youtube-grid,
+  .socials-grid,
+  .expect-grid {
     grid-template-columns: 1fr;
   }
 
-  .video-thumb {
-    height: 150px;
+  .social-card,
+  .expect-card {
+    min-height: auto;
+  }
+
+  .merch-card {
+    padding: 30px 22px;
+  }
+
+  .merch-actions,
+  .merch-home-actions,
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .merch-actions .btn,
+  .merch-home-actions .btn,
+  .hero-actions .btn {
+    width: 100%;
+  }
+
+  .floating-notice {
+    right: 14px;
+    bottom: 14px;
+    width: calc(100vw - 28px);
+    padding: 16px 48px 16px 16px;
+    grid-template-columns: 36px 1fr;
+  }
+}
+
+@media (max-width: 430px) {
+  .site-header,
+  .home,
+  .footer,
+  .about-page,
+  .page,
+  .merch-page {
+    width: min(100% - 24px, var(--site-width));
+  }
+
+  .brand span {
+    max-width: 150px;
+  }
+
+  .join-btn {
+    margin-left: auto;
+  }
+
+  .hero-panel {
+    margin-top: 24px;
+    padding: 30px 20px 0;
+  }
+
+  .hero-eyebrow {
+    font-size: 20px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(40px, 14vw, 58px);
+  }
+
+  .about-image,
+  .youtube-thumb {
+    height: 170px;
+  }
+
+  .twitch-preview,
+  .twitch-preview iframe {
+    height: 210px;
   }
 }
