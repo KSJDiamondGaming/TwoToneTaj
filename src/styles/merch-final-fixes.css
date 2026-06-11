@@ -1,0 +1,155 @@
+/* Final Merch QA fixes */
+
+/* Remove the hero chip/button section area completely */
+.merch-status-row,
+.merch-hero .merch-actions {
+  display: none !important;
+}
+
+/* Give the hero copy a cleaner ending now the buttons/chips are removed */
+.merch-hero-copy {
+  align-self: center;
+}
+
+.merch-subtitle {
+  margin-bottom: 0;
+}
+
+/* Tidy product preview heading and filter area */
+.merch-section-head {
+  align-items: flex-end !important;
+  margin-bottom: 14px !important;
+}
+
+.merch-section-head h2 {
+  max-width: 620px;
+  letter-spacing: -1px;
+}
+
+.merch-section-head p {
+  max-width: 470px !important;
+  margin-bottom: 4px;
+  text-align: right;
+}
+
+.merch-toolbar {
+  padding: 18px 20px !important;
+  border-color: rgba(18, 201, 112, 0.14) !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(18, 201, 112, 0.08), transparent 38%),
+    rgba(4, 8, 6, 0.52) !important;
+}
+
+.merch-tabs {
+  gap: 12px !important;
+}
+
+.merch-tabs button {
+  min-width: 112px !important;
+  padding: 12px 16px !important;
+}
+
+.merch-controls {
+  align-items: end !important;
+  justify-content: center !important;
+  gap: 12px !important;
+}
+
+.merch-controls label {
+  min-width: 190px;
+}
+
+.merch-controls select {
+  width: 100%;
+}
+
+.merch-results-row {
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 16px !important;
+}
+
+/* Fix trust/info cards so copy does not stack one word per line */
+.merch-trust-strip {
+  align-items: stretch;
+}
+
+.merch-trust-strip article {
+  display: grid !important;
+  grid-template-columns: 42px minmax(0, 1fr) !important;
+  align-items: flex-start !important;
+  gap: 14px !important;
+  min-height: 132px !important;
+  padding: 20px !important;
+}
+
+.merch-trust-strip article > span {
+  width: 38px !important;
+  height: 38px !important;
+  display: grid !important;
+  place-items: center !important;
+  flex: 0 0 38px !important;
+  margin: 0 !important;
+}
+
+.merch-trust-strip article > div {
+  min-width: 0;
+  display: block;
+}
+
+.merch-trust-strip strong {
+  display: block !important;
+  margin: 0 0 8px !important;
+  font-size: 20px !important;
+  line-height: 1.05 !important;
+}
+
+.merch-trust-strip p {
+  max-width: none !important;
+  margin: 0 !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+@media (max-width: 900px) {
+  .merch-section-head {
+    align-items: flex-start !important;
+  }
+
+  .merch-section-head p {
+    max-width: 100% !important;
+    text-align: left;
+  }
+
+  .merch-controls label {
+    min-width: 0;
+  }
+
+  .merch-trust-strip article {
+    min-height: 112px !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .merch-section-head h2 {
+    font-size: clamp(36px, 13vw, 56px);
+  }
+
+  .merch-toolbar {
+    padding: 16px !important;
+  }
+
+  .merch-tabs button,
+  .merch-controls label,
+  .merch-controls select,
+  .merch-reset-btn {
+    width: 100% !important;
+  }
+
+  .merch-trust-strip article {
+    grid-template-columns: 40px minmax(0, 1fr) !important;
+    min-height: auto !important;
+  }
+}
