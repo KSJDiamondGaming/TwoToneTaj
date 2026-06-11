@@ -11,6 +11,7 @@ import {
 import '../styles/merch.css'
 
 const DISCORD_URL = 'https://discord.gg/WcbtQPuByd'
+const CONTACT_URL = '/contact'
 
 function getProductTags(product) {
   return Array.isArray(product.tags) ? product.tags : []
@@ -122,12 +123,19 @@ export default function Merch() {
           </h1>
 
           <p className="merch-subtitle">
-            Official TajSquad drops, creator gear, apparel, accessories and digital items.
+            Official creator apparel, accessories and digital drops are being prepared for the TajSquad.
+            The shop is in development, with GBP pricing previews ready below.
           </p>
+
+          <div className="merch-status-row" aria-label="Merch development status">
+            <span>Store in development</span>
+            <span>GBP pricing previews</span>
+            <span>Checkout coming later</span>
+          </div>
 
           <div className="merch-actions">
             <a className="btn primary" href="#merch-drops">
-              Browse Merch
+              Preview Drops
             </a>
 
             <a className="btn ghost" href={DISCORD_URL} target="_blank" rel="noopener noreferrer">
@@ -140,6 +148,17 @@ export default function Merch() {
           <img src={logo} alt="TwoToneTaj official logo" />
           <strong>Average Gamer</strong>
           <small>Est. 1989</small>
+        </div>
+      </section>
+
+      <section className="merch-development-note" aria-label="Store development notice">
+        <span>🚧</span>
+        <div>
+          <strong>Merch Store Coming Soon</strong>
+          <p>
+            Products, prices and checkout are placeholders while the official store is prepared.
+            PayPal or Shopify checkout can be connected in a later phase.
+          </p>
         </div>
       </section>
 
@@ -160,6 +179,16 @@ export default function Merch() {
       </section>
 
       <section id="merch-drops" className="merch-section">
+        <div className="merch-section-head">
+          <div>
+            <span className="eyebrow">Browse The Drop</span>
+            <h2>Product Preview</h2>
+          </div>
+          <p>
+            Browse the planned collection by category. All listed prices are estimated placeholders until checkout goes live.
+          </p>
+        </div>
+
         <div className="merch-toolbar">
           <div className="merch-tabs" aria-label="Merch categories">
             {merchCategories.map((category) => (
@@ -204,7 +233,7 @@ export default function Merch() {
         </div>
 
         <div className="merch-results-row">
-          <p className="merch-price-note">Estimated price. Final checkout price may vary.</p>
+          <p className="merch-price-note">Estimated pricing shown in {selectedCurrency}. Final checkout price may vary.</p>
           <p className="merch-result-count">
             Showing {visibleProducts.length} of {merchProducts.length} products
           </p>
@@ -227,6 +256,7 @@ export default function Merch() {
                   <span>{product.type}</span>
                   <p>{product.description}</p>
                   <strong>{formatPrice(product.priceGBP, selectedCurrency)}</strong>
+                  <small>Estimated placeholder price</small>
                 </div>
 
                 {product.checkoutUrl ? (
@@ -268,15 +298,33 @@ export default function Merch() {
 
         <article>
           <span>🚚</span>
-          <strong>Worldwide Shipping</strong>
-          <p>Shipping options available when checkout is connected.</p>
+          <strong>Delivery Info</strong>
+          <p>Delivery options and returns information will be added before launch.</p>
         </article>
 
         <article>
           <span>★</span>
           <strong>Limited Drops</strong>
-          <p>Exclusive designs with limited availability.</p>
+          <p>Exclusive creator designs with limited availability.</p>
         </article>
+      </section>
+
+      <section className="merch-final-cta" aria-label="Merch launch updates">
+        <div>
+          <span className="eyebrow">Stay Updated</span>
+          <h2>Want To Know When Merch Goes Live?</h2>
+          <p>
+            Join TajSquad or use the contact page for creator enquiries while the official store is being built.
+          </p>
+        </div>
+        <div className="merch-final-actions">
+          <a className="btn primary" href={DISCORD_URL} target="_blank" rel="noopener noreferrer">
+            Join TajSquad
+          </a>
+          <a className="btn ghost" href={CONTACT_URL}>
+            Contact
+          </a>
+        </div>
       </section>
     </main>
   )
