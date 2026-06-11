@@ -3,7 +3,7 @@ import '../styles/contact.css'
 
 const officialLinksUrl = 'https://linktr.ee/Twotonetaj'
 const paypalUrl = 'https://paypal.me/2tonetaj'
-const businessEmail = 'business@twotonetaj.co.uk'
+const businessEmail = 'media@ksjdigital.co.uk'
 
 export default function Contact() {
   return (
@@ -15,7 +15,7 @@ export default function Contact() {
             Get In <span>Touch</span>
           </h1>
           <p>
-            For collaborations, content opportunities, business enquiries, support,
+            For collaborations, content opportunities, media enquiries, support,
             or general questions, use the official contact options below.
           </p>
         </div>
@@ -51,7 +51,7 @@ export default function Contact() {
           <a className="contact-email-box" href={`mailto:${businessEmail}?subject=TwoToneTaj Business Enquiry`}>
             {businessEmail}
           </a>
-          <small>I aim to respond to all enquiries as soon as possible.</small>
+          <small>Official media contact managed through KSJ Digital.</small>
         </article>
 
         <article className="contact-panel">
@@ -68,9 +68,9 @@ export default function Contact() {
             </div>
             <input type="text" name="subject" placeholder="Subject" aria-label="Subject" />
             <textarea name="message" placeholder="Your Message" rows="5" aria-label="Your Message" />
-            <button type="button" disabled>Send Message</button>
+            <button type="button" disabled>Sending Coming Soon</button>
           </form>
-          <small>Contact form functionality coming soon.</small>
+          <small>For now, use the email button for direct contact.</small>
         </article>
 
         <article className="contact-panel">
