@@ -13,25 +13,26 @@ export default function Header() {
         </span>
       </Link>
 
-      <nav aria-label="Main navigation">
-        <NavLink to="/" end>
-          Home
-        </NavLink>
-        <NavLink to="/about">About</NavLink>
-        <NavLink to="/content">Content</NavLink>
-        <NavLink to="/community">Community</NavLink>
-        <NavLink to="/merch">Merch</NavLink>
-        <NavLink to="/contact">Contact</NavLink>
-      </nav>
+      <div className="header-actions">
+        <nav aria-label="Main navigation">
+          <NavLink to="/" end>
+            Home
+          </NavLink>
+          <NavLink to="/about">About</NavLink>
+          <NavLink to="/content">Content</NavLink>
+          <NavLink to="/community">Community</NavLink>
+          <NavLink to="/merch">Merch</NavLink>
+        </nav>
 
-      <a
-        className="join-btn"
-        href="https://discord.gg/WcbtQPuByd"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Join TajSquad
-      </a>
+        <a
+          className="join-btn"
+          href="https://discord.gg/WcbtQPuByd"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Join TajSquad
+        </a>
+      </div>
     </header>
   )
 }
