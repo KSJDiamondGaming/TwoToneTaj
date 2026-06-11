@@ -7,10 +7,10 @@
   position: relative;
   min-height: 470px;
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
-  gap: 34px;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.78fr);
+  gap: 30px;
   align-items: center;
-  padding: 50px;
+  padding: 50px 46px;
   overflow: hidden;
   border: 1px solid rgba(18, 201, 112, 0.26);
   border-radius: 26px;
@@ -37,14 +37,19 @@
   z-index: 2;
 }
 
+.community-hero-copy {
+  min-width: 0;
+}
+
 .community-hero h1 {
   display: grid;
   gap: 4px;
+  max-width: 650px;
   margin: 0 0 18px;
   color: #fff;
   font-family: 'Russo One', sans-serif;
-  font-size: clamp(54px, 8vw, 110px);
-  line-height: 0.88;
+  font-size: clamp(52px, 6.45vw, 96px);
+  line-height: 0.9;
   letter-spacing: -2px;
   text-transform: uppercase;
 }
@@ -55,7 +60,7 @@
 }
 
 .community-hero p {
-  max-width: 700px;
+  max-width: 640px;
   color: rgba(255, 255, 255, 0.8);
   font-size: 17px;
   line-height: 1.75;
@@ -70,10 +75,10 @@
 }
 
 .community-discord-card {
-  min-height: 350px;
+  min-height: 330px;
   display: grid;
   place-items: center;
-  padding: 32px;
+  padding: 28px;
   overflow: hidden;
   border: 1px solid rgba(88, 101, 242, 0.3);
   border-radius: 24px;
@@ -95,7 +100,7 @@
 
 .community-discord-card img {
   position: relative;
-  width: min(220px, 78%);
+  width: min(190px, 72%);
   filter: drop-shadow(0 0 24px rgba(18, 201, 112, 0.24));
 }
 
@@ -109,9 +114,11 @@
 }
 
 .community-discord-card strong {
+  max-width: 330px;
   color: #fff;
   font-family: 'Russo One', sans-serif;
-  font-size: 24px;
+  font-size: clamp(18px, 2vw, 23px);
+  line-height: 1.05;
   text-transform: uppercase;
 }
 
@@ -153,7 +160,7 @@
 }
 
 .community-stat-card {
-  min-height: 150px;
+  min-height: 145px;
   display: grid;
   align-content: center;
   gap: 9px;
@@ -162,10 +169,12 @@
 }
 
 .community-stat-card strong {
+  max-width: 100%;
   color: #fff;
   font-family: 'Russo One', sans-serif;
-  font-size: clamp(24px, 3vw, 34px);
-  line-height: 1;
+  font-size: clamp(22px, 2.35vw, 31px);
+  line-height: 1.06;
+  overflow-wrap: normal;
 }
 
 .community-stat-card small {
@@ -181,10 +190,15 @@
 .community-join-panel {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: 24px;
-  margin-top: 22px;
-  padding: 30px;
+  gap: 28px;
+  margin-top: 24px;
+  padding: 34px;
   border-radius: 22px;
+}
+
+.community-dashboard-panel {
+  align-items: start;
+  padding-top: 42px;
 }
 
 .community-dashboard-panel h2,
@@ -194,9 +208,13 @@
   margin: 0 0 12px;
   color: #fff;
   font-family: 'Russo One', sans-serif;
-  font-size: clamp(30px, 4vw, 52px);
-  line-height: 1;
+  font-size: clamp(30px, 3.55vw, 46px);
+  line-height: 1.02;
   text-transform: uppercase;
+}
+
+.community-dashboard-panel h2 {
+  max-width: 520px;
 }
 
 .community-dashboard-panel p,
@@ -243,8 +261,12 @@
 .community-section-head {
   display: grid;
   gap: 8px;
-  margin-top: 34px;
+  margin-top: 38px;
   margin-bottom: 16px;
+}
+
+.community-section-head h2 {
+  max-width: 860px;
 }
 
 .community-area-grid {
@@ -284,6 +306,21 @@
   margin-top: 0;
 }
 
+@media (max-width: 1120px) {
+  .community-hero {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 0.72fr);
+    padding: 42px 34px;
+  }
+
+  .community-hero h1 {
+    font-size: clamp(50px, 6vw, 82px);
+  }
+
+  .community-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 1000px) {
   .community-hero,
   .community-dashboard-panel,
@@ -292,7 +329,10 @@
     grid-template-columns: 1fr;
   }
 
-  .community-stats-grid,
+  .community-hero h1 {
+    max-width: 100%;
+  }
+
   .community-area-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
