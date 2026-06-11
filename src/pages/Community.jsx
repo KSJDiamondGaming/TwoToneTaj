@@ -36,12 +36,6 @@ const futureAutomations = [
   ['Goliath Sync', 'Real server data powered safely through the Goliath bot/dashboard backend.'],
 ]
 
-const quickLinks = [
-  ['Join Discord', DISCORD_URL],
-  ['Read Rules', '/terms'],
-  ['Contact', '/contact'],
-]
-
 function formatNumber(value) {
   if (typeof value !== 'number') return value
   return new Intl.NumberFormat('en-GB').format(value)
@@ -193,30 +187,6 @@ export default function Community() {
               <strong>{title}</strong>
               <p>{text}</p>
             </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="community-join-panel">
-        <div>
-          <span className="eyebrow">Ready To Join?</span>
-          <h2>Become Part Of TajSquad</h2>
-          <p>
-            Jump into the official Discord, say hello, catch stream alerts, share clips, join voice and be part of the community.
-          </p>
-        </div>
-
-        <div className="community-quick-links">
-          {quickLinks.map(([label, url]) => (
-            <a
-              className={label === 'Join Discord' ? 'btn primary' : 'btn ghost'}
-              href={url}
-              key={label}
-              target={url.startsWith('http') ? '_blank' : undefined}
-              rel={url.startsWith('http') ? 'noopener noreferrer' : undefined}
-            >
-              {label}
-            </a>
           ))}
         </div>
       </section>
