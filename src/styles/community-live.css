@@ -1,5 +1,5 @@
 .community-stats-grid {
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .community-stat-card {
@@ -7,17 +7,7 @@
 }
 
 .community-stat-card strong {
-  font-size: clamp(19px, 1.8vw, 27px);
-}
-
-.community-updated-at {
-  display: inline-block;
-  margin-top: 14px;
-  color: rgba(255, 255, 255, 0.48);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  font-size: clamp(20px, 2vw, 29px);
 }
 
 .community-live-grid {
@@ -78,66 +68,31 @@
   margin-top: 14px;
 }
 
-.community-feed-list article {
-  padding: 13px 14px;
-  border: 1px solid rgba(18, 201, 112, 0.1);
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.community-feed-list article strong {
-  display: block;
-  color: #fff;
-  font-family: 'Russo One', sans-serif;
-  font-size: 14px;
-  line-height: 1.3;
-}
-
-.community-feed-list article span {
-  display: block;
-  margin-top: 5px;
-  color: var(--green);
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 13px;
-  letter-spacing: 0.7px;
-  text-transform: uppercase;
-}
-
-.community-feed-list article p {
-  margin-top: 8px;
-  color: rgba(255, 255, 255, 0.68);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
 .community-feed-empty {
-  min-height: 88px;
+  min-height: 104px;
   display: grid;
   place-items: center;
   margin: 0;
-  padding: 14px;
+  padding: 16px;
   border: 1px dashed rgba(18, 201, 112, 0.16);
   border-radius: 12px;
+  background: rgba(0, 0, 0, 0.16);
   color: rgba(255, 255, 255, 0.55) !important;
   font-size: 13px;
   line-height: 1.55;
   text-align: center;
 }
 
-@media (max-width: 1180px) {
-  .community-stats-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 1000px) {
+  .community-stats-grid,
   .community-live-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 640px) {
-  .community-stats-grid {
+  .community-stats-grid,
+  .community-live-grid {
     grid-template-columns: 1fr;
   }
 
