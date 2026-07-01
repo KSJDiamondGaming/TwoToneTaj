@@ -5,8 +5,6 @@ import logo from '../assets/logo.png'
 const DISCORD_INVITE_CODE = 'WcbtQPuByd'
 const DISCORD_URL = `https://discord.gg/${DISCORD_INVITE_CODE}`
 const DISCORD_INVITE_API = `https://discord.com/api/v10/invites/${DISCORD_INVITE_CODE}?with_counts=true&with_expiration=true`
-const COMMUNITY_API_URL = import.meta.env.VITE_COMMUNITY_API_URL
-  || 'https://goliath.ksjdigital.co.uk/api/public/community/twotonetaj'
 
 const fallbackStats = {
   members: 'TajSquad',
@@ -36,68 +34,27 @@ function formatNumber(value) {
   return new Intl.NumberFormat('en-GB').format(value)
 }
 
-function formatDate(value) {
-  if (!value) return 'Date coming soon'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return 'Date coming soon'
-
-  return new Intl.DateTimeFormat('en-GB', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date)
-}
-
 export default function Community() {
-  const [communityData, setCommunityData] = useState(null)
   const [discordData, setDiscordData] = useState(null)
   const [dataState, setDataState] = useState('loading')
-  const [dataSource, setDataSource] = useState('checking')
 
   useEffect(() => {
     let isMounted = true
     const controller = new AbortController()
 
-    async function loadCommunityData() {
-      try {
-        const response = await fetch(COMMUNITY_API_URL, {
-          signal: controller.signal,
-          headers: { Accept: 'application/json' },
-        })
-
-        if (!response.ok) {
-          throw new Error(`Goliath community request failed: ${response.status}`)
-        }
-
-        const data = await response.json()
-        if (!data?.ok || !data?.community) {
-          throw new Error('Goliath returned an invalid community payload')
-        }
-
-        if (isMounted) {
-          setCommunityData(data)
-          setDataState('live')
-          setDataSource('goliath')
-        }
-        return
-      } catch (error) {
-        if (error.name === 'AbortError') return
-        console.warn('Goliath community data unavailable:', error)
-      }
-
+    async function loadDiscordInvite() {
       try {
         const response = await fetch(DISCORD_INVITE_API, { signal: controller.signal })
+
         if (!response.ok) {
           throw new Error(`Discord invite request failed: ${response.status}`)
         }
 
         const data = await response.json()
+
         if (isMounted) {
           setDiscordData(data)
           setDataState('live')
-          setDataSource('discord')
         }
       } catch (error) {
         if (error.name === 'AbortError') return
@@ -105,12 +62,11 @@ export default function Community() {
 
         if (isMounted) {
           setDataState('fallback')
-          setDataSource('fallback')
         }
       }
     }
 
-    loadCommunityData()
+    loadDiscordInvite()
 
     return () => {
       isMounted = false
@@ -118,28 +74,20 @@ export default function Community() {
     }
   }, [])
 
-  const community = communityData?.community
-  const events = communityData?.events || []
-  const announcements = communityData?.announcements || []
   const guild = discordData?.guild
-
-  const serverName = community?.name || guild?.name || fallbackStats.serverName
-  const serverIcon = community?.iconUrl || logo
-  const inviteUrl = community?.inviteUrl || DISCORD_URL
+  const serverName = guild?.name || fallbackStats.serverName
 
   const stats = useMemo(() => {
-    const memberCount = community?.memberCount ?? discordData?.approximate_member_count
-    const onlineCount = community?.onlineCount ?? discordData?.approximate_presence_count
+    const memberCount = discordData?.approximate_member_count
+    const onlineCount = discordData?.approximate_presence_count
 
     return [
-      ['Community', serverName, dataSource === 'goliath' ? 'Live from Goliath' : dataSource === 'discord' ? 'Public Discord invite data' : 'Discord hub ready'],
-      ['Members', memberCount ? formatNumber(memberCount) : fallbackStats.members, dataSource === 'goliath' ? `${formatNumber(community?.humanMemberCount || memberCount)} community members` : 'Approx. public invite count'],
-      ['Online', onlineCount ? formatNumber(onlineCount) : fallbackStats.online, onlineCount ? 'Active right now' : 'Exact presence sync coming soon'],
-      ['Boosts', typeof community?.boostCount === 'number' ? formatNumber(community.boostCount) : '—', community ? `Server boost level ${community.boostTier || 0}` : 'Available through Goliath'],
-      ['Channels', typeof community?.channelCount === 'number' ? formatNumber(community.channelCount) : '—', community ? `${formatNumber(community.roleCount || 0)} community roles` : 'Available through Goliath'],
-      ['Status', dataState === 'loading' ? 'Checking...' : dataState === 'live' ? 'Live Data' : fallbackStats.status, dataSource === 'goliath' ? 'Secure Goliath API connected' : dataSource === 'discord' ? 'Discord fallback connected' : 'Fallback mode active'],
+      ['Community', serverName, dataState === 'live' ? 'Official Discord invite data' : 'Discord hub ready'],
+      ['Members', memberCount ? formatNumber(memberCount) : fallbackStats.members, dataState === 'live' ? 'Approximate public member count' : 'Join the growing TajSquad'],
+      ['Online', onlineCount ? formatNumber(onlineCount) : fallbackStats.online, dataState === 'live' ? 'Approximate members active now' : 'Community activity coming soon'],
+      ['Status', dataState === 'loading' ? 'Checking...' : dataState === 'live' ? 'Connected' : fallbackStats.status, dataState === 'live' ? 'Discord invite data is live' : 'Join through the official invite'],
     ]
-  }, [community, dataSource, dataState, discordData, serverName])
+  }, [dataState, discordData, serverName])
 
   return (
     <main className="community-page">
@@ -156,7 +104,7 @@ export default function Community() {
           </p>
 
           <div className="community-hero-actions">
-            <a className="btn primary" href={inviteUrl} target="_blank" rel="noopener noreferrer">
+            <a className="btn primary" href={DISCORD_URL} target="_blank" rel="noopener noreferrer">
               Join TajSquad
             </a>
             <a className="btn ghost" href="#community-live">
@@ -167,11 +115,11 @@ export default function Community() {
 
         <aside className="community-discord-card" aria-label="Discord invite card">
           <div className="community-card-glow" />
-          <img src={serverIcon} alt={`${serverName} icon`} />
-          <span>{dataSource === 'goliath' ? 'Goliath Connected' : dataState === 'live' ? 'Discord Connected' : 'Discord Ready'}</span>
+          <img src={logo} alt="TwoToneTaj logo" />
+          <span>{dataState === 'live' ? 'Discord Connected' : 'Discord Ready'}</span>
           <strong>{serverName}</strong>
-          <p>{community?.description || 'Join the official community for streams, clips, gaming, updates and TajSquad moments.'}</p>
-          <a href={inviteUrl} target="_blank" rel="noopener noreferrer">
+          <p>Join the official community for streams, clips, gaming, updates and TajSquad moments.</p>
+          <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer">
             Open Discord
           </a>
         </aside>
@@ -189,16 +137,12 @@ export default function Community() {
 
       <section className="community-dashboard-panel">
         <div>
-          <span className="eyebrow">Live Community Feed</span>
-          <h2>{dataSource === 'goliath' ? 'Powered By Goliath' : 'Discord Data Connected'}</h2>
+          <span className="eyebrow">Community Updates</span>
+          <h2>The Discord Is The Heart Of TajSquad</h2>
           <p>
-            {dataSource === 'goliath'
-              ? 'Secure live stats, Discord events and announcements are supplied by the Goliath bot without exposing private credentials.'
-              : 'Public Discord invite data is active. Goliath will automatically take over when the live community API is available.'}
+            The website currently shows the public member and online counts supplied by Discord. Events,
+            announcements and deeper community updates will be added only when a dedicated TwoToneTaj service is ready.
           </p>
-          {communityData?.meta?.generatedAt && (
-            <small className="community-updated-at">Updated {formatDate(communityData.meta.generatedAt)}</small>
-          )}
         </div>
 
         <div className="community-live-grid">
@@ -206,21 +150,15 @@ export default function Community() {
             <div className="community-live-panel-head">
               <span>📅</span>
               <div>
-                <strong>Upcoming Events</strong>
-                <small>{events.length ? `${events.length} scheduled` : 'No public events yet'}</small>
+                <strong>Community Events</strong>
+                <small>Planned feature</small>
               </div>
             </div>
 
             <div className="community-feed-list">
-              {events.length ? events.map((event) => (
-                <article key={event.id}>
-                  <strong>{event.name}</strong>
-                  <span>{formatDate(event.scheduledStartAt)}</span>
-                  {event.description && <p>{event.description}</p>}
-                </article>
-              )) : (
-                <p className="community-feed-empty">Community nights and scheduled Discord events will appear here automatically.</p>
-              )}
+              <p className="community-feed-empty">
+                Community nights, game sessions and special Discord events will appear here when the event feed launches.
+              </p>
             </div>
           </article>
 
@@ -229,20 +167,14 @@ export default function Community() {
               <span>📣</span>
               <div>
                 <strong>Latest Announcements</strong>
-                <small>{announcements.length ? `${announcements.length} recent updates` : 'Feed ready'}</small>
+                <small>Planned feature</small>
               </div>
             </div>
 
             <div className="community-feed-list">
-              {announcements.length ? announcements.map((announcement) => (
-                <article key={announcement.id}>
-                  <strong>{announcement.title}</strong>
-                  <span>{formatDate(announcement.createdAt)}</span>
-                  {announcement.content && <p>{announcement.content}</p>}
-                </article>
-              )) : (
-                <p className="community-feed-empty">Latest Discord announcements will appear here when the announcement channel is configured.</p>
-              )}
+              <p className="community-feed-empty">
+                Important TajSquad announcements will appear here automatically once the dedicated community feed is ready.
+              </p>
             </div>
           </article>
         </div>
