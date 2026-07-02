@@ -1,9 +1,9 @@
 /* =========================================================
    HOME PAGE — PURPOSE-BUILT MOBILE LAYOUT
-   Desktop styles remain unchanged.
+   Desktop styles remain unchanged above 900px.
 ========================================================= */
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .home {
     width: min(var(--site-width), calc(100% - 20px));
     padding-bottom: 18px;
@@ -87,17 +87,25 @@
   }
 
   .home-grid {
-    grid-template-columns: 1fr;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
     grid-template-areas:
       "twitch"
       "youtube"
       "schedule"
-      "about";
+      "about" !important;
     gap: 12px;
     margin-top: 12px;
   }
 
+  .home-grid > * {
+    width: 100%;
+    min-width: 0;
+  }
+
   .home .panel {
+    width: 100%;
+    min-width: 0;
     padding: 17px !important;
     border-radius: 15px;
   }
@@ -166,7 +174,7 @@
   }
 
   .youtube-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
     gap: 10px;
   }
 
@@ -261,6 +269,8 @@
 
   .socials-panel,
   .expect-panel {
+    width: 100%;
+    min-width: 0;
     padding: 17px !important;
     border-radius: 15px;
   }
@@ -272,11 +282,12 @@
   }
 
   .socials-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
     gap: 7px;
   }
 
   .social-card {
+    min-width: 0;
     min-height: 72px;
     padding: 9px 5px;
     border-radius: 12px;
@@ -293,11 +304,12 @@
   }
 
   .expect-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 9px;
   }
 
   .expect-card {
+    min-width: 0;
     min-height: 145px;
     padding: 14px 10px;
   }
