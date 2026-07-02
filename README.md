@@ -2,46 +2,32 @@
 
 Official website for **TwoToneTaj**, a creator/streamer brand and home of the **TajSquad** community.
 
-The site is built as a modern dark gaming-style React/Vite website using the existing TwoToneTaj branding, including black/neon green styling, red dragon visuals, creator content sections, community links, and a future-ready merch page.
+The site is a dark gaming-style React/Vite website using the TwoToneTaj black, neon-green, and dragon-led visual identity.
 
-## What this website is
+## Live site
 
-This website is designed to be the main public home for TwoToneTaj.
+`https://twotonetaj.ksjdigital.co.uk`
 
-It includes or will include:
+## Main pages
 
-- Home page and brand hero section
-- About page
-- Content/social sections
-- Community links
-- Contact/support information
-- Privacy and Terms pages
-- Merch page for future TwoToneTaj/TajSquad products
-- Website construction/production notice
-- Future live content/feed integrations
-
-## Brand direction
-
-The visual style should stay consistent with the current TwoToneTaj identity:
-
-- Dark black gaming background
-- Neon green accents
-- Subtle red/orange dragon/fire glow
-- Official TwoToneTaj dragon/logo assets
-- Clean creator/streamer layout
-- Mobile responsive pages
-- No random replacement logos or unrelated colour schemes
+- Home
+- About
+- Content
+- Community
+- Merch
+- Contact
+- Privacy
+- Terms
 
 ## Tech stack
 
 - React
 - Vite
-- CSS
 - React Router
+- CSS
+- Nginx on the production VPS
 
 ## Project structure
-
-Main folders:
 
 ```txt
 src/
@@ -51,88 +37,13 @@ src/
   pages/
   sections/
   styles/
+
+deploy/
+  nginx.twotonetaj.conf.example
+
+scripts/
+  deploy-vps.sh
 ```
-
-Merch-specific files:
-
-```txt
-src/data/merchProducts.js
-src/data/merchMedia.js
-src/pages/Merch.jsx
-src/styles/merch.css
-src/assets/merch/.gitkeep
-```
-
-The merch system is intentionally minimal and portal-ready. Product information is stored separately from media information so that a future KSJ Digital client/admin portal can update products, images, pricing, statuses, and checkout links without requiring code edits.
-
-More details are documented in:
-
-```txt
-MERCH_NOTES.md
-```
-
-## Merch system overview
-
-The merch page uses:
-
-```txt
-Product record → imageId → media registry → uploaded image URL or placeholder
-```
-
-Products are controlled in:
-
-```txt
-src/data/merchProducts.js
-```
-
-Media/image references are controlled in:
-
-```txt
-src/data/merchMedia.js
-```
-
-If a product has no uploaded image URL, the site shows a clean placeholder state instead of a broken image.
-
-The merch page supports:
-
-- Category tabs
-- Featured products
-- Coming Soon products
-- Limited Drops
-- Product descriptions
-- GBP base pricing
-- Estimated currency display
-- Sort/filter controls
-- Future checkout links
-
-## Future checkout direction
-
-The React frontend should not directly process payments.
-
-Future checkout should use secure external providers such as:
-
-- Shopify checkout links or Shopify Buy Button for physical merch
-- Stripe Checkout for digital products, bundles, services, or custom payments
-- PayPal as an optional extra method
-
-Each product can hold a checkout URL. If no URL is set, the product shows as Coming Soon.
-
-## Future KSJ Digital portal direction
-
-This site is being structured with the future KSJ/client portal in mind.
-
-Eventually, authorised users should be able to update editable website content through a dashboard, including:
-
-- Product names
-- Product descriptions
-- Product prices
-- Product images
-- Product statuses
-- Featured/carousel toggles
-- Checkout links
-- Page text/images where allowed
-
-Clients should not need to rename files, edit code, access GitHub, or rebuild the site for simple content changes.
 
 ## Development
 
@@ -148,23 +59,123 @@ Run locally:
 npm run dev
 ```
 
-Build:
+Run the production build:
 
 ```bash
 npm run build
 ```
 
-Preview build:
+Run lint checks:
+
+```bash
+npm run lint
+```
+
+Preview the production build:
 
 ```bash
 npm run preview
 ```
 
-## Notes
+## Merch data
 
-This site is part of the wider KSJ Digital ecosystem and is intended to remain clean, maintainable, and easy to expand.
+The merch system now uses one source of truth:
 
+```txt
+src/data/merchProducts.js
+```
 
-// 54tVexRR4IXeXpzg2Dq1UA USER
+Each product record contains its own product information and image metadata:
 
-// UC54tVexRR4IXeXpzg2Dq1UA CHANNEL
+```js
+{
+  id: 'signature-hoodie',
+  name: 'TwoToneTaj Signature Hoodie',
+  priceGBP: 44.99,
+  image: {
+    id: 'media_hoodie_001',
+    title: 'Hoodie product image',
+    url: '',
+    alt: 'TwoToneTaj Signature Hoodie',
+  },
+}
+```
+
+If no image URL is available, the Merch page renders a branded placeholder instead of a broken image.
+
+The React frontend does not process payments directly. Future checkout links should use secure external services such as Shopify Checkout, Stripe Checkout, or PayPal.
+
+## VPS deployment
+
+The production project lives at:
+
+```txt
+/home/twotonetaj/site
+```
+
+A repeatable deployment script is included:
+
+```bash
+cd /home/twotonetaj/site
+chmod +x scripts/deploy-vps.sh
+./scripts/deploy-vps.sh
+```
+
+The script:
+
+1. Pulls the latest `main` branch with fast-forward-only protection.
+2. Installs dependencies using `npm ci`.
+3. Runs the production build.
+4. Confirms `dist/index.html` exists.
+5. Validates and reloads Nginx.
+6. Smoke-tests every public route on the live site.
+
+Optional environment overrides:
+
+```bash
+SITE_DIR=/home/twotonetaj/site \
+BRANCH=main \
+LIVE_URL=https://twotonetaj.ksjdigital.co.uk \
+./scripts/deploy-vps.sh
+```
+
+## Nginx requirements
+
+React Router requires an SPA fallback for direct route visits and browser refreshes:
+
+```nginx
+location / {
+    try_files $uri $uri/ /index.html;
+}
+```
+
+A complete example is provided at:
+
+```txt
+deploy/nginx.twotonetaj.conf.example
+```
+
+The example also:
+
+- caches hashed Vite assets long-term;
+- prevents strong caching of `index.html`;
+- adds basic security headers;
+- serves the build from `/home/twotonetaj/site/dist`.
+
+Review the example before applying it because the live server may already include HTTPS and Certbot-managed directives.
+
+## Brand direction
+
+The site should remain consistent with the established TwoToneTaj identity:
+
+- dark black gaming background;
+- neon-green accents;
+- subtle red/orange dragon and fire glow;
+- official TwoToneTaj dragon and logo assets;
+- Russo One, Bebas Neue, and Inter typography;
+- responsive desktop, tablet, and mobile layouts;
+- no unrelated replacement logos or colour schemes.
+
+## Future portal direction
+
+The site is structured so a future KSJ Digital client portal can manage approved editable content without requiring clients to edit code, rename files, use GitHub, or rebuild the site manually.
