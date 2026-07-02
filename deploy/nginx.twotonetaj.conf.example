@@ -1,0 +1,40 @@
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name twotonetaj.ksjdigital.co.uk;
+
+    root /home/twotonetaj/site/dist;
+    index index.html;
+
+    # React Router SPA fallback: direct visits and refreshes on routes
+    # such as /about, /community, and /merch must return index.html.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Cache hashed Vite build assets for one year.
+    location /assets/ {
+        try_files $uri =404;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Do not strongly cache the application shell so new deployments
+    # are picked up without users being trapped on an old CSS/JS bundle.
+    location = /index.html {
+        expires -1;
+        add_header Cache-Control "no-store, no-cache, must-revalidate";
+    }
+
+    location = /favicon.svg {
+        try_files $uri =404;
+        expires 7d;
+        add_header Cache-Control "public";
+    }
+
+    # Basic security headers suitable for this static frontend.
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+}
