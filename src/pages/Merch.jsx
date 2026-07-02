@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 
 import logo from '../assets/logo.png'
-import { merchMedia } from '../data/merchMedia'
 import {
   merchCategories,
   merchCurrencies,
@@ -17,13 +16,8 @@ function getProductTags(product) {
   return Array.isArray(product.tags) ? product.tags : []
 }
 
-function getProductMedia(product) {
-  return merchMedia[product.imageId] || null
-}
-
 function getMediaUrl(product) {
-  const media = getProductMedia(product)
-  return media?.url?.trim() || ''
+  return product.image?.url?.trim() || ''
 }
 
 function formatPrice(priceGBP, currencyKey) {
@@ -58,7 +52,6 @@ function sortProducts(products, sortBy) {
 
 function MerchProductVisual({ product, compact = false }) {
   const [hasImageError, setHasImageError] = useState(false)
-  const media = getProductMedia(product)
   const imageUrl = getMediaUrl(product)
   const shouldShowImage = imageUrl && !hasImageError
   const placeholderLabel = product.fallbackImage || 'default'
@@ -67,7 +60,7 @@ function MerchProductVisual({ product, compact = false }) {
     return (
       <img
         src={imageUrl}
-        alt={media?.alt || product.name}
+        alt={product.image?.alt || product.name}
         loading="lazy"
         onError={() => setHasImageError(true)}
       />
