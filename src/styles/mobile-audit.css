@@ -1,0 +1,337 @@
+/* =========================================================
+   MOBILE RESPONSIVENESS AUDIT
+   Imported last so these rules safely refine existing styles.
+========================================================= */
+
+.mobile-menu-toggle {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .site-header {
+    width: min(var(--site-width), calc(100% - 24px));
+    min-height: 72px;
+    height: auto;
+    padding: 9px 10px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 12px;
+    border-radius: 0 0 15px 15px;
+  }
+
+  .brand {
+    min-width: 0;
+    gap: 9px;
+  }
+
+  .brand img {
+    width: 46px;
+    height: 46px;
+  }
+
+  .brand span {
+    min-width: 0;
+  }
+
+  .brand strong {
+    display: block;
+    overflow: hidden;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .brand small {
+    overflow: hidden;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-menu-toggle {
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+    display: grid;
+    align-content: center;
+    gap: 5px;
+    border: 1px solid rgba(18, 201, 112, 0.34);
+    border-radius: 11px;
+    background: rgba(18, 201, 112, 0.07);
+    color: var(--green);
+    cursor: pointer;
+  }
+
+  .mobile-menu-toggle span {
+    width: 100%;
+    height: 2px;
+    display: block;
+    border-radius: 999px;
+    background: currentColor;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .site-header--menu-open .mobile-menu-toggle span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .site-header--menu-open .mobile-menu-toggle span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .site-header--menu-open .mobile-menu-toggle span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  .site-header .header-actions {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin: 0;
+    display: none;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 4px;
+  }
+
+  .site-header--menu-open .header-actions {
+    display: flex;
+  }
+
+  .site-header nav {
+    width: 100%;
+    max-width: none;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 10px;
+    overflow: visible;
+    border: 1px solid rgba(18, 201, 112, 0.12);
+    border-radius: 13px;
+    background: rgba(2, 7, 5, 0.78);
+  }
+
+  .site-header nav a {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .site-header nav a.active {
+    border-color: rgba(18, 201, 112, 0.26);
+    background: rgba(18, 201, 112, 0.08);
+  }
+
+  .join-btn {
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+  }
+
+  .hero-panel {
+    margin-top: 18px;
+    padding: 30px 20px 0;
+    border-radius: 16px;
+  }
+
+  .hero-eyebrow {
+    font-size: 19px;
+    line-height: 1.2;
+  }
+
+  .hero-copy h1 {
+    overflow-wrap: anywhere;
+  }
+
+  .hero-copy p {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .hero-dragon {
+    right: 0 !important;
+    width: min(430px, 108%) !important;
+    max-width: 108% !important;
+    margin-bottom: -38px;
+  }
+
+  .home-grid {
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .home .panel,
+  .socials-panel,
+  .expect-panel {
+    padding: 18px !important;
+    border-radius: 14px;
+  }
+
+  .home .panel h2 {
+    gap: 9px;
+    margin-bottom: 15px;
+    font-size: 24px;
+  }
+
+  .home .panel h2 img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .about-image {
+    height: 190px;
+  }
+
+  .schedule-list p {
+    grid-template-columns: 46px minmax(0, 1fr);
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  .schedule-list span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .twitch-preview,
+  .twitch-preview iframe {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  .youtube-panel-head a {
+    margin-top: 0;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .youtube-card {
+    min-height: 0;
+  }
+
+  .youtube-thumb {
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+
+  .socials-grid,
+  .expect-grid {
+    gap: 10px;
+  }
+
+  .social-card,
+  .expect-card {
+    min-height: 110px;
+  }
+
+  .merch-card {
+    padding: 26px 18px;
+  }
+
+  .merch-content h2 {
+    font-size: clamp(30px, 10vw, 42px);
+  }
+
+  .footer-inner {
+    width: 100%;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .footer-links {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .footer-links a {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .mini-player {
+    left: auto !important;
+    top: auto !important;
+    right: 14px !important;
+    bottom: 14px !important;
+    width: min(245px, calc(100vw - 28px));
+    max-height: calc(100vh - 28px);
+    overflow: visible;
+    cursor: default;
+  }
+
+  .mini-player__drag-hint {
+    display: none;
+  }
+
+  .floating-notice {
+    bottom: 78px;
+  }
+}
+
+@media (max-width: 430px) {
+  .site-header nav {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-panel {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(38px, 13vw, 54px);
+  }
+
+  .hero-est {
+    gap: 10px;
+    font-size: 23px;
+  }
+
+  .hero-est::before,
+  .hero-est::after {
+    width: 26px;
+  }
+
+  .about-image {
+    height: 165px;
+  }
+
+  .footer-brand {
+    white-space: normal;
+  }
+
+  .footer-links {
+    grid-template-columns: 1fr;
+  }
+
+  .mini-player {
+    right: 10px !important;
+    bottom: 10px !important;
+    width: calc(100vw - 20px);
+  }
+
+  .mini-player--minimized {
+    width: auto;
+  }
+
+  .floating-notice {
+    right: 10px;
+    bottom: 66px;
+    width: calc(100vw - 20px);
+  }
+}
