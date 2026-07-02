@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import '../styles/player.css'
 
 const PREFERRED_FIRST_TRACK = 'TwoToneTaj - Community.mp3'
@@ -36,11 +36,32 @@ const tracks = Object.entries(trackModules)
   })
 
 const DEFAULT_POSITION = { x: 555, y: 82 }
+const DEFAULT_VOLUME = 0.35
 const STORAGE_KEY = 'twotonetaj-mini-player-position'
+
+function getSavedPosition() {
+  if (typeof window === 'undefined') return DEFAULT_POSITION
+
+  const savedPosition = window.localStorage.getItem(STORAGE_KEY)
+  if (!savedPosition) return DEFAULT_POSITION
+
+  try {
+    const parsedPosition = JSON.parse(savedPosition)
+
+    if (Number.isFinite(parsedPosition.x) && Number.isFinite(parsedPosition.y)) {
+      return parsedPosition
+    }
+  } catch {
+    window.localStorage.removeItem(STORAGE_KEY)
+  }
+
+  return DEFAULT_POSITION
+}
 
 export default function AudioControls() {
   const audioRef = useRef(null)
   const playerRef = useRef(null)
+  const volumeRef = useRef(DEFAULT_VOLUME)
   const shouldAutoPlayNextRef = useRef(false)
   const hasTriedInitialAutoplayRef = useRef(false)
   const dragRef = useRef({ isDragging: false, startX: 0, startY: 0, originX: 0, originY: 0 })
@@ -48,8 +69,8 @@ export default function AudioControls() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
-  const [position, setPosition] = useState(DEFAULT_POSITION)
-  const [volume, setVolume] = useState(0.35)
+  const [position, setPosition] = useState(getSavedPosition)
+  const [volume, setVolume] = useState(DEFAULT_VOLUME)
   const [trackIndex, setTrackIndex] = useState(0)
   const [progress, setProgress] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -59,57 +80,39 @@ export default function AudioControls() {
   const hasTrack = Boolean(currentTrack?.src)
   const trackTitle = hasTrack ? currentTrack.title : 'No track loaded'
 
-  const playCurrentTrack = async () => {
-    if (!hasTrack || !audioRef.current) return false
+  const playCurrentTrack = useCallback(async () => {
+    if (!audioRef.current) return false
 
     try {
-      audioRef.current.volume = volume
+      audioRef.current.volume = volumeRef.current
       await audioRef.current.play()
       setIsPlaying(true)
       setAutoplayBlocked(false)
       return true
-    } catch (error) {
+    } catch {
       setIsPlaying(false)
       setAutoplayBlocked(true)
       return false
     }
-  }
-
-  useEffect(() => {
-    const savedPosition = window.localStorage.getItem(STORAGE_KEY)
-    if (!savedPosition) return
-
-    try {
-      const parsedPosition = JSON.parse(savedPosition)
-      if (Number.isFinite(parsedPosition.x) && Number.isFinite(parsedPosition.y)) {
-        setPosition(parsedPosition)
-      }
-    } catch (error) {
-      window.localStorage.removeItem(STORAGE_KEY)
-    }
-  }, [])
-
-  useEffect(() => {
-    setTrackIndex((currentIndex) => Math.min(currentIndex, Math.max(tracks.length - 1, 0)))
   }, [])
 
   useEffect(() => {
     if (!hasTrack || !audioRef.current) return
 
     audioRef.current.load()
-    audioRef.current.volume = volume
+    audioRef.current.volume = volumeRef.current
 
     if (shouldAutoPlayNextRef.current) {
       shouldAutoPlayNextRef.current = false
-      playCurrentTrack()
+      void playCurrentTrack()
       return
     }
 
     if (AUTO_PLAY && !hasTriedInitialAutoplayRef.current) {
       hasTriedInitialAutoplayRef.current = true
-      playCurrentTrack()
+      void playCurrentTrack()
     }
-  }, [trackIndex, hasTrack])
+  }, [trackIndex, hasTrack, playCurrentTrack])
 
   const clampPosition = (nextX, nextY) => {
     const player = playerRef.current
@@ -222,6 +225,7 @@ export default function AudioControls() {
 
   const handleVolumeChange = (event) => {
     const nextVolume = Number(event.target.value)
+    volumeRef.current = nextVolume
     setVolume(nextVolume)
 
     if (audioRef.current) {
