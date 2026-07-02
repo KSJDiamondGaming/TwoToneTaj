@@ -24,6 +24,9 @@ git pull --ff-only origin "$BRANCH"
 log "Installing locked dependencies"
 npm ci
 
+log "Validating merch launch configuration"
+npm run validate:merch
+
 log "Running production build"
 npm run build
 
