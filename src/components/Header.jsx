@@ -1,9 +1,17 @@
-import { NavLink, Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, Link, useLocation } from 'react-router-dom'
 import logo from '../assets/logo.png'
 
 export default function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const location = useLocation()
+
+  useEffect(() => {
+    setIsMenuOpen(false)
+  }, [location.pathname])
+
   return (
-    <header className="site-header">
+    <header className={`site-header${isMenuOpen ? ' site-header--menu-open' : ''}`}>
       <Link className="brand" to="/" aria-label="TwoToneTaj home">
         <img src={logo} alt="TwoToneTaj logo" />
 
@@ -13,7 +21,20 @@ export default function Header() {
         </span>
       </Link>
 
-      <div className="header-actions">
+      <button
+        className="mobile-menu-toggle"
+        type="button"
+        aria-expanded={isMenuOpen}
+        aria-controls="main-navigation"
+        aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+        onClick={() => setIsMenuOpen((current) => !current)}
+      >
+        <span />
+        <span />
+        <span />
+      </button>
+
+      <div className="header-actions" id="main-navigation">
         <nav aria-label="Main navigation">
           <NavLink to="/" end>
             Home
