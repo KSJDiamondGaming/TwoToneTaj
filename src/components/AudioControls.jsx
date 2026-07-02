@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import '../styles/player.css'
 
-const PREFERRED_FIRST_TRACK = 'TwoToneTaj - Rides Again.mp3'
+const PREFERRED_FIRST_TRACK = 'TwoToneTaj - Community.mp3'
 const AUTO_PLAY = true
 
 const trackModules = import.meta.glob('../assets/tracks/*.{mp3,wav,ogg,m4a}', {
