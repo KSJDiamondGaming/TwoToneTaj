@@ -18,11 +18,11 @@ export default function Privacy() {
         <h2>1. Who we are</h2>
         <p>
           This website is operated for TwoToneTaj and supported by KSJ Digital.
-          For website support or privacy questions, contact:
+          For privacy questions or general enquiries relating to this website, contact:
         </p>
         <p>
-          <a href="mailto:support@ksjdigital.co.uk">
-            support@ksjdigital.co.uk
+          <a href="mailto:enquiries@ksjdigital.co.uk">
+            enquiries@ksjdigital.co.uk
           </a>
         </p>
 
@@ -59,7 +59,7 @@ export default function Privacy() {
         <h2>6. How information is used</h2>
         <p>
           Any information received is used to operate the website, respond to
-          support requests, improve the user experience, and maintain the site.
+          enquiries or support requests, improve the user experience, and maintain the site.
         </p>
 
         <h2>7. Data sharing</h2>
