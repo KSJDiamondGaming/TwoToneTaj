@@ -33,6 +33,7 @@ import './styles/merch-final-fixes.css'
 import './styles/contact.css'
 import './styles/legal.css'
 import './styles/mobile-audit.css'
+import './styles/home-mobile.css'
 
 function App() {
   return (
