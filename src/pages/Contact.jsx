@@ -8,26 +8,6 @@ const businessEmail = 'media@ksjdigital.co.uk'
 
 const contactOptions = [
   {
-    icon: '📧',
-    eyebrow: 'Business & Media',
-    title: 'Email TwoToneTaj',
-    text: 'For collaborations, partnerships, creator opportunities, press, sponsorships and professional enquiries.',
-    action: businessEmail,
-    href: `mailto:${businessEmail}?subject=TwoToneTaj Business Enquiry`,
-    note: 'Official media contact managed through KSJ Digital.',
-    tone: 'email',
-  },
-  {
-    icon: '💬',
-    eyebrow: 'Community Contact',
-    title: 'Join The Discord',
-    text: 'For community chat, stream updates, gaming conversations and general TajSquad interaction.',
-    action: 'Open TajSquad Discord',
-    href: discordUrl,
-    note: 'The best place for day-to-day community contact.',
-    tone: 'discord',
-  },
-  {
     icon: '🔗',
     eyebrow: 'Official Profiles',
     title: 'All Creator Links',
@@ -89,7 +69,6 @@ export default function Contact() {
       </section>
 
       <section className="contact-section-head">
-        <p className="eyebrow">Choose The Right Route</p>
         <h2>Contact Options</h2>
         <p>Use email for professional enquiries and Discord for community conversation.</p>
       </section>

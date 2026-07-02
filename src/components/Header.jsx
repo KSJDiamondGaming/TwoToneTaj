@@ -39,7 +39,6 @@ export default function Header() {
           <NavLink to="/content" onClick={closeMenu}>Content</NavLink>
           <NavLink to="/community" onClick={closeMenu}>Community</NavLink>
           <NavLink to="/merch" onClick={closeMenu}>Merch</NavLink>
-          <NavLink to="/contact" onClick={closeMenu}>Contact</NavLink>
         </nav>
 
         <a
