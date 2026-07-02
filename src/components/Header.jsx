@@ -43,6 +43,7 @@ export default function Header() {
           <NavLink to="/content">Content</NavLink>
           <NavLink to="/community">Community</NavLink>
           <NavLink to="/merch">Merch</NavLink>
+          <NavLink to="/contact">Contact</NavLink>
         </nav>
 
         <a
