@@ -1,4 +1,4 @@
-const videos = [
+export default [
   {
     id: 'VIDEO_ID_1',
     title: 'Featured YouTube Video',
