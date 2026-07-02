@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "validate:merch": "node scripts/validate-merch.mjs",
+    "check": "npm run lint && npm run validate:merch && npm run build",
     "preview": "vite preview"
   },
   "dependencies": {
