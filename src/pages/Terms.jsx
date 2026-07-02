@@ -64,9 +64,9 @@ export default function Terms() {
           uninterrupted, or fully up to date.
         </p>
 
-        <h2>8. Contact</h2>
+        <h2>8. Support</h2>
         <p>
-          For website support, questions, or enquiries, contact:
+          For website support or technical questions relating to this site, contact:
         </p>
         <p>
           <a href="mailto:support@ksjdigital.co.uk">
