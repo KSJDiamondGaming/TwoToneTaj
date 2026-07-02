@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom'
 
 // Layout
 import Header from './components/Header'
@@ -41,7 +41,7 @@ function App() {
     <BrowserRouter>
       <Header />
 
-      <main>
+      <div className="site-content">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -51,8 +51,9 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </main>
+      </div>
 
       <Footer />
       <FloatingNotice />
