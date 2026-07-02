@@ -32,6 +32,7 @@ import './styles/merch-polish.css'
 import './styles/merch-final-fixes.css'
 import './styles/contact.css'
 import './styles/legal.css'
+import './styles/mobile-audit.css'
 
 function App() {
   return (
