@@ -1,0 +1,537 @@
+/* =========================================================
+   REMAINING PAGES — MOBILE / NARROW TABLET PASS
+   Desktop remains unchanged above 900px.
+========================================================= */
+
+@media (max-width: 900px) {
+  .about-page,
+  .content-page,
+  .community-page,
+  .merch-page,
+  .contact-page,
+  .privacy-page,
+  .terms-page {
+    width: min(var(--site-width), calc(100% - 20px));
+    margin-left: auto !important;
+    margin-right: auto !important;
+    overflow: visible;
+  }
+
+  /* ABOUT */
+  .about-page {
+    margin-top: 20px;
+  }
+
+  .about-hero-card {
+    min-height: auto;
+    padding: 28px 22px 0;
+    border-radius: 18px;
+  }
+
+  .about-hero-card::before {
+    inset: 10px;
+    border-radius: 13px;
+  }
+
+  .about-hero-content {
+    width: 100%;
+    max-width: none;
+  }
+
+  .about-hero-content h1 {
+    font-size: clamp(38px, 10vw, 62px);
+    letter-spacing: -1px;
+  }
+
+  .about-subtitle {
+    font-size: 19px !important;
+  }
+
+  .about-hero-content p,
+  .about-highlight,
+  .about-signature {
+    max-width: none;
+  }
+
+  .about-avatar {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: min(390px, 92%);
+    margin: 8px auto -34px;
+  }
+
+  .about-story-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .about-story-card,
+  .about-wide-card,
+  .about-final-card {
+    grid-column: auto;
+    min-width: 0;
+    min-height: 0;
+    padding: 20px;
+    border-radius: 15px;
+  }
+
+  .about-card-copy,
+  .about-wide-copy {
+    max-width: 100%;
+  }
+
+  .about-story-grid article:nth-child(4) h2 {
+    white-space: normal;
+  }
+
+  .about-card-art {
+    position: relative;
+    inset: auto !important;
+    display: block;
+    width: min(220px, 68%) !important;
+    height: auto !important;
+    margin: 16px auto 0;
+    opacity: 0.42 !important;
+  }
+
+  .about-mini-list,
+  .about-moment-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .about-priority-list {
+    max-width: none;
+  }
+
+  .about-final-card {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .final-logo {
+    width: 76px;
+    height: 76px;
+  }
+
+  .final-logo img {
+    width: 76px;
+    height: 76px;
+  }
+
+  .final-points,
+  .final-quote {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  /* CONTENT */
+  .content-page {
+    margin-top: 20px !important;
+    margin-bottom: 42px !important;
+  }
+
+  .content-hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 16px;
+    padding: 26px;
+    border-radius: 18px;
+  }
+
+  .content-hero h1 {
+    font-size: clamp(40px, 11vw, 66px);
+    letter-spacing: -1px;
+  }
+
+  .content-hero p:not(.eyebrow) {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .content-hero-feature {
+    min-height: 0;
+    padding: 22px;
+    border-radius: 16px;
+  }
+
+  .content-hero-actions,
+  .content-section-head,
+  .content-footer-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .content-hero-actions .btn,
+  .content-section-head > a,
+  .content-card > a,
+  .content-footer-panel .btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .content-section-head {
+    margin-top: 28px;
+  }
+
+  .content-feed {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .content-feed .youtube-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .content-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .content-card {
+    min-height: 0;
+    padding: 22px;
+    border-radius: 16px;
+  }
+
+  .content-footer-panel {
+    padding: 24px;
+    border-radius: 17px;
+  }
+
+  /* COMMUNITY */
+  .community-page {
+    margin-top: 20px;
+  }
+
+  .community-hero,
+  .community-dashboard-panel,
+  .community-values-panel,
+  .community-join-panel {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 26px;
+    border-radius: 18px;
+  }
+
+  .community-hero {
+    min-height: 0;
+  }
+
+  .community-hero h1 {
+    font-size: clamp(40px, 11vw, 66px);
+    letter-spacing: -1px;
+  }
+
+  .community-hero p {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .community-hero-actions,
+  .community-quick-links {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .community-hero-actions .btn,
+  .community-quick-links .btn,
+  .community-discord-card a {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .community-discord-card {
+    min-height: 0;
+    padding: 22px;
+    border-radius: 17px;
+  }
+
+  .community-discord-card img {
+    width: min(150px, 58%);
+  }
+
+  .community-stats-grid,
+  .community-area-grid,
+  .community-signal-grid,
+  .community-values-list,
+  .community-live-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .community-stat-card,
+  .community-area-card {
+    min-width: 0;
+    min-height: 0;
+    padding: 18px;
+    border-radius: 15px;
+  }
+
+  /* MERCH */
+  .merch-page {
+    margin-top: 20px;
+  }
+
+  .merch-hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 16px;
+    padding: 28px;
+    border-radius: 18px;
+  }
+
+  .merch-hero::after {
+    inset: 10px;
+    border-radius: 13px;
+  }
+
+  .merch-hero h1 {
+    font-size: clamp(42px, 11vw, 68px);
+    letter-spacing: -1px;
+  }
+
+  .merch-subtitle {
+    font-size: 15px;
+  }
+
+  .merch-hero-brand {
+    min-height: 190px;
+  }
+
+  .merch-hero-brand img {
+    width: min(250px, 74%);
+  }
+
+  .merch-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .merch-tabs button {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .merch-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
+  }
+
+  .merch-controls label,
+  .merch-controls select,
+  .merch-reset-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .merch-reset-btn {
+    grid-column: 1 / -1;
+  }
+
+  .merch-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .merch-product-card {
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .merch-product-image-wrap {
+    min-height: 180px;
+  }
+
+  .merch-product-image-wrap > img,
+  .merch-product-image-wrap .merch-image-placeholder {
+    height: 150px;
+  }
+
+  .merch-trust-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .merch-final-cta {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .merch-final-actions {
+    justify-content: stretch;
+  }
+
+  .merch-final-actions .btn {
+    width: 100%;
+  }
+
+  /* CONTACT */
+  .contact-page {
+    margin-top: 20px !important;
+    margin-bottom: 42px !important;
+  }
+
+  .contact-hero,
+  .contact-enquiries {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 26px;
+    border-radius: 18px;
+  }
+
+  .contact-hero {
+    min-height: 0;
+  }
+
+  .contact-hero h1 {
+    font-size: clamp(40px, 11vw, 66px);
+    letter-spacing: -1px;
+  }
+
+  .contact-hero p:not(.eyebrow) {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .contact-hero-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .contact-hero-actions .btn,
+  .contact-action,
+  .contact-enquiries-copy > a {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .contact-hero-mark {
+    min-height: 0;
+    padding: 22px;
+    border-radius: 16px;
+  }
+
+  .contact-grid,
+  .contact-enquiry-list {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .contact-panel {
+    min-width: 0;
+    min-height: 0;
+    padding: 22px;
+    border-radius: 16px;
+  }
+
+  .contact-thanks {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 24px;
+  }
+
+  /* LEGAL */
+  .privacy-page,
+  .terms-page {
+    margin-top: 18px !important;
+    margin-bottom: 42px !important;
+  }
+
+  .privacy-hero,
+  .privacy-card,
+  .terms-hero,
+  .terms-card {
+    padding: 24px;
+    border-radius: 17px;
+  }
+
+  .privacy-hero h1,
+  .terms-hero h1 {
+    font-size: clamp(34px, 9vw, 52px);
+  }
+
+  .privacy-hero p,
+  .terms-hero p {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  .privacy-card p,
+  .terms-card p,
+  .privacy-card a,
+  .terms-card a {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 600px) {
+  .about-page,
+  .content-page,
+  .community-page,
+  .merch-page,
+  .contact-page,
+  .privacy-page,
+  .terms-page {
+    width: calc(100% - 16px);
+  }
+
+  .about-mini-list,
+  .about-moment-grid,
+  .community-stats-grid,
+  .community-area-grid,
+  .community-signal-grid,
+  .community-values-list,
+  .community-live-grid,
+  .merch-product-grid,
+  .merch-trust-strip,
+  .contact-grid,
+  .contact-enquiry-list {
+    grid-template-columns: 1fr;
+  }
+
+  .about-hero-card,
+  .about-story-card,
+  .content-hero,
+  .content-card,
+  .content-footer-panel,
+  .community-hero,
+  .community-dashboard-panel,
+  .community-values-panel,
+  .community-join-panel,
+  .merch-hero,
+  .contact-hero,
+  .contact-panel,
+  .contact-enquiries,
+  .contact-thanks,
+  .privacy-hero,
+  .privacy-card,
+  .terms-hero,
+  .terms-card {
+    padding: 20px;
+  }
+
+  .merch-tabs,
+  .merch-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .merch-reset-btn {
+    grid-column: auto;
+  }
+
+  .content-hero h1,
+  .community-hero h1,
+  .merch-hero h1,
+  .contact-hero h1 {
+    font-size: clamp(36px, 12vw, 54px);
+  }
+
+  .content-feature-tags {
+    gap: 6px;
+  }
+}
