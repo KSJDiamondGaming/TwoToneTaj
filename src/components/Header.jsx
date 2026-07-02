@@ -1,18 +1,14 @@
-import { useEffect, useState } from 'react'
-import { NavLink, Link, useLocation } from 'react-router-dom'
+import { useState } from 'react'
+import { NavLink, Link } from 'react-router-dom'
 import logo from '../assets/logo.png'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const location = useLocation()
-
-  useEffect(() => {
-    setIsMenuOpen(false)
-  }, [location.pathname])
+  const closeMenu = () => setIsMenuOpen(false)
 
   return (
     <header className={`site-header${isMenuOpen ? ' site-header--menu-open' : ''}`}>
-      <Link className="brand" to="/" aria-label="TwoToneTaj home">
+      <Link className="brand" to="/" aria-label="TwoToneTaj home" onClick={closeMenu}>
         <img src={logo} alt="TwoToneTaj logo" />
 
         <span>
@@ -36,14 +32,14 @@ export default function Header() {
 
       <div className="header-actions" id="main-navigation">
         <nav aria-label="Main navigation">
-          <NavLink to="/" end>
+          <NavLink to="/" end onClick={closeMenu}>
             Home
           </NavLink>
-          <NavLink to="/about">About</NavLink>
-          <NavLink to="/content">Content</NavLink>
-          <NavLink to="/community">Community</NavLink>
-          <NavLink to="/merch">Merch</NavLink>
-          <NavLink to="/contact">Contact</NavLink>
+          <NavLink to="/about" onClick={closeMenu}>About</NavLink>
+          <NavLink to="/content" onClick={closeMenu}>Content</NavLink>
+          <NavLink to="/community" onClick={closeMenu}>Community</NavLink>
+          <NavLink to="/merch" onClick={closeMenu}>Merch</NavLink>
+          <NavLink to="/contact" onClick={closeMenu}>Contact</NavLink>
         </nav>
 
         <a
@@ -51,6 +47,7 @@ export default function Header() {
           href="https://discord.gg/WcbtQPuByd"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={closeMenu}
         >
           Join TajSquad
         </a>
