@@ -34,6 +34,7 @@ import './styles/contact.css'
 import './styles/legal.css'
 import './styles/mobile-audit.css'
 import './styles/home-mobile.css'
+import './styles/remaining-pages-mobile.css'
 
 function App() {
   return (
