@@ -1,0 +1,99 @@
+/* Checkout-ready merch states */
+
+.merch-checkout-notice {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.merch-checkout-notice > div {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid rgba(18, 201, 112, 0.18);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(18, 201, 112, 0.08), transparent 44%),
+    rgba(5, 9, 7, 0.86);
+}
+
+.merch-checkout-notice span {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--green);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+}
+
+.merch-checkout-notice strong {
+  display: block;
+  color: #fff;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.merch-checkout-notice p {
+  margin: 7px 0 0;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.merch-product-card.is-available {
+  border-color: rgba(18, 201, 112, 0.58);
+  box-shadow: 0 0 28px rgba(18, 201, 112, 0.1);
+}
+
+.merch-badges .available {
+  background: var(--green);
+}
+
+.merch-badges .unavailable {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.merch-fulfilment-note {
+  margin-top: 12px !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  font-size: 11px !important;
+  line-height: 1.45 !important;
+}
+
+.merch-checkout-action {
+  display: grid;
+  gap: 8px;
+  padding: 0 18px 18px;
+}
+
+.merch-checkout-action .merch-buy-btn {
+  width: 100%;
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.merch-checkout-action small {
+  color: rgba(255, 255, 255, 0.46);
+  font-size: 10px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .merch-checkout-notice {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .merch-checkout-notice > div {
+    padding: 16px;
+  }
+}
