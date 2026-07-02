@@ -1,0 +1,386 @@
+/* =========================================================
+   HOME PAGE — PURPOSE-BUILT MOBILE LAYOUT
+   Desktop styles remain unchanged.
+========================================================= */
+
+@media (max-width: 760px) {
+  .home {
+    width: min(var(--site-width), calc(100% - 20px));
+    padding-bottom: 18px;
+  }
+
+  .hero-panel {
+    position: relative;
+    min-height: 500px;
+    display: block;
+    margin-top: 14px;
+    padding: 30px 20px 235px;
+    overflow: hidden;
+    border: 1px solid rgba(18, 201, 112, 0.2);
+    border-radius: 18px;
+    background:
+      radial-gradient(circle at 75% 68%, rgba(18, 201, 112, 0.24), transparent 38%),
+      linear-gradient(180deg, rgba(6, 10, 8, 0.98), #000 72%);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.48);
+  }
+
+  .hero-panel::after {
+    z-index: 2;
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.08) 42%, rgba(0, 0, 0, 0.7) 100%),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.72), transparent 72%);
+  }
+
+  .hero-copy {
+    position: relative;
+    z-index: 4;
+    width: 100%;
+    max-width: none;
+  }
+
+  .hero-eyebrow {
+    margin-bottom: 9px;
+    font-size: 18px;
+    letter-spacing: 1.2px;
+  }
+
+  .hero-copy h1 {
+    max-width: 100%;
+    font-size: clamp(40px, 13vw, 64px);
+    line-height: 0.92;
+    letter-spacing: -0.8px;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  .hero-est {
+    gap: 10px;
+    margin: 13px 0 16px;
+    font-size: 23px;
+  }
+
+  .hero-est::before,
+  .hero-est::after {
+    width: 34px;
+  }
+
+  .hero-copy p {
+    max-width: 330px;
+    color: rgba(255, 255, 255, 0.84);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .hero-dragon {
+    position: absolute !important;
+    z-index: 3;
+    right: -112px !important;
+    bottom: -72px !important;
+    width: 470px !important;
+    max-width: none !important;
+    height: auto !important;
+    margin: 0 !important;
+    opacity: 0.96;
+    filter:
+      drop-shadow(0 0 26px rgba(18, 201, 112, 0.28))
+      drop-shadow(0 22px 28px rgba(0, 0, 0, 0.9));
+  }
+
+  .home-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "twitch"
+      "youtube"
+      "schedule"
+      "about";
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .home .panel {
+    padding: 17px !important;
+    border-radius: 15px;
+  }
+
+  .home .panel h2 {
+    margin-bottom: 14px;
+    font-size: 23px;
+  }
+
+  .home .panel h2 img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .twitch-preview,
+  .twitch-preview iframe {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  .twitch-meta-card {
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 14px;
+  }
+
+  .twitch-meta-card strong {
+    font-size: 18px;
+  }
+
+  .twitch-meta-card span {
+    font-size: 13px;
+  }
+
+  .twitch-meta-card a {
+    width: 100%;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .youtube-panel-head {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .youtube-panel-head h2 {
+    min-height: 0;
+  }
+
+  .youtube-panel-head a {
+    width: 100%;
+    min-height: 42px;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(18, 201, 112, 0.24);
+    border-radius: 8px;
+    background: rgba(18, 201, 112, 0.06);
+  }
+
+  .youtube-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .youtube-card {
+    display: grid;
+    grid-template-columns: 132px minmax(0, 1fr);
+    min-height: 92px;
+  }
+
+  .youtube-thumb {
+    height: 100%;
+    min-height: 92px;
+    aspect-ratio: auto;
+  }
+
+  .youtube-card-body {
+    min-width: 0;
+    padding: 11px;
+  }
+
+  .youtube-card-body strong {
+    min-height: 0;
+    font-size: 13px;
+    -webkit-line-clamp: 2;
+  }
+
+  .youtube-card-body small {
+    margin-top: 7px;
+    font-size: 10px;
+  }
+
+  .schedule-list {
+    gap: 7px;
+  }
+
+  .schedule-list p {
+    min-height: 38px;
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    padding: 7px 9px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.18);
+    font-size: 13px;
+  }
+
+  .schedule-list strong {
+    font-size: 18px;
+  }
+
+  .schedule-list span {
+    text-align: right;
+  }
+
+  .schedule-timezone {
+    margin-top: 16px;
+    padding-top: 14px;
+  }
+
+  .schedule-timezone strong {
+    font-size: 24px;
+  }
+
+  .schedule-timezone p {
+    max-width: none;
+    font-size: 12px;
+  }
+
+  .about-image {
+    height: 180px;
+    margin-bottom: 14px;
+  }
+
+  .about-panel p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .about-link {
+    width: 100%;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .socials-panel,
+  .expect-panel,
+  .merch-panel {
+    margin-top: 12px;
+  }
+
+  .socials-panel,
+  .expect-panel {
+    padding: 17px !important;
+    border-radius: 15px;
+  }
+
+  .socials-panel h2,
+  .expect-panel h2 {
+    margin-bottom: 13px !important;
+    font-size: 23px !important;
+  }
+
+  .socials-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .social-card {
+    min-height: 72px;
+    padding: 9px 5px;
+    border-radius: 12px;
+  }
+
+  .social-card img {
+    width: 38px;
+    height: 38px;
+    margin: 0;
+  }
+
+  .social-handle {
+    display: none;
+  }
+
+  .expect-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .expect-card {
+    min-height: 145px;
+    padding: 14px 10px;
+  }
+
+  .expect-card img {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 8px;
+  }
+
+  .expect-card strong {
+    font-size: 13px;
+  }
+
+  .expect-card p {
+    font-size: 12px;
+  }
+
+  .merch-card {
+    padding: 28px 18px;
+    border-radius: 15px;
+  }
+
+  .merch-content h2 {
+    margin-top: 7px;
+    margin-bottom: 12px;
+    font-size: clamp(30px, 10vw, 42px);
+  }
+
+  .merch-content p {
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+
+  .merch-actions .btn {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 430px) {
+  .home {
+    width: calc(100% - 16px);
+  }
+
+  .hero-panel {
+    min-height: 475px;
+    padding: 26px 16px 218px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(36px, 12.5vw, 52px);
+  }
+
+  .hero-copy p {
+    max-width: 285px;
+    font-size: 13px;
+  }
+
+  .hero-dragon {
+    right: -126px !important;
+    bottom: -62px !important;
+    width: 440px !important;
+  }
+
+  .youtube-card {
+    grid-template-columns: 112px minmax(0, 1fr);
+  }
+
+  .socials-grid {
+    gap: 5px;
+  }
+
+  .social-card {
+    min-height: 64px;
+    padding: 7px 3px;
+  }
+
+  .social-card img {
+    width: 34px;
+    height: 34px;
+  }
+
+  .expect-card {
+    min-height: 135px;
+  }
+}
