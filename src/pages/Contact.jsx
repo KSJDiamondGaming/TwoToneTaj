@@ -24,7 +24,7 @@ const contactOptions = [
     text: 'Support future content creation and community projects. It is always appreciated and never expected.',
     action: 'Support On PayPal',
     href: paypalUrl,
-    note: 'Every bit helps keep the content and community moving forward.',
+    note: 'Every contribution helps support future content and community projects.',
     tone: 'support',
   },
 ]
@@ -36,6 +36,20 @@ const enquiryTypes = [
   ['Community', 'Discord questions, TajSquad topics and general contact.'],
 ]
 
+function ExternalLink({ className, href, children, label }) {
+  return (
+    <a
+      className={className}
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+    >
+      {children}
+    </a>
+  )
+}
+
 export default function Contact() {
   return (
     <main className="page contact-page">
@@ -46,7 +60,7 @@ export default function Contact() {
             Let’s <span>Talk</span>
           </h1>
           <p>
-            Whether it is a collaboration, media opportunity, community question or a quick hello,
+            For collaborations, media opportunities, community questions or a quick hello,
             use the official TwoToneTaj contact routes below.
           </p>
 
@@ -54,9 +68,13 @@ export default function Contact() {
             <a className="btn primary" href={`mailto:${businessEmail}?subject=TwoToneTaj Enquiry`}>
               Email TwoToneTaj
             </a>
-            <a className="btn ghost" href={discordUrl} target="_blank" rel="noopener noreferrer">
+            <ExternalLink
+              className="btn ghost"
+              href={discordUrl}
+              label="Join the TajSquad Discord"
+            >
               Join TajSquad
-            </a>
+            </ExternalLink>
           </div>
         </div>
 
@@ -69,11 +87,14 @@ export default function Contact() {
       </section>
 
       <section className="contact-section-head">
-        <h2>Contact Options</h2>
-        <p>Use email for professional enquiries and Discord for community conversation.</p>
+        <p className="eyebrow">Official Destinations</p>
+        <h2>Links & Support</h2>
+        <p>
+          Find verified TwoToneTaj profiles or support future content through the official links below.
+        </p>
       </section>
 
-      <section className="contact-grid" aria-label="TwoToneTaj contact options">
+      <section className="contact-grid" aria-label="TwoToneTaj official links and support">
         {contactOptions.map((option) => (
           <article className={`contact-panel contact-panel-${option.tone}`} key={option.title}>
             <div className="contact-panel-top">
@@ -84,27 +105,26 @@ export default function Contact() {
             </div>
 
             <div className="contact-panel-bottom">
-              <a
+              <ExternalLink
                 className="contact-action"
                 href={option.href}
-                target={option.href.startsWith('http') ? '_blank' : undefined}
-                rel={option.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                label={`${option.action}: ${option.title}`}
               >
                 {option.action}
-              </a>
+              </ExternalLink>
               <small>{option.note}</small>
             </div>
           </article>
         ))}
       </section>
 
-      <section className="contact-enquiries" aria-label="Enquiry types">
+      <section className="contact-enquiries" aria-label="Professional enquiry types">
         <div className="contact-enquiries-copy">
-          <p className="eyebrow">What To Contact About</p>
-          <h2>Professional Enquiries Welcome</h2>
+          <p className="eyebrow">Professional Contact</p>
+          <h2>Enquiries Welcome</h2>
           <p>
-            Relevant opportunities are always considered. Clear details, realistic timelines and a proper introduction
-            help make every enquiry easier to review.
+            Relevant opportunities are always considered. A clear introduction, useful details and realistic timelines
+            make every enquiry easier to review.
           </p>
           <a href={`mailto:${businessEmail}?subject=TwoToneTaj Professional Enquiry`}>
             Start An Email
