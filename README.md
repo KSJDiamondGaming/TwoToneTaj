@@ -1,14 +1,47 @@
-# TwoToneTaj Website
+# 🎮 TwoToneTaj Website
 
-Official website for **TwoToneTaj**, a creator/streamer brand and home of the **TajSquad** community.
+[![CI Status](https://github.com/KSJHub/TwoToneTaj/actions/workflows/validate.yml/badge.svg)](https://github.com/KSJHub/TwoToneTaj/actions)
+[![Deploy Status](https://github.com/KSJHub/TwoToneTaj/actions/workflows/deploy.yml/badge.svg)](https://github.com/KSJHub/TwoToneTaj/actions)
+[![License](https://img.shields.io/badge/license-private-blue.svg)](#)
+[![Live Site](https://img.shields.io/badge/live-twotonetaj.ksjdigital.co.uk-green)](https://twotonetaj.ksjdigital.co.uk)
 
-The site is a dark gaming-style React/Vite website using the TwoToneTaj black, neon-green, and dragon-led visual identity.
+---
 
-## Live site
+## 🌐 Live Website
 
-`https://twotonetaj.ksjdigital.co.uk`
+👉 **https://twotonetaj.ksjdigital.co.uk**
 
-## Main pages
+---
+
+## 🧠 Overview
+
+**TwoToneTaj** is a gaming and creator brand website built for streaming, community engagement, and digital content.
+
+It is the home of the **TajSquad** community and acts as the central hub for content, updates, and future creator tools.
+
+The site is built with a modern React + Vite stack and styled with a dark neon gaming aesthetic.
+
+---
+
+## 🖼 Screenshots
+
+> Replace with real screenshots in `/docs/screenshots/`
+
+### 🏠 Home Page
+![Home](docs/screenshots/home.png)
+
+### 👤 About Page
+![About](docs/screenshots/about.png)
+
+### 🛒 Merch Page
+![Merch](docs/screenshots/merch.png)
+
+### 💬 Community Page
+![Community](docs/screenshots/community.png)
+
+---
+
+## 📄 Pages
 
 - Home
 - About
@@ -16,20 +49,42 @@ The site is a dark gaming-style React/Vite website using the TwoToneTaj black, n
 - Community
 - Merch
 - Contact
-- Privacy
-- Terms
+- Privacy Policy
+- Terms of Use
 
-## Tech stack
+---
+
+## 🛠 Tech Stack
 
 - React
 - Vite
 - React Router
-- CSS
-- Nginx on the production VPS
+- CSS (custom design system)
+- Node.js tooling
+- Nginx (production server)
+- GitHub Actions (CI/CD)
 
-## Project structure
+---
 
-```txt
+## 🚀 CI / CD Pipeline
+
+### ✔ Automated Validation
+Every push to `main` triggers:
+
+- ESLint checks
+- Merch validation
+- Production build verification
+
+### 🚀 Deployment Workflow
+Production deployment is manually triggered via:
+
+> GitHub → Actions → **Deploy TwoToneTaj**
+
+---
+
+## 📦 Project Structure
+
+```
 src/
   assets/
   components/
@@ -45,47 +100,24 @@ scripts/
   deploy-vps.sh
 ```
 
-## Development
+---
 
-Install dependencies:
+## 🛒 Merch System
 
-```bash
-npm install
+Centralised data source:
+
 ```
-
-Run locally:
-
-```bash
-npm run dev
-```
-
-Run the production build:
-
-```bash
-npm run build
-```
-
-Run lint checks:
-
-```bash
-npm run lint
-```
-
-Preview the production build:
-
-```bash
-npm run preview
-```
-
-## Merch data
-
-The merch system now uses one source of truth:
-
-```txt
 src/data/merchProducts.js
 ```
 
-Each product record contains its own product information and image metadata:
+Each product includes structured metadata such as:
+
+- Name
+- Price
+- Image data
+- Availability state
+
+Example:
 
 ```js
 {
@@ -94,26 +126,35 @@ Each product record contains its own product information and image metadata:
   priceGBP: 44.99,
   image: {
     id: 'media_hoodie_001',
-    title: 'Hoodie product image',
     url: '',
-    alt: 'TwoToneTaj Signature Hoodie',
-  },
+    alt: 'TwoToneTaj Signature Hoodie'
+  }
 }
 ```
 
-If no image URL is available, the Merch page renders a branded placeholder instead of a broken image.
+---
 
-The React frontend does not process payments directly. Future checkout links should use secure external services such as Shopify Checkout, Stripe Checkout, or PayPal.
+## 💳 Payments
 
-## VPS deployment
+This site does not process payments directly.
 
-The production project lives at:
+All transactions use secure external providers such as:
 
-```txt
+- Shopify Checkout
+- Stripe Checkout
+- PayPal
+
+---
+
+## 🚀 Deployment
+
+### Production Location
+
+```
 /home/twotonetaj/site
 ```
 
-A repeatable deployment script is included:
+### Manual Deploy (VPS)
 
 ```bash
 cd /home/twotonetaj/site
@@ -121,27 +162,9 @@ chmod +x scripts/deploy-vps.sh
 ./scripts/deploy-vps.sh
 ```
 
-The script:
+---
 
-1. Pulls the latest `main` branch with fast-forward-only protection.
-2. Installs dependencies using `npm ci`.
-3. Runs the production build.
-4. Confirms `dist/index.html` exists.
-5. Validates and reloads Nginx.
-6. Smoke-tests every public route on the live site.
-
-Optional environment overrides:
-
-```bash
-SITE_DIR=/home/twotonetaj/site \
-BRANCH=main \
-LIVE_URL=https://twotonetaj.ksjdigital.co.uk \
-./scripts/deploy-vps.sh
-```
-
-## Nginx requirements
-
-React Router requires an SPA fallback for direct route visits and browser refreshes:
+## 🌍 Routing (SPA Config)
 
 ```nginx
 location / {
@@ -149,33 +172,43 @@ location / {
 }
 ```
 
-A complete example is provided at:
+Ensures React Router works on refresh and direct links.
 
-```txt
-deploy/nginx.twotonetaj.conf.example
-```
+---
 
-The example also:
+## 🎨 Brand Identity
 
-- caches hashed Vite assets long-term;
-- prevents strong caching of `index.html`;
-- adds basic security headers;
-- serves the build from `/home/twotonetaj/site/dist`.
+- Dark gaming UI
+- Neon green accents
+- Subtle red/orange dragon styling
+- Modern typography
+- Mobile-first responsive layout
 
-Review the example before applying it because the live server may already include HTTPS and Certbot-managed directives.
+---
 
-## Brand direction
+## 🔐 Internal Systems
 
-The site should remain consistent with the established TwoToneTaj identity:
+- GitHub is the source of truth
+- VPS is production only
+- All releases go through CI validation
+- Manual deploy via GitHub Actions
 
-- dark black gaming background;
-- neon-green accents;
-- subtle red/orange dragon and fire glow;
-- official TwoToneTaj dragon and logo assets;
-- Russo One, Bebas Neue, and Inter typography;
-- responsive desktop, tablet, and mobile layouts;
-- no unrelated replacement logos or colour schemes.
+---
 
-## Future portal direction
+## 🔮 Future Expansion
 
-The site is structured so a future KSJ Digital client portal can manage approved editable content without requiring clients to edit code, rename files, use GitHub, or rebuild the site manually.
+Planned upgrades:
+
+- Advanced community systems
+- Creator tools portal
+- Merch automation
+- KSJ Digital integration layer
+- Discord-driven features
+
+---
+
+## 🤝 Status
+
+🔥 Active development
+⚡ CI/CD enabled
+🚀 Production deployed
