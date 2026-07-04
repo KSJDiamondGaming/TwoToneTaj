@@ -1,0 +1,63 @@
+name: Rollback Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_ref:
+        description: "Release tag or commit SHA to deploy, for example v1.0.0"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: twotonetaj-production
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    name: Roll back production
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: https://twotonetaj.ksjdigital.co.uk
+
+    steps:
+      - name: Configure SSH
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/twotonetaj_rollback
+          chmod 600 ~/.ssh/twotonetaj_rollback
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy selected ref
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          DEPLOY_REF: ${{ inputs.deploy_ref }}
+        run: |
+          PORT="${VPS_PORT:-22}"
+
+          ssh \
+            -i ~/.ssh/twotonetaj_rollback \
+            -p "$PORT" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            "$VPS_USER@$VPS_HOST" \
+            "set -Eeuo pipefail
+             cd /home/twotonetaj/site
+             DEPLOY_REF='$DEPLOY_REF' bash scripts/deploy-vps.sh"
+
+      - name: Rollback summary
+        run: |
+          echo "## TwoToneTaj rollback deployed" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Deployed ref: ${{ inputs.deploy_ref }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Production: https://twotonetaj.ksjdigital.co.uk" >> "$GITHUB_STEP_SUMMARY"
