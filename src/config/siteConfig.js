@@ -36,9 +36,9 @@ export const siteConfig = {
 export const getMailTo = (email, subject) =>
   `mailto:${email}?subject=${encodeURIComponent(subject)}`
 
-export const getTwitchEmbedUrl = () => {
+export const getTwitchEmbedUrl = (channel = siteConfig.platforms.twitchChannel) => {
   const params = new URLSearchParams({
-    channel: siteConfig.platforms.twitchChannel,
+    channel,
     muted: 'true',
   })
 
@@ -49,5 +49,5 @@ export const getTwitchEmbedUrl = () => {
   return `https://player.twitch.tv/?${params.toString()}`
 }
 
-export const getYouTubeFeedUrl = () =>
-  `https://www.youtube.com/feeds/videos.xml?channel_id=${siteConfig.platforms.youtubeChannelId}`
+export const getYouTubeFeedUrl = (channelId = siteConfig.platforms.youtubeChannelId) =>
+  `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`
