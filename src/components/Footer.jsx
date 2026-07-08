@@ -1,19 +1,22 @@
 import { Link } from 'react-router-dom'
+import { getMailTo } from '../config/siteConfig'
+import { useManagedSite } from '../hooks/useManagedSite'
 
 const currentYear = new Date().getFullYear()
-const supportEmail = 'support@ksjdigital.co.uk'
 
 export default function Footer() {
+  const { site } = useManagedSite()
+
   return (
     <footer className="footer">
       <div className="footer-inner">
         <div className="footer-left">
           <div className="footer-brand">
-            <strong>TwoToneTaj</strong>
-            <small>Average Gamer • Est. 1989</small>
+            <strong>{site.brand.name}</strong>
+            <small>{site.brand.tagline}</small>
           </div>
 
-          <p>© {currentYear} TwoToneTaj. All rights reserved.</p>
+          <p>© {currentYear} {site.brand.name}. All rights reserved.</p>
         </div>
 
         <div className="footer-right">
@@ -22,12 +25,12 @@ export default function Footer() {
             <Link to="/privacy">Privacy</Link>
             <Link to="/terms">Terms</Link>
 
-            <a href={`mailto:${supportEmail}?subject=TwoToneTaj Website Support`}>
+            <a href={getMailTo(site.contact.supportEmail, `${site.brand.name} Website Support`)}>
               Support
             </a>
           </nav>
 
-          <span className="footer-credit">Website by KSJ Digital</span>
+          <span className="footer-credit">{site.brand.supportCredit}</span>
         </div>
       </div>
     </footer>
