@@ -1,44 +1,6 @@
-import { useEffect, useState } from 'react'
-
-const CHANNEL_ID = 'UC54tVexRR4IXeXpzg2Dq1UA'
-const CHANNEL_URL = 'https://www.youtube.com/@twotonetaj'
-const RSS_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`
-const PROXY_URL = `https://api.allorigins.win/raw?url=${encodeURIComponent(RSS_URL)}`
-
-const fallbackVideos = [
-  {
-    id: 'fallback-1',
-    title: 'Latest TwoToneTaj Upload',
-    url: CHANNEL_URL,
-    thumbnail: null,
-    meta: 'Feed loading / coming soon',
-    label: 'Latest',
-  },
-  {
-    id: 'fallback-2',
-    title: 'Gameplay Highlights',
-    url: CHANNEL_URL,
-    thumbnail: null,
-    meta: 'YouTube channel',
-    label: 'Video',
-  },
-  {
-    id: 'fallback-3',
-    title: 'Funny Moments & Shorts',
-    url: CHANNEL_URL,
-    thumbnail: null,
-    meta: 'YouTube channel',
-    label: 'Shorts',
-  },
-  {
-    id: 'fallback-4',
-    title: 'TajSquad Community Clips',
-    url: CHANNEL_URL,
-    thumbnail: null,
-    meta: 'YouTube channel',
-    label: 'Clips',
-  },
-]
+import { useEffect, useMemo, useState } from 'react'
+import { getYouTubeFeedUrl } from '../config/siteConfig'
+import { useManagedSite } from '../hooks/useManagedSite'
 
 function getVideoId(entry) {
   return (
@@ -63,12 +25,56 @@ function formatDate(dateText) {
 }
 
 export default function YouTubeFeed() {
+  const { site } = useManagedSite()
+  const fallbackVideos = useMemo(
+    () => [
+      {
+        id: 'fallback-1',
+        title: `Latest ${site.brand.name} Upload`,
+        url: site.socials.youtube,
+        thumbnail: null,
+        meta: 'Feed loading / coming soon',
+        label: 'Latest',
+      },
+      {
+        id: 'fallback-2',
+        title: 'Gameplay Highlights',
+        url: site.socials.youtube,
+        thumbnail: null,
+        meta: 'YouTube channel',
+        label: 'Video',
+      },
+      {
+        id: 'fallback-3',
+        title: 'Funny Moments & Shorts',
+        url: site.socials.youtube,
+        thumbnail: null,
+        meta: 'YouTube channel',
+        label: 'Shorts',
+      },
+      {
+        id: 'fallback-4',
+        title: `${site.brand.communityName} Community Clips`,
+        url: site.socials.youtube,
+        thumbnail: null,
+        meta: 'YouTube channel',
+        label: 'Clips',
+      },
+    ],
+    [site.brand.communityName, site.brand.name, site.socials.youtube],
+  )
   const [videos, setVideos] = useState(fallbackVideos)
+
+  useEffect(() => {
+    setVideos(fallbackVideos)
+  }, [fallbackVideos])
 
   useEffect(() => {
     async function loadVideos() {
       try {
-        const response = await fetch(PROXY_URL)
+        const rssUrl = getYouTubeFeedUrl(site.platforms.youtubeChannelId)
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`
+        const response = await fetch(proxyUrl)
 
         if (!response.ok) {
           throw new Error(`YouTube RSS failed: ${response.status}`)
@@ -85,7 +91,7 @@ export default function YouTubeFeed() {
         const nextVideos = entries.map((entry) => {
           const videoId = getVideoId(entry)
           const title = entry.querySelector('title')?.textContent || 'Latest YouTube Video'
-          const link = entry.querySelector('link')?.getAttribute('href') || CHANNEL_URL
+          const link = entry.querySelector('link')?.getAttribute('href') || site.socials.youtube
           const published = entry.querySelector('published')?.textContent
 
           return {
@@ -105,7 +111,7 @@ export default function YouTubeFeed() {
     }
 
     loadVideos()
-  }, [])
+  }, [site.platforms.youtubeChannelId, site.socials.youtube])
 
   return (
     <div className="youtube-grid">

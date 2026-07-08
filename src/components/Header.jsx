@@ -1,19 +1,21 @@
 import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 import logo from '../assets/logo.png'
+import { useManagedSite } from '../hooks/useManagedSite'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { site } = useManagedSite()
   const closeMenu = () => setIsMenuOpen(false)
 
   return (
     <header className={`site-header${isMenuOpen ? ' site-header--menu-open' : ''}`}>
-      <Link className="brand" to="/" aria-label="TwoToneTaj home" onClick={closeMenu}>
-        <img src={logo} alt="TwoToneTaj logo" />
+      <Link className="brand" to="/" aria-label={`${site.brand.name} home`} onClick={closeMenu}>
+        <img src={logo} alt={`${site.brand.name} logo`} />
 
         <span>
-          <strong>TwoToneTaj</strong>
-          <small>Average Gamer • Est. 1989</small>
+          <strong>{site.brand.name}</strong>
+          <small>{site.brand.tagline}</small>
         </span>
       </Link>
 
@@ -43,12 +45,12 @@ export default function Header() {
 
         <a
           className="join-btn"
-          href="https://discord.gg/WcbtQPuByd"
+          href={site.socials.discord}
           target="_blank"
           rel="noopener noreferrer"
           onClick={closeMenu}
         >
-          Join TajSquad
+          Join {site.brand.communityName}
         </a>
       </div>
     </header>
