@@ -63,11 +63,8 @@ export default function YouTubeFeed() {
     ],
     [site.brand.communityName, site.brand.name, site.socials.youtube],
   )
-  const [videos, setVideos] = useState(fallbackVideos)
-
-  useEffect(() => {
-    setVideos(fallbackVideos)
-  }, [fallbackVideos])
+  const [videos, setVideos] = useState([])
+  const visibleVideos = videos.length > 0 ? videos : fallbackVideos
 
   useEffect(() => {
     async function loadVideos() {
@@ -115,7 +112,7 @@ export default function YouTubeFeed() {
 
   return (
     <div className="youtube-grid">
-      {videos.map((video) => (
+      {visibleVideos.map((video) => (
         <a
           className="youtube-card"
           href={video.url}

@@ -1,0 +1,52 @@
+name: Deploy TwoToneTaj
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_ref:
+        description: Optional branch, tag, or commit SHA to deploy. Defaults to main.
+        required: false
+        type: string
+
+concurrency:
+  group: deploy-twotonetaj
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate release
+        run: npm run check
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          SITE_DIR: ${{ secrets.TWOTONETAJ_SITE_DIR }}
+          BRANCH: main
+          DEPLOY_REF: ${{ inputs.deploy_ref }}
+          LIVE_URL: ${{ secrets.TWOTONETAJ_LIVE_URL }}
+        with:
+          host: ${{ secrets.TWOTONETAJ_SSH_HOST }}
+          username: ${{ secrets.TWOTONETAJ_SSH_USER }}
+          key: ${{ secrets.TWOTONETAJ_SSH_KEY }}
+          port: ${{ secrets.TWOTONETAJ_SSH_PORT || 22 }}
+          envs: SITE_DIR,BRANCH,DEPLOY_REF,LIVE_URL
+          script: |
+            set -Eeuo pipefail
+            cd "${SITE_DIR:-/home/twotonetaj/site}"
+            bash scripts/deploy-vps.sh
