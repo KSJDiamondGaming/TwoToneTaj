@@ -2,7 +2,7 @@
 
 **Private internal document for KSJ Digital / TwoToneTaj operations.**
 
-This file is intended for the private GitHub repository only. It must not be copied into `public/`, `src/`, `dist/`, or any website-served folder.
+This file is intended for the private GitHub repository only. It must not be copied into `public/`, `src`, `dist`, or any website-served folder.
 
 ---
 
@@ -37,6 +37,7 @@ https://twotonetaj.ksjdigital.co.uk
 - CSS
 - Nginx on the production VPS
 - GitHub Actions for validation and deployment
+- KSJ Digital managed-content API
 
 ## Project structure
 
@@ -44,7 +45,9 @@ https://twotonetaj.ksjdigital.co.uk
 src/
   assets/
   components/
+  config/
   data/
+  hooks/
   pages/
   sections/
   styles/
@@ -54,6 +57,45 @@ deploy/
 
 scripts/
   deploy-vps.sh
+```
+
+---
+
+## Managed content
+
+TwoToneTaj can load editable site data from KSJ Digital.
+
+Default production API base:
+
+```txt
+https://ksjdigital.co.uk/api
+```
+
+Default site ID:
+
+```txt
+twotonetaj
+```
+
+The live site reads:
+
+```txt
+/api/public/sites/twotonetaj
+```
+
+If the KSJ Digital API is unavailable, the React frontend falls back to safe local defaults from:
+
+```txt
+src/config/siteConfig.js
+src/hooks/useManagedSite.js
+```
+
+Optional Vite environment overrides:
+
+```txt
+VITE_KSJ_PUBLIC_API_URL=https://ksjdigital.co.uk/api
+VITE_KSJ_SITE_ID=twotonetaj
+VITE_APP_HOST=twotonetaj.ksjdigital.co.uk
 ```
 
 ---
@@ -220,11 +262,12 @@ Only the manual Deploy TwoToneTaj workflow updates production.
 Required repository secrets:
 
 ```txt
-VPS_HOST
-VPS_USER
-VPS_PORT
-VPS_SSH_KEY
-VPS_KNOWN_HOSTS
+TWOTONETAJ_SSH_HOST
+TWOTONETAJ_SSH_USER
+TWOTONETAJ_SSH_KEY
+TWOTONETAJ_SSH_PORT
+TWOTONETAJ_SITE_DIR
+TWOTONETAJ_LIVE_URL
 ```
 
 Current VPS host:
@@ -233,13 +276,7 @@ Current VPS host:
 198.186.130.112
 ```
 
-`VPS_SSH_KEY` must be the private deployment key.
-
-`VPS_KNOWN_HOSTS` must be generated with:
-
-```bash
-ssh-keyscan -H 198.186.130.112
-```
+`TWOTONETAJ_SSH_KEY` must be the private deployment key.
 
 Do not commit private keys, server passwords, `.env` files, token values, or secret values into this repository.
 
@@ -317,66 +354,3 @@ The example also:
 - prevents strong caching of `index.html`;
 - adds basic security headers;
 - serves the build from `/home/twotonetaj/site/dist`.
-
-Review the example before applying it because the live server may already include HTTPS and Certbot-managed directives.
-
-Current live Nginx config is under:
-
-```txt
-/etc/nginx/sites-available/ksjdigital
-/etc/nginx/sites-enabled/ksjdigital
-```
-
----
-
-## Brand direction
-
-The site should remain consistent with the established TwoToneTaj identity:
-
-- dark black gaming background;
-- neon-green accents;
-- subtle red/orange dragon and fire glow;
-- official TwoToneTaj dragon and logo assets;
-- Russo One, Bebas Neue, and Inter typography;
-- responsive desktop, tablet, and mobile layouts;
-- no unrelated replacement logos or colour schemes.
-
----
-
-## Operational rules
-
-- GitHub is the source of truth.
-- Do not manually edit production files on the VPS unless debugging.
-- Do not manually deploy unless GitHub Actions is unavailable.
-- Always run or wait for validation before production deployment.
-- Use the GitHub Actions Deploy button for production releases.
-- Do not store secrets in project files.
-- Keep this document out of public website folders.
-
----
-
-## Rollback note
-
-Preferred rollback is to revert or reset through GitHub, then run the Deploy workflow again.
-
-Emergency manual rollback on VPS:
-
-```bash
-cd /home/twotonetaj/site
-git fetch origin main
-git log --oneline -10
-git reset --hard <previous-good-commit>
-npm ci
-npm run check
-npm run build
-nginx -t
-systemctl reload nginx
-```
-
-After emergency rollback, update GitHub history properly so the repository remains the source of truth.
-
----
-
-## Future portal direction
-
-The site is structured so a future KSJ Digital client portal can manage approved editable content without requiring clients to edit code, rename files, use GitHub, or rebuild the site manually.
