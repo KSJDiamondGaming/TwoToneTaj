@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 import YouTubeFeed from '../components/YouTubeFeed'
+import { getTwitchEmbedUrl } from '../config/siteConfig'
+import { useManagedSite } from '../hooks/useManagedSite'
 
 import heroDragon from '../assets/home/dragon.png'
 import setupImage from '../assets/home/setup.png'
@@ -15,15 +17,6 @@ import youtubeIcon from '../assets/home/youtube.png'
 import kIcon from '../assets/home/k.png'
 import instaIcon from '../assets/home/insta.png'
 
-const twitchUrl = 'https://www.twitch.tv/twotonetaj'
-const youtubeUrl = 'https://www.youtube.com/@twotonetaj'
-const tiktokUrl = 'https://www.tiktok.com/@twotonetaj'
-const kickUrl = 'https://kick.com/twotonetaj'
-const instagramUrl = 'https://www.instagram.com/twotonetaj'
-
-const twitchEmbedUrl =
-  'https://player.twitch.tv/?channel=twotonetaj&parent=twotonetaj.ksjdigital.co.uk&parent=localhost&muted=true'
-
 const streamSchedule = [
   ['Mon', '7:00 PM - 11:00 PM'],
   ['Tue', '7:00 PM - 11:00 PM'],
@@ -34,40 +27,39 @@ const streamSchedule = [
   ['Sun', '12:00 PM - 10:00 PM'],
 ]
 
-const socialLinks = [
-  [twitchIcon, 'Twitch', 'TwoToneTaj', twitchUrl],
-  [tiktokIcon, 'TikTok', 'TwoToneTaj', tiktokUrl],
-  [youtubeIcon, 'YouTube', 'TwoToneTaj', youtubeUrl],
-  [kIcon, 'Kick', 'TwoToneTaj', kickUrl],
-  [instaIcon, 'Instagram', 'TwoToneTaj', instagramUrl],
-]
-
 const expectCards = [
   [controllerIcon, 'Live Streams', 'Join me live on Twitch for gameplay, chaos, and good times.'],
   [playIcon, 'Videos', 'Watch highlights, funny moments, and full gameplay videos.'],
-  [peopleIcon, 'Community', 'Join the TajSquad. Good vibes, great people, and memories.'],
+  [peopleIcon, 'Community', 'Join the community. Good vibes, great people, and memories.'],
   [trophyIcon, 'Competitive Play', 'Grinding ranks and taking on the best. Let’s go!'],
 ]
 
 export default function Home() {
+  const { site } = useManagedSite()
+  const twitchEmbedUrl = getTwitchEmbedUrl(site.platforms.twitchChannel)
+  const socialLinks = [
+    [twitchIcon, 'Twitch', site.brand.name, site.socials.twitch],
+    [tiktokIcon, 'TikTok', site.brand.name, site.socials.tiktok],
+    [youtubeIcon, 'YouTube', site.brand.name, site.socials.youtube],
+    [kIcon, 'Kick', site.brand.name, site.socials.kick],
+    [instaIcon, 'Instagram', site.brand.name, site.socials.instagram],
+  ]
+
   return (
     <main className="home">
       {/* 1. HERO */}
       <section className="hero-panel">
         <div className="hero-copy">
-          <span className="hero-eyebrow">Average gamer. Legendary vibes.</span>
+          <span className="hero-eyebrow">{site.brand.shortTagline}</span>
 
-          <h1>TwoToneTaj</h1>
+          <h1>{site.home.heroTitle}</h1>
 
           <div className="hero-est">Est. 1989</div>
 
-          <p>
-            TwoToneTaj, an average gamer with a passion for games, a pure heart,
-            good laughs, and an awesome community.
-          </p>
+          <p>{site.home.heroText}</p>
         </div>
 
-        <img className="hero-dragon" src={heroDragon} alt="TwoToneTaj dragon" />
+        <img className="hero-dragon" src={heroDragon} alt={`${site.brand.name} dragon`} />
       </section>
 
       {/* 2. MAIN GRID */}
@@ -79,13 +71,9 @@ export default function Home() {
             About Me
           </h2>
 
-          <img className="about-image" src={setupImage} alt="TwoToneTaj gaming setup" />
+          <img className="about-image" src={setupImage} alt={`${site.brand.name} gaming setup`} />
 
-          <p>
-            I’ve been gaming since 1989 and I’m here for the fun, the challenge,
-            and the community. You’ll find gameplay, chill streams, and plenty of
-            unforgettable moments with the TajSquad.
-          </p>
+          <p>{site.home.aboutText}</p>
 
           <Link className="about-link" to="/about">
             Learn More
@@ -125,7 +113,7 @@ export default function Home() {
           <div className="twitch-preview">
             <iframe
               src={twitchEmbedUrl}
-              title="TwoToneTaj Twitch live stream"
+              title={`${site.brand.name} Twitch live stream`}
               allowFullScreen
             />
           </div>
@@ -137,7 +125,7 @@ export default function Home() {
               Follow on Twitch for live alerts, community streams, and the latest gaming sessions.
             </span>
 
-            <a href={twitchUrl} target="_blank" rel="noreferrer">
+            <a href={site.socials.twitch} target="_blank" rel="noreferrer">
               Follow on Twitch
             </a>
           </div>
@@ -151,7 +139,7 @@ export default function Home() {
               Latest YouTube Videos
             </h2>
 
-            <a href={youtubeUrl} target="_blank" rel="noreferrer">
+            <a href={site.socials.youtube} target="_blank" rel="noreferrer">
               View all videos →
             </a>
           </div>
@@ -172,7 +160,7 @@ export default function Home() {
               target="_blank"
               rel="noreferrer"
               key={title}
-              aria-label={`Open TwoToneTaj ${title}`}
+              aria-label={`Open ${site.brand.name} ${title}`}
             >
               <img src={icon} alt="" />
               <strong className="social-handle">{handle}</strong>
@@ -202,11 +190,9 @@ export default function Home() {
           <div className="merch-content">
             <span className="merch-eyebrow">Coming Soon</span>
 
-            <h2>Official TwoToneTaj Merch</h2>
+            <h2>{site.home.merchTitle}</h2>
 
-            <p>
-              Hoodies, creator apparel, and exclusive TajSquad merchandise are in development.
-            </p>
+            <p>{site.home.merchText}</p>
 
             <div className="merch-actions">
               <Link to="/merch" className="btn primary">
