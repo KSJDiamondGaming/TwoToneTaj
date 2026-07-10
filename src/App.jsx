@@ -12,6 +12,11 @@ import About from './pages/About'
 import Content from './pages/Content'
 import Community from './pages/Community'
 import Merch from './pages/Merch'
+import {
+  MerchCheckoutCancelled,
+  MerchCheckoutSuccess,
+  PayPalCheckoutReturn,
+} from './pages/MerchCheckoutResult'
 import Contact from './pages/Contact'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
@@ -49,6 +54,9 @@ function App() {
           <Route path="/content" element={<Content />} />
           <Route path="/community" element={<Community />} />
           <Route path="/merch" element={<Merch />} />
+          <Route path="/merch/success" element={<MerchCheckoutSuccess />} />
+          <Route path="/merch/cancelled" element={<MerchCheckoutCancelled />} />
+          <Route path="/merch/paypal-return" element={<PayPalCheckoutReturn />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
