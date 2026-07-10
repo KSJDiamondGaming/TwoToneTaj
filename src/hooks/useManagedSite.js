@@ -24,6 +24,44 @@ function latestAsset(assets = [], slotId) {
     .sort((a, b) => Number(b.version || 0) - Number(a.version || 0))[0]
 }
 
+function validCheckoutUrl(value = '') {
+  try {
+    return new URL(value).protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+function sanitiseMerch(merch) {
+  if (!merch || !Array.isArray(merch.products)) return null
+
+  return {
+    ...merch,
+    products: merch.products.map((product) => {
+      const checkout = product.checkout || {}
+      const checkoutReady =
+        checkout.enabled === true &&
+        product.availability === 'available' &&
+        Number(product.priceGBP) > 0 &&
+        Boolean(product.name?.trim()) &&
+        Boolean(product.description?.trim()) &&
+        Boolean(product.image?.url?.trim()) &&
+        Boolean(product.shippingNote?.trim()) &&
+        Boolean(checkout.provider?.trim()) &&
+        validCheckoutUrl(checkout.url)
+
+      return {
+        ...product,
+        checkout: {
+          ...checkout,
+          enabled: checkoutReady,
+          url: checkoutReady ? checkout.url : '',
+        },
+      }
+    }),
+  }
+}
+
 function mergeSiteContent(remote = {}) {
   const content = remote.content || {}
   const assets = remote.assets || []
@@ -66,7 +104,7 @@ function mergeSiteContent(remote = {}) {
       merchText: `Hoodies, creator apparel, and exclusive ${siteConfig.communityName} merchandise are in development.`,
       ...(content.home || {}),
     },
-    merch: content.merch || null,
+    merch: sanitiseMerch(content.merch),
     navigation: navigation
       .filter((item) => item.visible !== false)
       .sort((a, b) => Number(a.order || 0) - Number(b.order || 0)),
