@@ -1,16 +1,15 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import logo from '../assets/logo.png'
+import fallbackLogo from '../assets/logo.png'
 import {
   merchCategories,
   merchCurrencies,
-  merchProducts,
+  merchProducts as fallbackProducts,
   merchSortOptions,
 } from '../data/merchProducts'
+import { useManagedSite } from '../hooks/useManagedSite'
 import '../styles/merch.css'
-
-const DISCORD_URL = 'https://discord.gg/WcbtQPuByd'
 
 function getProductTags(product) {
   return Array.isArray(product.tags) ? product.tags : []
@@ -22,7 +21,7 @@ function getMediaUrl(product) {
 
 function formatPrice(priceGBP, currencyKey) {
   const currency = merchCurrencies[currencyKey] || merchCurrencies.GBP
-  return `${currency.symbol}${(priceGBP * currency.rate).toFixed(2)}`
+  return `${currency.symbol}${(Number(priceGBP || 0) * currency.rate).toFixed(2)}`
 }
 
 function productMatchesCategory(product, category) {
@@ -40,8 +39,8 @@ function sortProducts(products, sortBy) {
   return [...products].sort((a, b) => {
     if (sortBy === 'name-asc') return a.name.localeCompare(b.name)
     if (sortBy === 'name-desc') return b.name.localeCompare(a.name)
-    if (sortBy === 'price-asc') return a.priceGBP - b.priceGBP
-    if (sortBy === 'price-desc') return b.priceGBP - a.priceGBP
+    if (sortBy === 'price-asc') return Number(a.priceGBP || 0) - Number(b.priceGBP || 0)
+    if (sortBy === 'price-desc') return Number(b.priceGBP || 0) - Number(a.priceGBP || 0)
     if (sortBy === 'newest') return new Date(b.createdAt) - new Date(a.createdAt)
     if (sortBy === 'coming-soon') return Number(b.availability !== 'available') - Number(a.availability !== 'available')
     if (sortBy === 'limited') return Number(b.limited) - Number(a.limited)
@@ -71,7 +70,7 @@ function getAvailabilityLabel(product) {
   return 'Coming Soon'
 }
 
-function MerchProductVisual({ product, compact = false }) {
+function MerchProductVisual({ product, logo, compact = false }) {
   const [hasImageError, setHasImageError] = useState(false)
   const imageUrl = getMediaUrl(product)
   const shouldShowImage = imageUrl && !hasImageError
@@ -97,10 +96,10 @@ function MerchProductVisual({ product, compact = false }) {
   )
 }
 
-function MerchImage({ product }) {
+function MerchImage({ product, logo }) {
   return (
     <div className="merch-product-image-wrap">
-      <MerchProductVisual product={product} />
+      <MerchProductVisual product={product} logo={logo} />
     </div>
   )
 }
@@ -139,23 +138,31 @@ function MerchCheckoutAction({ product }) {
 }
 
 export default function Merch() {
+  const { site } = useManagedSite()
   const [activeCategory, setActiveCategory] = useState('All')
   const [selectedCurrency, setSelectedCurrency] = useState('GBP')
   const [sortBy, setSortBy] = useState('featured')
+  const products = site.merch?.products?.length ? site.merch.products : fallbackProducts
+  const logo = site.assetUrls?.primaryLogo || fallbackLogo
+  const discordUrl = site.socials?.discord || 'https://discord.gg/WcbtQPuByd'
+  const storeEyebrow = site.merch?.eyebrow || `Official ${site.brand.communityName} Gear`
+  const storeSubtitle =
+    site.merch?.subtitle ||
+    `Official creator apparel, accessories and digital drops for the ${site.brand.communityName}. Products will open a secure external checkout when they become available.`
 
   const carouselItems = useMemo(
-    () => merchProducts.filter((product) => product.showInCarousel),
-    [],
+    () => products.filter((product) => product.showInCarousel),
+    [products],
   )
 
   const visibleProducts = useMemo(() => {
-    const filtered = merchProducts.filter((product) => productMatchesCategory(product, activeCategory))
+    const filtered = products.filter((product) => productMatchesCategory(product, activeCategory))
     return sortProducts(filtered, sortBy)
-  }, [activeCategory, sortBy])
+  }, [activeCategory, products, sortBy])
 
   const availableProductCount = useMemo(
-    () => merchProducts.filter((product) => getCheckoutState(product).canCheckout).length,
-    [],
+    () => products.filter((product) => getCheckoutState(product).canCheckout).length,
+    [products],
   )
 
   const resetFilters = () => {
@@ -170,22 +177,19 @@ export default function Merch() {
     <main className="merch-page">
       <section className="merch-hero">
         <div className="merch-hero-copy">
-          <span className="eyebrow">Official TajSquad Gear</span>
+          <span className="eyebrow">{storeEyebrow}</span>
           <h1>
-            TwoToneTaj
+            {site.brand.name}
             <span>Merch</span>
           </h1>
 
-          <p className="merch-subtitle">
-            Official creator apparel, accessories and digital drops for the TajSquad.
-            Products will open a secure external checkout when they become available.
-          </p>
+          <p className="merch-subtitle">{storeSubtitle}</p>
         </div>
 
-        <div className="merch-hero-brand" aria-label="TwoToneTaj official merch branding">
-          <img src={logo} alt="TwoToneTaj official logo" />
-          <strong>Average Gamer</strong>
-          <small>Est. 1989</small>
+        <div className="merch-hero-brand" aria-label={`${site.brand.name} official merch branding`}>
+          <img src={logo} alt={`${site.brand.name} official logo`} />
+          <strong>{site.brand.tagline?.split('•')[0]?.trim() || 'Average Gamer'}</strong>
+          <small>{site.brand.tagline?.split('•')[1]?.trim() || 'Est. 1989'}</small>
         </div>
       </section>
 
@@ -205,7 +209,7 @@ export default function Merch() {
         <div>
           <span>🔒</span>
           <strong>Secure external checkout</strong>
-          <p>TwoToneTaj does not collect card or payment details directly on this website.</p>
+          <p>{site.brand.name} does not collect card or payment details directly on this website.</p>
         </div>
         <div>
           <span>£</span>
@@ -219,21 +223,23 @@ export default function Merch() {
         </div>
       </section>
 
-      <section className="merch-carousel" aria-label="Featured merch carousel">
-        <div className="merch-carousel-head">
-          <span>♛</span>
-          <strong>Featured Drops</strong>
-        </div>
+      {carouselItems.length > 0 && (
+        <section className="merch-carousel" aria-label="Featured merch carousel">
+          <div className="merch-carousel-head">
+            <span>♛</span>
+            <strong>Featured Drops</strong>
+          </div>
 
-        <div className="merch-carousel-track">
-          {[...carouselItems, ...carouselItems].map((product, index) => (
-            <article className="merch-carousel-item" key={`${product.id}-${index}`}>
-              <MerchProductVisual product={product} compact />
-              <span>{product.type}</span>
-            </article>
-          ))}
-        </div>
-      </section>
+          <div className="merch-carousel-track">
+            {[...carouselItems, ...carouselItems].map((product, index) => (
+              <article className="merch-carousel-item" key={`${product.id}-${index}`}>
+                <MerchProductVisual product={product} logo={logo} compact />
+                <span>{product.type}</span>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section id="merch-drops" className="merch-section">
         <div className="merch-section-head">
@@ -296,7 +302,7 @@ export default function Merch() {
               : `${selectedCurrencyInfo.note} conversion shown for guidance only.`}
           </p>
           <p className="merch-result-count">
-            Showing {visibleProducts.length} of {merchProducts.length} products
+            Showing {visibleProducts.length} of {products.length} products
           </p>
         </div>
 
@@ -314,7 +320,7 @@ export default function Merch() {
                     <span className={checkout.canCheckout ? 'available' : 'unavailable'}>{availabilityLabel}</span>
                   </div>
 
-                  <MerchImage product={product} />
+                  <MerchImage product={product} logo={logo} />
 
                   <div className="merch-product-copy">
                     <h2>{product.name}</h2>
@@ -347,7 +353,7 @@ export default function Merch() {
           <span>✓</span>
           <div>
             <strong>Official Merch</strong>
-            <p>Only official TwoToneTaj and TajSquad products are listed.</p>
+            <p>Only official {site.brand.name} and {site.brand.communityName} products are listed.</p>
           </div>
         </article>
 
@@ -380,11 +386,11 @@ export default function Merch() {
         <div>
           <span className="eyebrow">Stay Updated</span>
           <h2>Want To Know When Merch Goes Live?</h2>
-          <p>Join TajSquad for launch updates or use the contact page for merch enquiries.</p>
+          <p>Join {site.brand.communityName} for launch updates or use the contact page for merch enquiries.</p>
         </div>
         <div className="merch-final-actions">
-          <a className="btn primary" href={DISCORD_URL} target="_blank" rel="noopener noreferrer">
-            Join TajSquad
+          <a className="btn primary" href={discordUrl} target="_blank" rel="noopener noreferrer">
+            Join {site.brand.communityName}
           </a>
           <Link className="btn ghost" to="/contact">
             Contact
