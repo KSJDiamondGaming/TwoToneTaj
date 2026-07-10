@@ -3,9 +3,33 @@ import { siteConfig } from '../config/siteConfig'
 
 const SITE_ID = import.meta.env.VITE_KSJ_SITE_ID || 'twotonetaj'
 const API_BASE = import.meta.env.VITE_KSJ_PUBLIC_API_URL || 'https://ksjdigital.co.uk/api'
+const ASSET_BASE = import.meta.env.VITE_KSJ_ASSET_URL || 'https://ksjdigital.co.uk'
+
+const fallbackNavigation = [
+  { id: 'home', label: 'Home', target: '/', visible: true, external: false, order: 1 },
+  { id: 'about', label: 'About', target: '/about', visible: true, external: false, order: 2 },
+  { id: 'content', label: 'Content', target: '/content', visible: true, external: false, order: 3 },
+  { id: 'community', label: 'Community', target: '/community', visible: true, external: false, order: 4 },
+  { id: 'merch', label: 'Merch', target: '/merch', visible: true, external: false, order: 5 },
+]
+
+function assetUrl(asset) {
+  if (!asset?.url) return ''
+  return asset.url.startsWith('http') ? asset.url : `${ASSET_BASE}${asset.url}`
+}
+
+function latestAsset(assets = [], slotId) {
+  return assets
+    .filter((asset) => asset.slotId === slotId)
+    .sort((a, b) => Number(b.version || 0) - Number(a.version || 0))[0]
+}
 
 function mergeSiteContent(remote = {}) {
   const content = remote.content || {}
+  const assets = remote.assets || []
+  const navigation = content.engine?.navigation || content.navigation || fallbackNavigation
+  const primaryLogo = latestAsset(assets, 'primaryLogo')
+  const favicon = latestAsset(assets, 'favicon')
 
   return {
     website: remote.website || null,
@@ -42,7 +66,14 @@ function mergeSiteContent(remote = {}) {
       merchText: `Hoodies, creator apparel, and exclusive ${siteConfig.communityName} merchandise are in development.`,
       ...(content.home || {}),
     },
-    assets: remote.assets || [],
+    navigation: navigation
+      .filter((item) => item.visible !== false)
+      .sort((a, b) => Number(a.order || 0) - Number(b.order || 0)),
+    assets,
+    assetUrls: {
+      primaryLogo: assetUrl(primaryLogo),
+      favicon: assetUrl(favicon),
+    },
     publishedAt: remote.publishedAt || null,
   }
 }
