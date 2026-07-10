@@ -54,9 +54,10 @@ function getCheckoutState(product) {
   const url = checkout.url?.trim() || ''
   const enabled = checkout.enabled === true
   const available = product.availability === 'available'
+  const stockAvailable = !product.inventory?.trackStock || Number(product.inventory?.stock || 0) > 0
 
   return {
-    canCheckout: enabled && available && Boolean(url),
+    canCheckout: enabled && available && stockAvailable && Boolean(url),
     provider: checkout.provider?.trim() || '',
     label: checkout.label?.trim() || 'Buy Now',
     url,
@@ -64,10 +65,31 @@ function getCheckoutState(product) {
 }
 
 function getAvailabilityLabel(product) {
+  if (product.inventory?.trackStock && Number(product.inventory?.stock || 0) <= 0) return 'Sold Out'
   if (product.availability === 'available') return 'Available Now'
   if (product.availability === 'sold-out') return 'Sold Out'
   if (product.availability === 'paused') return 'Temporarily Unavailable'
   return 'Coming Soon'
+}
+
+function options(value) {
+  if (Array.isArray(value)) return value.filter(Boolean)
+  if (typeof value === 'string') return value.split(',').map(item => item.trim()).filter(Boolean)
+  return []
+}
+
+function checkoutUrl(baseUrl, { size, colour, quantity }) {
+  try {
+    const url = new URL(baseUrl, window.location.origin)
+    url.searchParams.set('quantity', String(quantity))
+    if (size) url.searchParams.set('size', size)
+    else url.searchParams.delete('size')
+    if (colour) url.searchParams.set('colour', colour)
+    else url.searchParams.delete('colour')
+    return url.toString()
+  } catch {
+    return baseUrl
+  }
 }
 
 function MerchProductVisual({ product, logo, compact = false }) {
@@ -107,21 +129,59 @@ function MerchImage({ product, logo }) {
 function MerchCheckoutAction({ product }) {
   const checkout = getCheckoutState(product)
   const availabilityLabel = getAvailabilityLabel(product)
+  const sizes = options(product.variants?.sizes)
+  const colours = options(product.variants?.colours)
+  const stock = product.inventory?.trackStock ? Math.max(0, Number(product.inventory?.stock || 0)) : 10
+  const maxQuantity = Math.max(1, Math.min(10, stock || 1))
+  const [size, setSize] = useState(sizes[0] || '')
+  const [colour, setColour] = useState(colours[0] || '')
+  const [quantity, setQuantity] = useState(1)
 
   if (checkout.canCheckout) {
+    const finalUrl = checkoutUrl(checkout.url, { size, colour, quantity })
+
     return (
       <div className="merch-checkout-action">
+        {(sizes.length > 0 || colours.length > 0 || maxQuantity > 1) && (
+          <div className="merch-variant-controls">
+            {sizes.length > 0 && (
+              <label>
+                <span>Size</span>
+                <select value={size} onChange={event => setSize(event.target.value)}>
+                  {sizes.map(option => <option key={option}>{option}</option>)}
+                </select>
+              </label>
+            )}
+            {colours.length > 0 && (
+              <label>
+                <span>Colour</span>
+                <select value={colour} onChange={event => setColour(event.target.value)}>
+                  {colours.map(option => <option key={option}>{option}</option>)}
+                </select>
+              </label>
+            )}
+            {maxQuantity > 1 && (
+              <label>
+                <span>Quantity</span>
+                <select value={quantity} onChange={event => setQuantity(Number(event.target.value))}>
+                  {Array.from({ length: maxQuantity }, (_, index) => index + 1).map(value => (
+                    <option key={value} value={value}>{value}</option>
+                  ))}
+                </select>
+              </label>
+            )}
+          </div>
+        )}
         <a
           className="merch-buy-btn"
-          href={checkout.url}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={finalUrl}
           aria-label={`${checkout.label}: ${product.name}`}
         >
           {checkout.label}
         </a>
         <small>
-          Secure checkout{checkout.provider ? ` via ${checkout.provider}` : ''}. Opens in a new tab.
+          Secure checkout{checkout.provider ? ` via ${checkout.provider}` : ''}.
+          {product.inventory?.trackStock ? ` ${stock} currently in stock.` : ''}
         </small>
       </div>
     )
@@ -199,8 +259,8 @@ export default function Merch() {
           <strong>{availableProductCount > 0 ? 'Secure Checkout Available' : 'Merch Store Coming Soon'}</strong>
           <p>
             {availableProductCount > 0
-              ? `${availableProductCount} product${availableProductCount === 1 ? '' : 's'} currently link to secure external checkout.`
-              : 'The collection is being prepared. Products stay unavailable until an approved checkout link is enabled.'}
+              ? `${availableProductCount} product${availableProductCount === 1 ? '' : 's'} currently support secure checkout.`
+              : 'The collection is being prepared. Products stay unavailable until checkout is enabled in the client portal.'}
           </p>
         </div>
       </section>
@@ -248,7 +308,7 @@ export default function Merch() {
             <h2>Product Preview</h2>
           </div>
           <p>
-            Available products link to an approved checkout provider. Unavailable products remain clearly marked and cannot take payment.
+            Products, prices, stock and checkout settings are managed through the KSJ Digital client portal.
           </p>
         </div>
 
@@ -349,37 +409,10 @@ export default function Merch() {
       </section>
 
       <section className="merch-trust-strip" aria-label="Merch information">
-        <article>
-          <span>✓</span>
-          <div>
-            <strong>Official Merch</strong>
-            <p>Only official {site.brand.name} and {site.brand.communityName} products are listed.</p>
-          </div>
-        </article>
-
-        <article>
-          <span>🔒</span>
-          <div>
-            <strong>External Checkout</strong>
-            <p>Payment is completed through the approved provider, not this website.</p>
-          </div>
-        </article>
-
-        <article>
-          <span>🚚</span>
-          <div>
-            <strong>Delivery Information</strong>
-            <p>Shipping, downloads and returns are confirmed before payment.</p>
-          </div>
-        </article>
-
-        <article>
-          <span>★</span>
-          <div>
-            <strong>Limited Drops</strong>
-            <p>Selected creator designs may have limited availability.</p>
-          </div>
-        </article>
+        <article><span>✓</span><div><strong>Official Merch</strong><p>Only official {site.brand.name} and {site.brand.communityName} products are listed.</p></div></article>
+        <article><span>🔒</span><div><strong>External Checkout</strong><p>Payment is completed through the approved provider, not this website.</p></div></article>
+        <article><span>🚚</span><div><strong>Delivery Information</strong><p>Shipping, downloads and returns are confirmed before payment.</p></div></article>
+        <article><span>★</span><div><strong>Limited Drops</strong><p>Selected creator designs may have limited availability.</p></div></article>
       </section>
 
       <section className="merch-final-cta" aria-label="Merch launch updates">
@@ -392,9 +425,7 @@ export default function Merch() {
           <a className="btn primary" href={discordUrl} target="_blank" rel="noopener noreferrer">
             Join {site.brand.communityName}
           </a>
-          <Link className="btn ghost" to="/contact">
-            Contact
-          </Link>
+          <Link className="btn ghost" to="/contact">Contact</Link>
         </div>
       </section>
     </main>
