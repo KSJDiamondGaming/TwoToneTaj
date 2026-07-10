@@ -7,11 +7,12 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { site } = useManagedSite()
   const closeMenu = () => setIsMenuOpen(false)
+  const brandLogo = site.assetUrls?.primaryLogo || logo
 
   return (
     <header className={`site-header${isMenuOpen ? ' site-header--menu-open' : ''}`}>
       <Link className="brand" to="/" aria-label={`${site.brand.name} home`} onClick={closeMenu}>
-        <img src={logo} alt={`${site.brand.name} logo`} />
+        <img src={brandLogo} alt={`${site.brand.name} logo`} />
 
         <span>
           <strong>{site.brand.name}</strong>
@@ -34,13 +35,28 @@ export default function Header() {
 
       <div className="header-actions" id="main-navigation">
         <nav aria-label="Main navigation">
-          <NavLink to="/" end onClick={closeMenu}>
-            Home
-          </NavLink>
-          <NavLink to="/about" onClick={closeMenu}>About</NavLink>
-          <NavLink to="/content" onClick={closeMenu}>Content</NavLink>
-          <NavLink to="/community" onClick={closeMenu}>Community</NavLink>
-          <NavLink to="/merch" onClick={closeMenu}>Merch</NavLink>
+          {site.navigation.map((item) =>
+            item.external ? (
+              <a
+                key={item.id || `${item.label}-${item.target}`}
+                href={item.target}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={closeMenu}
+              >
+                {item.label}
+              </a>
+            ) : (
+              <NavLink
+                key={item.id || `${item.label}-${item.target}`}
+                to={item.target}
+                end={item.target === '/'}
+                onClick={closeMenu}
+              >
+                {item.label}
+              </NavLink>
+            ),
+          )}
         </nav>
 
         <a
