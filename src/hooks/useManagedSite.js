@@ -66,6 +66,7 @@ function mergeSiteContent(remote = {}) {
       merchText: `Hoodies, creator apparel, and exclusive ${siteConfig.communityName} merchandise are in development.`,
       ...(content.home || {}),
     },
+    merch: content.merch || null,
     navigation: navigation
       .filter((item) => item.visible !== false)
       .sort((a, b) => Number(a.order || 0) - Number(b.order || 0)),
