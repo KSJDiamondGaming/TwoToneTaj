@@ -49,13 +49,25 @@ export function MerchCheckoutCancelled() {
 export function PayPalCheckoutReturn() {
   const params = new URLSearchParams(useLocation().search)
   const token = params.get('token')
-  const [state, setState] = useState({ status: 'Processing Payment', title: 'Confirming Your PayPal Order', message: 'Please keep this page open while PayPal confirms the payment.', reference: token || '' })
+  const [state, setState] = useState(() =>
+    token
+      ? {
+          status: 'Processing Payment',
+          title: 'Confirming Your PayPal Order',
+          message: 'Please keep this page open while PayPal confirms the payment.',
+          reference: token,
+        }
+      : {
+          status: 'Payment Error',
+          title: 'PayPal Order Missing',
+          message:
+            'The PayPal order reference was not returned. No additional payment attempt has been made.',
+          reference: '',
+        },
+  )
 
   useEffect(() => {
-    if (!token) {
-      setState({ status: 'Payment Error', title: 'PayPal Order Missing', message: 'The PayPal order reference was not returned. No additional payment attempt has been made.', reference: '' })
-      return
-    }
+    if (!token) return undefined
 
     let cancelled = false
 
@@ -75,19 +87,19 @@ export function PayPalCheckoutReturn() {
         setState({
           status: 'Payment Received',
           title: 'Thank You For Your Order',
-          message: 'Your PayPal payment was completed and your order confirmation is being sent by email.',
+          message:
+            'Your PayPal payment was completed and your order confirmation is being sent by email.',
           reference: data.order?.orderNumber || token,
         })
       })
       .catch(error => {
-        if (!cancelled) {
-          setState({
-            status: 'Payment Error',
-            title: 'We Could Not Confirm The PayPal Order',
-            message: `${error.message}. Please contact support before attempting another payment if PayPal shows a charge.`,
-            reference: token,
-          })
-        }
+        if (cancelled) return
+        setState({
+          status: 'Payment Error',
+          title: 'We Could Not Confirm The PayPal Order',
+          message: `${error.message}. Please contact support before attempting another payment if PayPal shows a charge.`,
+          reference: token,
+        })
       })
 
     return () => {
