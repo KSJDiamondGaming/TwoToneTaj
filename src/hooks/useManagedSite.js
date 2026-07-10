@@ -32,6 +32,13 @@ function validCheckoutUrl(value = '') {
   }
 }
 
+function providerCheckoutUrl(provider, productId) {
+  const normalisedProvider = provider?.trim().toLowerCase()
+  if (!['stripe', 'paypal'].includes(normalisedProvider) || !productId) return ''
+  const params = new URLSearchParams({ websiteId: SITE_ID, productId, quantity: '1' })
+  return `${API_BASE}/checkout/${normalisedProvider}/start?${params}`
+}
+
 function sanitiseMerch(merch) {
   if (!merch || !Array.isArray(merch.products)) return null
 
@@ -39,6 +46,8 @@ function sanitiseMerch(merch) {
     ...merch,
     products: merch.products.map((product) => {
       const checkout = product.checkout || {}
+      const providerUrl = providerCheckoutUrl(checkout.provider, product.id)
+      const url = providerUrl || checkout.url?.trim() || ''
       const checkoutReady =
         checkout.enabled === true &&
         product.availability === 'available' &&
@@ -48,14 +57,14 @@ function sanitiseMerch(merch) {
         Boolean(product.image?.url?.trim()) &&
         Boolean(product.shippingNote?.trim()) &&
         Boolean(checkout.provider?.trim()) &&
-        validCheckoutUrl(checkout.url)
+        validCheckoutUrl(url)
 
       return {
         ...product,
         checkout: {
           ...checkout,
           enabled: checkoutReady,
-          url: checkoutReady ? checkout.url : '',
+          url: checkoutReady ? url : '',
         },
       }
     }),
