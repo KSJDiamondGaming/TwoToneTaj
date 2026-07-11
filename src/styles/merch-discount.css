@@ -1,0 +1,81 @@
+.merch-discount-bar {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 80;
+  width: min(390px, calc(100vw - 28px));
+  padding: 16px;
+  border: 1px solid rgba(18, 201, 112, 0.3);
+  border-radius: 16px;
+  background: rgba(4, 8, 6, 0.96);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(14px);
+}
+
+.merch-discount-bar form,
+.merch-discount-bar form > div {
+  display: grid;
+  gap: 8px;
+}
+
+.merch-discount-bar form > div {
+  grid-template-columns: 1fr auto auto;
+}
+
+.merch-discount-bar label {
+  color: #fff;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.merch-discount-bar input,
+.merch-discount-bar button {
+  min-height: 42px;
+  border-radius: 9px;
+}
+
+.merch-discount-bar input {
+  min-width: 0;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.merch-discount-bar button {
+  padding: 0 13px;
+  border: 0;
+  background: var(--green);
+  color: #041007;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.merch-discount-bar button + button {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.merch-discount-bar small {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+@media (max-width: 600px) {
+  .merch-discount-bar {
+    right: 14px;
+    bottom: 14px;
+  }
+
+  .merch-discount-bar form > div {
+    grid-template-columns: 1fr auto;
+  }
+
+  .merch-discount-bar button + button {
+    grid-column: 1 / -1;
+  }
+}
