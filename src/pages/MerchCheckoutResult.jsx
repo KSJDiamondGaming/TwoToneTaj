@@ -14,7 +14,8 @@ function ResultShell({ status, title, message, reference = '' }) {
           {reference && <p>Order reference: <strong>{reference}</strong></p>}
         </div>
         <div className="merch-final-actions">
-          <Link className="btn primary" to="/merch">Return to Merch</Link>
+          <Link className="btn primary" to="/track-order">Track an Order</Link>
+          <Link className="btn ghost" to="/merch">Return to Merch</Link>
           <Link className="btn ghost" to="/contact">Contact Support</Link>
         </div>
       </section>
@@ -30,7 +31,7 @@ export function MerchCheckoutSuccess() {
     <ResultShell
       status="Payment Received"
       title="Thank You For Your Order"
-      message="Your payment was completed. Your order confirmation will be sent by email once KSJ Digital finishes processing the verified payment event."
+      message="Your payment was completed. Your order confirmation will be sent by email once KSJ Digital finishes processing the verified payment event. Use the order number from that email to track your order."
       reference={sessionId || ''}
     />
   )
@@ -88,7 +89,7 @@ export function PayPalCheckoutReturn() {
           status: 'Payment Received',
           title: 'Thank You For Your Order',
           message:
-            'Your PayPal payment was completed and your order confirmation is being sent by email.',
+            'Your PayPal payment was completed and your order confirmation is being sent by email. Use that order number to track your order.',
           reference: data.order?.orderNumber || token,
         })
       })
