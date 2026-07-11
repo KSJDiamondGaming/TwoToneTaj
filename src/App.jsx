@@ -17,6 +17,7 @@ import {
   MerchCheckoutSuccess,
   PayPalCheckoutReturn,
 } from './pages/MerchCheckoutResult'
+import TrackOrder from './pages/TrackOrder'
 import Contact from './pages/Contact'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
@@ -57,6 +58,7 @@ function App() {
           <Route path="/merch/success" element={<MerchCheckoutSuccess />} />
           <Route path="/merch/cancelled" element={<MerchCheckoutCancelled />} />
           <Route path="/merch/paypal-return" element={<PayPalCheckoutReturn />} />
+          <Route path="/track-order" element={<TrackOrder />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
