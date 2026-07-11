@@ -21,6 +21,7 @@ export default function Footer() {
 
         <div className="footer-right">
           <nav className="footer-links" aria-label="Footer links">
+            <Link to="/track-order">Track Order</Link>
             <Link to="/contact">Contact</Link>
             <Link to="/privacy">Privacy</Link>
             <Link to="/terms">Terms</Link>
