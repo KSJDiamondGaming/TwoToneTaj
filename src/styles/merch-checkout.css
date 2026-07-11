@@ -85,15 +85,258 @@
   text-align: center;
 }
 
+.order-track-page {
+  min-height: 100vh;
+  padding: 150px 20px 80px;
+  background:
+    radial-gradient(circle at top, rgba(18, 201, 112, 0.1), transparent 34%),
+    #030504;
+}
+
+.order-track-hero,
+.order-track-panel,
+.order-track-result {
+  width: min(920px, 100%);
+  margin: 0 auto;
+}
+
+.order-track-hero {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.order-track-hero h1,
+.order-track-head h2 {
+  margin: 8px 0;
+  color: #fff;
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+.order-track-hero h1 {
+  font-size: clamp(46px, 8vw, 76px);
+}
+
+.order-track-hero p,
+.order-track-head p,
+.order-track-result p,
+.order-track-result small {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.order-track-panel,
+.order-track-result {
+  border: 1px solid rgba(18, 201, 112, 0.22);
+  border-radius: 20px;
+  background: rgba(6, 10, 8, 0.92);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+}
+
+.order-track-panel {
+  padding: 24px;
+}
+
+.order-track-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 14px;
+  align-items: end;
+}
+
+.order-track-form label,
+.order-track-form span {
+  display: grid;
+  gap: 7px;
+}
+
+.order-track-form span {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.order-track-form input {
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+}
+
+.order-track-form button,
+.order-track-actions a,
+.order-track-actions button,
+.order-track-grid a {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--green);
+  color: #041007;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.order-track-error,
+.order-track-alert {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 84, 84, 0.1);
+  color: #ff8a8a !important;
+}
+
+.order-track-result {
+  margin-top: 22px;
+  padding: 28px;
+}
+
+.order-track-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.order-track-head strong {
+  color: var(--green);
+  font-size: 28px;
+}
+
+.order-track-timeline {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin: 30px 0;
+}
+
+.order-track-timeline div {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+  font-size: 11px;
+}
+
+.order-track-timeline i {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  font-style: normal;
+}
+
+.order-track-timeline .complete {
+  color: #fff;
+}
+
+.order-track-timeline .complete i {
+  border-color: var(--green);
+  background: var(--green);
+  color: #041007;
+}
+
+.order-track-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+}
+
+.order-track-grid > div {
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.order-track-grid h3 {
+  margin-top: 0;
+  color: #fff;
+}
+
+.order-track-grid article {
+  display: grid;
+  gap: 5px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.order-track-grid article:last-child {
+  border-bottom: 0;
+}
+
+.order-track-grid strong {
+  color: #fff;
+}
+
+.order-track-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.order-track-actions button {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.order-track-expiry {
+  display: block;
+  margin-top: 12px;
+}
+
 @media (max-width: 900px) {
   .merch-checkout-notice {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .order-track-form,
+  .order-track-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 600px) {
   .merch-checkout-notice > div {
     padding: 16px;
+  }
+
+  .order-track-page {
+    padding: 120px 14px 60px;
+  }
+
+  .order-track-result,
+  .order-track-panel {
+    padding: 18px;
+  }
+
+  .order-track-head,
+  .order-track-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .order-track-timeline {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .order-track-timeline div {
+    grid-template-columns: 32px 1fr;
+    align-items: center;
+    justify-items: start;
+    text-align: left;
   }
 }
