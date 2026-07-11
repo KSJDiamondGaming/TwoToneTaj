@@ -48,6 +48,8 @@ function sanitiseMerch(merch) {
       const checkout = product.checkout || {}
       const providerUrl = providerCheckoutUrl(checkout.provider, product.id)
       const url = providerUrl || checkout.url?.trim() || ''
+      const madeToOrder = product.fulfilmentOptions?.madeToOrder === true
+      const stock = Math.max(0, Number(product.inventory?.quantity || product.inventory?.stock || 0))
       const checkoutReady =
         checkout.enabled === true &&
         product.availability === 'available' &&
@@ -57,10 +59,21 @@ function sanitiseMerch(merch) {
         Boolean(product.image?.url?.trim()) &&
         Boolean(product.shippingNote?.trim()) &&
         Boolean(checkout.provider?.trim()) &&
+        (!madeToOrder || Boolean(product.fulfilmentOptions?.leadTimeMessage?.trim())) &&
         validCheckoutUrl(url)
 
       return {
         ...product,
+        fulfilmentOptions: {
+          madeToOrder,
+          leadTimeMessage: product.fulfilmentOptions?.leadTimeMessage?.trim() || '',
+        },
+        inventory: {
+          ...(product.inventory || {}),
+          quantity: stock,
+          stock,
+          variants: Array.isArray(product.inventory?.variants) ? product.inventory.variants : [],
+        },
         checkout: {
           ...checkout,
           enabled: checkoutReady,
