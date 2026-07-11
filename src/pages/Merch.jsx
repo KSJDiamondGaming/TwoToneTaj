@@ -21,6 +21,35 @@ function getMediaUrl(product) {
   return product.image?.url?.trim() || ''
 }
 
+function isMadeToOrder(product) {
+  return product.fulfilmentOptions?.madeToOrder === true
+}
+
+function inventoryQuantity(product) {
+  return Math.max(0, Number(product.inventory?.quantity ?? product.inventory?.stock ?? 0))
+}
+
+function inventoryVariants(product) {
+  return Array.isArray(product.inventory?.variants) ? product.inventory.variants : []
+}
+
+function variantKey(size = '', colour = '') {
+  return `${String(size).trim().toLowerCase()}::${String(colour).trim().toLowerCase()}`
+}
+
+function findVariant(product, size = '', colour = '') {
+  return inventoryVariants(product).find(
+    item => variantKey(item.size, item.colour) === variantKey(size, colour),
+  ) || null
+}
+
+function firstVariantSelection(product, sizes, colours) {
+  const records = inventoryVariants(product)
+  if (!records.length) return { size: sizes[0] || '', colour: colours[0] || '' }
+  const record = records.find(item => isMadeToOrder(product) || Number(item.quantity || 0) > 0) || records[0]
+  return { size: record?.size || sizes[0] || '', colour: record?.colour || colours[0] || '' }
+}
+
 function formatPrice(priceGBP, currencyKey = 'GBP') {
   const currency = merchCurrencies[currencyKey] || merchCurrencies.GBP
   return `${currency.symbol}${(Number(priceGBP || 0) * currency.rate).toFixed(2)}`
@@ -56,7 +85,7 @@ function getCheckoutState(product) {
   const checkout = product.checkout || {}
   const url = checkout.url?.trim() || ''
   const stockAvailable =
-    !product.inventory?.trackStock || Number(product.inventory?.stock || 0) > 0
+    isMadeToOrder(product) || !product.inventory?.trackStock || inventoryQuantity(product) > 0
 
   return {
     canCheckout:
@@ -70,9 +99,8 @@ function getCheckoutState(product) {
 }
 
 function getAvailabilityLabel(product) {
-  if (product.inventory?.trackStock && Number(product.inventory?.stock || 0) <= 0) {
-    return 'Sold Out'
-  }
+  if (isMadeToOrder(product) && product.availability === 'available') return 'Made to Order'
+  if (product.inventory?.trackStock && inventoryQuantity(product) <= 0) return 'Sold Out'
   if (product.availability === 'available') return 'Available Now'
   if (product.availability === 'sold-out') return 'Sold Out'
   if (product.availability === 'paused') return 'Temporarily Unavailable'
@@ -146,13 +174,43 @@ function MerchCheckoutAction({ product, onAdd }) {
   const checkout = getCheckoutState(product)
   const sizes = options(product.variants?.sizes)
   const colours = options(product.variants?.colours)
-  const stock = product.inventory?.trackStock
-    ? Math.max(0, Number(product.inventory?.stock || 0))
-    : 10
-  const maxQuantity = Math.max(1, Math.min(10, stock || 1))
-  const [size, setSize] = useState(sizes[0] || '')
-  const [colour, setColour] = useState(colours[0] || '')
+  const madeToOrder = isMadeToOrder(product)
+  const initial = firstVariantSelection(product, sizes, colours)
+  const [size, setSize] = useState(initial.size)
+  const [colour, setColour] = useState(initial.colour)
   const [quantity, setQuantity] = useState(1)
+  const records = inventoryVariants(product)
+  const selectedRecord = records.length ? findVariant(product, size, colour) : null
+  const selectedStock = madeToOrder
+    ? 10
+    : product.inventory?.trackStock
+      ? Math.max(0, Number(selectedRecord?.quantity ?? inventoryQuantity(product)))
+      : 10
+  const maxQuantity = Math.max(1, Math.min(10, selectedStock || 1))
+  const selectedAvailable = madeToOrder || !product.inventory?.trackStock || selectedStock > 0
+
+  function combinationAvailable(nextSize, nextColour) {
+    if (madeToOrder || !product.inventory?.trackStock || !records.length) return true
+    return Number(findVariant(product, nextSize, nextColour)?.quantity || 0) > 0
+  }
+
+  function chooseSize(nextSize) {
+    setSize(nextSize)
+    if (colours.length && !combinationAvailable(nextSize, colour)) {
+      const nextColour = colours.find(value => combinationAvailable(nextSize, value))
+      if (nextColour) setColour(nextColour)
+    }
+    setQuantity(1)
+  }
+
+  function chooseColour(nextColour) {
+    setColour(nextColour)
+    if (sizes.length && !combinationAvailable(size, nextColour)) {
+      const nextSize = sizes.find(value => combinationAvailable(value, nextColour))
+      if (nextSize) setSize(nextSize)
+    }
+    setQuantity(1)
+  }
 
   if (!checkout.canCheckout) {
     return (
@@ -172,23 +230,33 @@ function MerchCheckoutAction({ product, onAdd }) {
           {sizes.length > 0 && (
             <label>
               <span>Size</span>
-              <select value={size} onChange={event => setSize(event.target.value)}>
-                {sizes.map(value => <option key={value}>{value}</option>)}
+              <select value={size} onChange={event => chooseSize(event.target.value)}>
+                {sizes.map(value => {
+                  const available = colours.length
+                    ? colours.some(option => combinationAvailable(value, option))
+                    : combinationAvailable(value, '')
+                  return <option key={value} disabled={!available}>{value}{available ? '' : ' — Sold out'}</option>
+                })}
               </select>
             </label>
           )}
           {colours.length > 0 && (
             <label>
               <span>Colour</span>
-              <select value={colour} onChange={event => setColour(event.target.value)}>
-                {colours.map(value => <option key={value}>{value}</option>)}
+              <select value={colour} onChange={event => chooseColour(event.target.value)}>
+                {colours.map(value => {
+                  const available = sizes.length
+                    ? sizes.some(option => combinationAvailable(option, value))
+                    : combinationAvailable('', value)
+                  return <option key={value} disabled={!available}>{value}{available ? '' : ' — Sold out'}</option>
+                })}
               </select>
             </label>
           )}
           {maxQuantity > 1 && (
             <label>
               <span>Quantity</span>
-              <select value={quantity} onChange={event => setQuantity(Number(event.target.value))}>
+              <select value={Math.min(quantity, maxQuantity)} onChange={event => setQuantity(Number(event.target.value))}>
                 {Array.from({ length: maxQuantity }, (_, index) => index + 1).map(value => (
                   <option key={value}>{value}</option>
                 ))}
@@ -198,28 +266,35 @@ function MerchCheckoutAction({ product, onAdd }) {
         </div>
       )}
       <button
-        className="merch-buy-btn"
+        className={`merch-buy-btn${selectedAvailable ? '' : ' disabled'}`}
         type="button"
+        disabled={!selectedAvailable}
         onClick={() =>
           onAdd({
             productId: product.id,
             name: product.name,
             image: getMediaUrl(product),
             unitPrice: Number(product.priceGBP || 0),
-            quantity,
+            quantity: Math.min(quantity, maxQuantity),
             variant: { size, colour },
             provider: checkout.provider,
-            checkoutUrl: checkoutUrl(checkout.url, { size, colour, quantity }),
-            stock,
-            trackStock: product.inventory?.trackStock === true,
+            checkoutUrl: checkoutUrl(checkout.url, { size, colour, quantity: Math.min(quantity, maxQuantity) }),
+            stock: selectedStock,
+            trackStock: product.inventory?.trackStock === true && !madeToOrder,
+            madeToOrder,
+            leadTimeMessage: product.fulfilmentOptions?.leadTimeMessage || '',
           })
         }
       >
-        Add to Basket
+        {selectedAvailable ? 'Add to Basket' : 'Selected Variant Sold Out'}
       </button>
       <small>
         Secure checkout{checkout.provider ? ` via ${checkout.provider}` : ''}.
-        {product.inventory?.trackStock ? ` ${stock} currently in stock.` : ''}
+        {madeToOrder
+          ? ` * ${product.fulfilmentOptions?.leadTimeMessage || 'This item is made to order.'}`
+          : product.inventory?.trackStock
+            ? ` ${selectedStock} available for this selection.`
+            : ''}
       </small>
     </div>
   )
@@ -251,6 +326,7 @@ function MerchBasket({ basket, currency, onQuantity, onRemove, onClear }) {
                 <small>
                   {[item.variant?.size, item.variant?.colour].filter(Boolean).join(' • ') || 'Standard item'}
                 </small>
+                {item.madeToOrder && <small>* {item.leadTimeMessage || 'Made to order'}</small>}
                 <span>{formatPrice(item.unitPrice, currency)} each</span>
               </div>
               <label>
@@ -459,7 +535,11 @@ export default function Merch() {
                     <p>{product.description}</p>
                     <strong>{formatPrice(product.priceGBP, selectedCurrency)}</strong>
                     <small>{selectedCurrency === 'GBP' ? 'GBP price' : 'Estimated conversion'}</small>
-                    <p className="merch-fulfilment-note">{product.shippingNote}</p>
+                    <p className="merch-fulfilment-note">
+                      {isMadeToOrder(product)
+                        ? `* ${product.fulfilmentOptions?.leadTimeMessage || 'This item is made to order.'}`
+                        : product.shippingNote}
+                    </p>
                   </div>
                   <MerchCheckoutAction product={product} onAdd={addToBasket} />
                 </article>
