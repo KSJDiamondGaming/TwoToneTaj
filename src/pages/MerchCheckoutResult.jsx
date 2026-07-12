@@ -25,15 +25,60 @@ function ResultShell({ status, title, message, reference = '' }) {
 export function MerchCheckoutSuccess() {
   const params = new URLSearchParams(useLocation().search)
   const sessionId = params.get('session_id')
-
-  return (
-    <ResultShell
-      status="Payment Received"
-      title="Thank You For Your Order"
-      message="Your payment was completed. Your order confirmation will be sent by email once KSJ Digital finishes processing the verified payment event. Use the order number from that email to track your order."
-      reference={sessionId || ''}
-    />
+  const [state, setState] = useState(() =>
+    sessionId
+      ? {
+          status: 'Processing Payment',
+          title: 'Confirming Your Card Payment',
+          message: 'Please keep this page open while Stripe confirms your order.',
+          reference: sessionId,
+        }
+      : {
+          status: 'Payment Error',
+          title: 'Stripe Session Missing',
+          message: 'The Stripe session reference was not returned. No additional payment attempt has been made.',
+          reference: '',
+        },
   )
+
+  useEffect(() => {
+    if (!sessionId) return undefined
+
+    let cancelled = false
+
+    fetch(ksjPublicUrl(`/checkout/stripe/sessions/${encodeURIComponent(sessionId)}/complete`), {
+      method: 'POST',
+    })
+      .then(async response => {
+        const data = await response.json().catch(() => null)
+        if (!response.ok) throw new Error(data?.error || 'Stripe confirmation failed')
+        return data
+      })
+      .then(data => {
+        if (cancelled) return
+        setState({
+          status: 'Payment Received',
+          title: 'Thank You For Your Order',
+          message: 'Your card payment was completed and your order confirmation is being sent by email. Use that order number to track your order.',
+          reference: data.order?.orderNumber || sessionId,
+        })
+      })
+      .catch(error => {
+        if (cancelled) return
+        setState({
+          status: 'Payment Error',
+          title: 'We Could Not Confirm The Card Order',
+          message: `${error.message}. Please contact support before attempting another payment if your bank shows a charge.`,
+          reference: sessionId,
+        })
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [sessionId])
+
+  return <ResultShell {...state} />
 }
 
 export function MerchCheckoutCancelled() {
