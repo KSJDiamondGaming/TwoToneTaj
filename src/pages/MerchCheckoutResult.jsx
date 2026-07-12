@@ -82,11 +82,21 @@ export function MerchCheckoutSuccess() {
 }
 
 export function MerchCheckoutCancelled() {
+  const params = new URLSearchParams(useLocation().search)
+  const reservationId = params.get('reservation_id')
+
+  useEffect(() => {
+    if (!reservationId) return
+    fetch(ksjPublicUrl(`/checkout/reservations/${encodeURIComponent(reservationId)}/release`), {
+      method: 'POST',
+    }).catch(() => {})
+  }, [reservationId])
+
   return (
     <ResultShell
       status="Checkout Cancelled"
       title="No Payment Was Taken"
-      message="The checkout was cancelled before completion. You can return to the merch page whenever you are ready."
+      message="The checkout was cancelled before completion. Any reserved stock has been released, and you can return to the merch page whenever you are ready."
     />
   )
 }
