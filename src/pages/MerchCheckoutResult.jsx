@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-
-const API_BASE = import.meta.env.VITE_KSJ_PUBLIC_API_URL || 'https://ksjdigital.co.uk/api'
+import { ksjPublicUrl } from '../config/ksjApi'
 
 function ResultShell({ status, title, message, reference = '' }) {
   return (
@@ -72,7 +71,7 @@ export function PayPalCheckoutReturn() {
 
     let cancelled = false
 
-    fetch(`${API_BASE}/checkout/paypal/orders/${encodeURIComponent(token)}/capture`, {
+    fetch(ksjPublicUrl(`/checkout/paypal/orders/${encodeURIComponent(token)}/capture`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
