@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react'
+import { KSJ_API_BASE, KSJ_SITE_ID, ksjAssetUrl, ksjPublicUrl } from '../config/ksjApi'
 import { siteConfig } from '../config/siteConfig'
-
-const SITE_ID = import.meta.env.VITE_KSJ_SITE_ID || 'twotonetaj'
-const API_BASE = import.meta.env.VITE_KSJ_PUBLIC_API_URL || 'https://ksjdigital.co.uk/api'
-const ASSET_BASE = import.meta.env.VITE_KSJ_ASSET_URL || 'https://ksjdigital.co.uk'
 
 const fallbackNavigation = [
   { id: 'home', label: 'Home', target: '/', visible: true, external: false, order: 1 },
@@ -14,8 +11,7 @@ const fallbackNavigation = [
 ]
 
 function assetUrl(asset) {
-  if (!asset?.url) return ''
-  return asset.url.startsWith('http') ? asset.url : `${ASSET_BASE}${asset.url}`
+  return ksjAssetUrl(asset?.url || '')
 }
 
 function latestAsset(assets = [], slotId) {
@@ -26,7 +22,8 @@ function latestAsset(assets = [], slotId) {
 
 function validCheckoutUrl(value = '') {
   try {
-    return new URL(value).protocol === 'https:'
+    const url = new URL(value)
+    return url.protocol === 'https:' || (url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname))
   } catch {
     return false
   }
@@ -35,8 +32,8 @@ function validCheckoutUrl(value = '') {
 function providerCheckoutUrl(provider, productId) {
   const normalisedProvider = provider?.trim().toLowerCase()
   if (!['stripe', 'paypal'].includes(normalisedProvider) || !productId) return ''
-  const params = new URLSearchParams({ websiteId: SITE_ID, productId, quantity: '1' })
-  return `${API_BASE}/checkout/${normalisedProvider}/start?${params}`
+  const params = new URLSearchParams({ websiteId: KSJ_SITE_ID, productId, quantity: '1' })
+  return `${KSJ_API_BASE}/checkout/${normalisedProvider}/start?${params}`
 }
 
 function sanitiseMerch(merch) {
@@ -65,9 +62,7 @@ function sanitiseMerch(merch) {
 
       return {
         ...product,
-        shippingNote: madeToOrder
-          ? `* ${leadTimeMessage}`
-          : product.shippingNote,
+        shippingNote: madeToOrder ? `* ${leadTimeMessage}` : product.shippingNote,
         fulfilmentOptions: {
           madeToOrder,
           leadTimeMessage,
@@ -156,7 +151,7 @@ export function useManagedSite() {
 
     async function loadSite() {
       try {
-        const response = await fetch(`${API_BASE}/public/sites/${SITE_ID}`)
+        const response = await fetch(ksjPublicUrl(`/public/sites/${KSJ_SITE_ID}`))
 
         if (!response.ok) {
           throw new Error(`Managed site failed: ${response.status}`)
