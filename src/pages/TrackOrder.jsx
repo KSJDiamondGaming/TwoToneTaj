@@ -1,7 +1,6 @@
 import { useState } from 'react'
+import { KSJ_SITE_ID, ksjPublicUrl } from '../config/ksjApi'
 
-const SITE_ID = import.meta.env.VITE_KSJ_SITE_ID || 'twotonetaj'
-const API_BASE = import.meta.env.VITE_KSJ_PUBLIC_API_URL || 'https://ksjdigital.co.uk/api'
 const STATUS_STEPS = ['New', 'Processing', 'Awaiting Stock', 'Dispatched', 'Delivered']
 
 function money(value, currency = 'GBP') {
@@ -26,11 +25,11 @@ export default function TrackOrder() {
     setOrder(null)
 
     try {
-      const response = await fetch(`${API_BASE}/public/orders/lookup`, {
+      const response = await fetch(ksjPublicUrl('/public/orders/lookup'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          websiteId: SITE_ID,
+          websiteId: KSJ_SITE_ID,
           orderNumber: form.orderNumber,
           email: form.email,
         }),
@@ -46,6 +45,9 @@ export default function TrackOrder() {
   }
 
   const currentStep = order ? statusIndex(order.fulfilmentStatus) : -1
+  const invoiceUrl = order?.invoiceUrl
+    ? ksjPublicUrl(order.invoiceUrl.replace(/^\/api/, ''))
+    : ''
 
   return (
     <main className="order-track-page">
@@ -135,7 +137,7 @@ export default function TrackOrder() {
           </div>
 
           <div className="order-track-actions">
-            <a href={`${API_BASE.replace(/\/$/, '')}${order.invoiceUrl.replace('/api', '')}`} target="_blank" rel="noreferrer">Open Invoice</a>
+            {invoiceUrl && <a href={invoiceUrl} target="_blank" rel="noreferrer">Open Invoice</a>}
             <button type="button" onClick={() => { setOrder(null); setNotice('') }}>Check Another Order</button>
           </div>
           <small className="order-track-expiry">For security, the invoice link expires after 15 minutes. Verify the order again to create a new link.</small>
