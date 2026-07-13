@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { ksjPublicUrl } from '../config/ksjApi'
+import { KSJ_SITE_ID, ksjPublicUrl } from '../config/ksjApi'
+
+const BASKET_KEY = `${KSJ_SITE_ID}:merch-basket`
 
 function ResultShell({ status, title, message, reference = '' }) {
   return (
@@ -25,6 +27,7 @@ function ResultShell({ status, title, message, reference = '' }) {
 export function MerchCheckoutSuccess() {
   const params = new URLSearchParams(useLocation().search)
   const sessionId = params.get('session_id')
+  const basketCheckout = params.get('basket') === '1'
   const [state, setState] = useState(() =>
     sessionId
       ? {
@@ -43,12 +46,12 @@ export function MerchCheckoutSuccess() {
 
   useEffect(() => {
     if (!sessionId) return undefined
-
     let cancelled = false
+    const path = basketCheckout
+      ? `/checkout/basket/stripe/${encodeURIComponent(sessionId)}/complete`
+      : `/checkout/stripe/sessions/${encodeURIComponent(sessionId)}/complete`
 
-    fetch(ksjPublicUrl(`/checkout/stripe/sessions/${encodeURIComponent(sessionId)}/complete`), {
-      method: 'POST',
-    })
+    fetch(ksjPublicUrl(path), { method: 'POST' })
       .then(async response => {
         const data = await response.json().catch(() => null)
         if (!response.ok) throw new Error(data?.error || 'Stripe confirmation failed')
@@ -56,6 +59,7 @@ export function MerchCheckoutSuccess() {
       })
       .then(data => {
         if (cancelled) return
+        if (basketCheckout) localStorage.removeItem(BASKET_KEY)
         setState({
           status: 'Payment Received',
           title: 'Thank You For Your Order',
@@ -73,10 +77,8 @@ export function MerchCheckoutSuccess() {
         })
       })
 
-    return () => {
-      cancelled = true
-    }
-  }, [sessionId])
+    return () => { cancelled = true }
+  }, [basketCheckout, sessionId])
 
   return <ResultShell {...state} />
 }
@@ -96,7 +98,7 @@ export function MerchCheckoutCancelled() {
     <ResultShell
       status="Checkout Cancelled"
       title="No Payment Was Taken"
-      message="The checkout was cancelled before completion. Any reserved stock has been released, and you can return to the merch page whenever you are ready."
+      message="The checkout was cancelled before completion. Your basket remains available so you can return and try again."
     />
   )
 }
@@ -104,6 +106,7 @@ export function MerchCheckoutCancelled() {
 export function PayPalCheckoutReturn() {
   const params = new URLSearchParams(useLocation().search)
   const token = params.get('token')
+  const basketCheckout = params.get('basket') === '1'
   const [state, setState] = useState(() =>
     token
       ? {
@@ -115,18 +118,19 @@ export function PayPalCheckoutReturn() {
       : {
           status: 'Payment Error',
           title: 'PayPal Order Missing',
-          message:
-            'The PayPal order reference was not returned. No additional payment attempt has been made.',
+          message: 'The PayPal order reference was not returned. No additional payment attempt has been made.',
           reference: '',
         },
   )
 
   useEffect(() => {
     if (!token) return undefined
-
     let cancelled = false
+    const path = basketCheckout
+      ? `/checkout/basket/paypal/${encodeURIComponent(token)}/capture`
+      : `/checkout/paypal/orders/${encodeURIComponent(token)}/capture`
 
-    fetch(ksjPublicUrl(`/checkout/paypal/orders/${encodeURIComponent(token)}/capture`), {
+    fetch(ksjPublicUrl(path), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
@@ -139,11 +143,11 @@ export function PayPalCheckoutReturn() {
       .then(data => {
         if (cancelled) return
         if (!data.completed) throw new Error('PayPal has not completed the payment')
+        if (basketCheckout) localStorage.removeItem(BASKET_KEY)
         setState({
           status: 'Payment Received',
           title: 'Thank You For Your Order',
-          message:
-            'Your PayPal payment was completed and your order confirmation is being sent by email. Use that order number to track your order.',
+          message: 'Your PayPal payment was completed and your order confirmation is being sent by email. Use that order number to track your order.',
           reference: data.order?.orderNumber || token,
         })
       })
@@ -157,10 +161,8 @@ export function PayPalCheckoutReturn() {
         })
       })
 
-    return () => {
-      cancelled = true
-    }
-  }, [token])
+    return () => { cancelled = true }
+  }, [basketCheckout, token])
 
   return <ResultShell {...state} />
 }
