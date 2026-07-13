@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import fallbackLogo from '../assets/logo.png'
@@ -10,8 +10,6 @@ import {
 } from '../data/merchProducts'
 import { useManagedSite } from '../hooks/useManagedSite'
 import '../styles/merch.css'
-
-const BASKET_KEY = 'twotonetajMerchBasket'
 
 function getProductTags(product) {
   return Array.isArray(product.tags) ? product.tags : []
@@ -130,19 +128,6 @@ function checkoutUrl(baseUrl, { size, colour, quantity }) {
   }
 }
 
-function basketKey(item) {
-  return [item.productId, item.variant?.size || '', item.variant?.colour || ''].join('::')
-}
-
-function loadBasket() {
-  try {
-    const value = JSON.parse(localStorage.getItem(BASKET_KEY) || '[]')
-    return Array.isArray(value) ? value : []
-  } catch {
-    return []
-  }
-}
-
 function MerchProductVisual({ product, logo, compact = false }) {
   const [hasImageError, setHasImageError] = useState(false)
   const imageUrl = getMediaUrl(product)
@@ -170,7 +155,7 @@ function MerchProductVisual({ product, logo, compact = false }) {
   )
 }
 
-function MerchCheckoutAction({ product, onAdd }) {
+function MerchCheckoutAction({ product }) {
   const checkout = getCheckoutState(product)
   const sizes = options(product.variants?.sizes)
   const colours = options(product.variants?.colours)
@@ -223,6 +208,12 @@ function MerchCheckoutAction({ product, onAdd }) {
     )
   }
 
+  const href = checkoutUrl(checkout.url, {
+    size,
+    colour,
+    quantity: Math.min(quantity, maxQuantity),
+  })
+
   return (
     <div className="merch-checkout-action">
       {(sizes.length > 0 || colours.length > 0 || maxQuantity > 1) && (
@@ -265,31 +256,15 @@ function MerchCheckoutAction({ product, onAdd }) {
           )}
         </div>
       )}
-      <button
-        className={`merch-buy-btn${selectedAvailable ? '' : ' disabled'}`}
-        type="button"
-        disabled={!selectedAvailable}
-        onClick={() =>
-          onAdd({
-            productId: product.id,
-            name: product.name,
-            image: getMediaUrl(product),
-            unitPrice: Number(product.priceGBP || 0),
-            quantity: Math.min(quantity, maxQuantity),
-            variant: { size, colour },
-            provider: checkout.provider,
-            checkoutUrl: checkoutUrl(checkout.url, { size, colour, quantity: Math.min(quantity, maxQuantity) }),
-            stock: selectedStock,
-            trackStock: product.inventory?.trackStock === true && !madeToOrder,
-            madeToOrder,
-            leadTimeMessage: product.fulfilmentOptions?.leadTimeMessage || '',
-          })
-        }
-      >
-        {selectedAvailable ? 'Add to Basket' : 'Selected Variant Sold Out'}
-      </button>
+      {selectedAvailable ? (
+        <a className="merch-buy-btn" href={href}>Buy Now</a>
+      ) : (
+        <button className="merch-buy-btn disabled" type="button" disabled>
+          Selected Variant Sold Out
+        </button>
+      )}
       <small>
-        Secure checkout{checkout.provider ? ` via ${checkout.provider}` : ''}.
+        One secure payment for this product{checkout.provider ? ` via ${checkout.provider}` : ''}.
         {madeToOrder
           ? ` * ${product.fulfilmentOptions?.leadTimeMessage || 'This item is made to order.'}`
           : product.inventory?.trackStock
@@ -300,71 +275,11 @@ function MerchCheckoutAction({ product, onAdd }) {
   )
 }
 
-function MerchBasket({ basket, currency, onQuantity, onRemove, onClear }) {
-  const itemCount = basket.reduce((total, item) => total + item.quantity, 0)
-  const subtotal = basket.reduce((total, item) => total + item.unitPrice * item.quantity, 0)
-
-  if (!basket.length) return null
-
-  return (
-    <section className="merch-basket" aria-label="Merch basket">
-      <div className="merch-basket-head">
-        <div>
-          <span className="eyebrow">Your Basket</span>
-          <h2>{itemCount} Item{itemCount === 1 ? '' : 's'}</h2>
-        </div>
-        <button type="button" onClick={onClear}>Clear Basket</button>
-      </div>
-      <div className="merch-basket-items">
-        {basket.map(item => {
-          const max = item.trackStock ? Math.max(1, Math.min(10, item.stock)) : 10
-          return (
-            <article key={basketKey(item)}>
-              {item.image ? <img src={item.image} alt="" /> : <div className="merch-basket-placeholder">MERCH</div>}
-              <div className="merch-basket-copy">
-                <strong>{item.name}</strong>
-                <small>
-                  {[item.variant?.size, item.variant?.colour].filter(Boolean).join(' • ') || 'Standard item'}
-                </small>
-                {item.madeToOrder && <small>* {item.leadTimeMessage || 'Made to order'}</small>}
-                <span>{formatPrice(item.unitPrice, currency)} each</span>
-              </div>
-              <label>
-                <span>Qty</span>
-                <select value={item.quantity} onChange={event => onQuantity(item, Number(event.target.value))}>
-                  {Array.from({ length: max }, (_, index) => index + 1).map(value => (
-                    <option key={value}>{value}</option>
-                  ))}
-                </select>
-              </label>
-              <div className="merch-basket-actions">
-                <strong>{formatPrice(item.unitPrice * item.quantity, currency)}</strong>
-                <a href={checkoutUrl(item.checkoutUrl, { ...item.variant, quantity: item.quantity })}>
-                  Checkout Item
-                </a>
-                <button type="button" onClick={() => onRemove(item)}>Remove</button>
-              </div>
-            </article>
-          )
-        })}
-      </div>
-      <div className="merch-basket-total">
-        <span>Basket subtotal</span>
-        <strong>{formatPrice(subtotal, currency)}</strong>
-      </div>
-      <p className="merch-basket-note">
-        Each line opens its verified provider checkout with the selected variant and quantity.
-      </p>
-    </section>
-  )
-}
-
 export default function Merch() {
   const { site } = useManagedSite()
   const [activeCategory, setActiveCategory] = useState('All')
   const [selectedCurrency, setSelectedCurrency] = useState('GBP')
   const [sortBy, setSortBy] = useState('featured')
-  const [basket, setBasket] = useState(loadBasket)
   const products = site.merch?.products?.length ? site.merch.products : fallbackProducts
   const logo = site.assetUrls?.primaryLogo || fallbackLogo
   const discordUrl = site.socials?.discord || 'https://discord.gg/WcbtQPuByd'
@@ -372,10 +287,6 @@ export default function Merch() {
   const storeSubtitle =
     site.merch?.subtitle ||
     `Official creator apparel, accessories and digital drops for the ${site.brand.communityName}.`
-
-  useEffect(() => {
-    localStorage.setItem(BASKET_KEY, JSON.stringify(basket))
-  }, [basket])
 
   const carouselItems = useMemo(
     () => products.filter(product => product.showInCarousel),
@@ -389,20 +300,6 @@ export default function Merch() {
     () => products.filter(product => getCheckoutState(product).canCheckout).length,
     [products],
   )
-
-  function addToBasket(item) {
-    setBasket(current => {
-      const key = basketKey(item)
-      const existing = current.find(entry => basketKey(entry) === key)
-      if (!existing) return [...current, item]
-      const max = item.trackStock ? Math.max(1, Math.min(10, item.stock)) : 10
-      return current.map(entry =>
-        basketKey(entry) === key
-          ? { ...entry, quantity: Math.min(max, entry.quantity + item.quantity) }
-          : entry,
-      )
-    })
-  }
 
   function resetFilters() {
     setActiveCategory('All')
@@ -433,25 +330,11 @@ export default function Merch() {
           <strong>{availableProductCount > 0 ? 'Secure Checkout Available' : 'Merch Store Coming Soon'}</strong>
           <p>
             {availableProductCount > 0
-              ? `${availableProductCount} product${availableProductCount === 1 ? '' : 's'} currently support secure checkout.`
+              ? `${availableProductCount} product${availableProductCount === 1 ? '' : 's'} can be purchased through direct secure checkout.`
               : 'Products stay unavailable until checkout is enabled in the client portal.'}
           </p>
         </div>
       </section>
-
-      <MerchBasket
-        basket={basket}
-        currency={selectedCurrency}
-        onQuantity={(item, quantity) =>
-          setBasket(current =>
-            current.map(entry => basketKey(entry) === basketKey(item) ? { ...entry, quantity } : entry),
-          )
-        }
-        onRemove={item =>
-          setBasket(current => current.filter(entry => basketKey(entry) !== basketKey(item)))
-        }
-        onClear={() => setBasket([])}
-      />
 
       {carouselItems.length > 0 && (
         <section className="merch-carousel" aria-label="Featured merch carousel">
@@ -541,7 +424,7 @@ export default function Merch() {
                         : product.shippingNote}
                     </p>
                   </div>
-                  <MerchCheckoutAction product={product} onAdd={addToBasket} />
+                  <MerchCheckoutAction product={product} />
                 </article>
               )
             })}
