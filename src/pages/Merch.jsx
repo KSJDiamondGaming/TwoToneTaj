@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import fallbackLogo from '../assets/logo.png'
+import { KSJ_SITE_ID, ksjPublicUrl } from '../config/ksjApi'
 import {
   merchCategories,
   merchCurrencies,
@@ -10,6 +11,9 @@ import {
 } from '../data/merchProducts'
 import { useManagedSite } from '../hooks/useManagedSite'
 import '../styles/merch.css'
+
+const BASKET_KEY = `${KSJ_SITE_ID}:merch-basket`
+const DISCOUNT_KEY = 'ksjMerchDiscountCode'
 
 function getProductTags(product) {
   return Array.isArray(product.tags) ? product.tags : []
@@ -35,6 +39,10 @@ function variantKey(size = '', colour = '') {
   return `${String(size).trim().toLowerCase()}::${String(colour).trim().toLowerCase()}`
 }
 
+function basketKey(item) {
+  return `${item.productId}::${variantKey(item.variant?.size, item.variant?.colour)}`
+}
+
 function findVariant(product, size = '', colour = '') {
   return inventoryVariants(product).find(
     item => variantKey(item.size, item.colour) === variantKey(size, colour),
@@ -48,6 +56,15 @@ function firstVariantSelection(product, sizes, colours) {
   return { size: record?.size || sizes[0] || '', colour: record?.colour || colours[0] || '' }
 }
 
+function loadBasket() {
+  try {
+    const value = JSON.parse(localStorage.getItem(BASKET_KEY) || '[]')
+    return Array.isArray(value) ? value : []
+  } catch {
+    return []
+  }
+}
+
 function formatPrice(priceGBP, currencyKey = 'GBP') {
   const currency = merchCurrencies[currencyKey] || merchCurrencies.GBP
   return `${currency.symbol}${(Number(priceGBP || 0) * currency.rate).toFixed(2)}`
@@ -58,9 +75,7 @@ function productMatchesCategory(product, category) {
   if (category === 'All') return true
   if (category === 'Featured') return product.featured
   if (category === 'Limited Drops') return product.limited || tags.includes('Limited Drops')
-  if (category === 'Coming Soon') {
-    return product.availability !== 'available' || tags.includes('Coming Soon')
-  }
+  if (category === 'Coming Soon') return product.availability !== 'available' || tags.includes('Coming Soon')
   return product.category === category
 }
 
@@ -71,28 +86,16 @@ function sortProducts(products, sortBy) {
     if (sortBy === 'price-asc') return Number(a.priceGBP || 0) - Number(b.priceGBP || 0)
     if (sortBy === 'price-desc') return Number(b.priceGBP || 0) - Number(a.priceGBP || 0)
     if (sortBy === 'newest') return new Date(b.createdAt) - new Date(a.createdAt)
-    if (sortBy === 'coming-soon') {
-      return Number(b.availability !== 'available') - Number(a.availability !== 'available')
-    }
+    if (sortBy === 'coming-soon') return Number(b.availability !== 'available') - Number(a.availability !== 'available')
     if (sortBy === 'limited') return Number(b.limited) - Number(a.limited)
     return Number(b.featured) - Number(a.featured)
   })
 }
 
 function getCheckoutState(product) {
-  const checkout = product.checkout || {}
-  const url = checkout.url?.trim() || ''
-  const stockAvailable =
-    isMadeToOrder(product) || !product.inventory?.trackStock || inventoryQuantity(product) > 0
-
+  const stockAvailable = isMadeToOrder(product) || !product.inventory?.trackStock || inventoryQuantity(product) > 0
   return {
-    canCheckout:
-      checkout.enabled === true &&
-      product.availability === 'available' &&
-      stockAvailable &&
-      Boolean(url),
-    provider: checkout.provider?.trim() || '',
-    url,
+    canCheckout: product.checkout?.enabled === true && product.availability === 'available' && stockAvailable,
   }
 }
 
@@ -107,25 +110,8 @@ function getAvailabilityLabel(product) {
 
 function options(value) {
   if (Array.isArray(value)) return value.filter(Boolean)
-  if (typeof value === 'string') {
-    return value
-      .split(',')
-      .map(item => item.trim())
-      .filter(Boolean)
-  }
+  if (typeof value === 'string') return value.split(',').map(item => item.trim()).filter(Boolean)
   return []
-}
-
-function checkoutUrl(baseUrl, { size, colour, quantity }) {
-  try {
-    const url = new URL(baseUrl, window.location.origin)
-    url.searchParams.set('quantity', String(quantity))
-    if (size) url.searchParams.set('size', size)
-    if (colour) url.searchParams.set('colour', colour)
-    return url.toString()
-  } catch {
-    return baseUrl
-  }
 }
 
 function MerchProductVisual({ product, logo, compact = false }) {
@@ -144,10 +130,7 @@ function MerchProductVisual({ product, logo, compact = false }) {
   }
 
   return (
-    <div
-      className={`merch-image-placeholder ${compact ? 'compact' : ''}`}
-      data-placeholder={product.fallbackImage || 'default'}
-    >
+    <div className={`merch-image-placeholder ${compact ? 'compact' : ''}`} data-placeholder={product.fallbackImage || 'default'}>
       <img src={logo} alt="" aria-hidden="true" loading="lazy" />
       <span>{product.type}</span>
       <small>Image coming soon</small>
@@ -155,7 +138,7 @@ function MerchProductVisual({ product, logo, compact = false }) {
   )
 }
 
-function MerchCheckoutAction({ product }) {
+function MerchCheckoutAction({ product, onAdd }) {
   const checkout = getCheckoutState(product)
   const sizes = options(product.variants?.sizes)
   const colours = options(product.variants?.colours)
@@ -200,19 +183,11 @@ function MerchCheckoutAction({ product }) {
   if (!checkout.canCheckout) {
     return (
       <div className="merch-checkout-action">
-        <button className="merch-buy-btn disabled" type="button" disabled>
-          {getAvailabilityLabel(product)}
-        </button>
+        <button className="merch-buy-btn disabled" type="button" disabled>{getAvailabilityLabel(product)}</button>
         <small>No payment is taken while this product is unavailable.</small>
       </div>
     )
   }
-
-  const href = checkoutUrl(checkout.url, {
-    size,
-    colour,
-    quantity: Math.min(quantity, maxQuantity),
-  })
 
   return (
     <div className="merch-checkout-action">
@@ -223,9 +198,7 @@ function MerchCheckoutAction({ product }) {
               <span>Size</span>
               <select value={size} onChange={event => chooseSize(event.target.value)}>
                 {sizes.map(value => {
-                  const available = colours.length
-                    ? colours.some(option => combinationAvailable(value, option))
-                    : combinationAvailable(value, '')
+                  const available = colours.length ? colours.some(option => combinationAvailable(value, option)) : combinationAvailable(value, '')
                   return <option key={value} disabled={!available}>{value}{available ? '' : ' — Sold out'}</option>
                 })}
               </select>
@@ -236,9 +209,7 @@ function MerchCheckoutAction({ product }) {
               <span>Colour</span>
               <select value={colour} onChange={event => chooseColour(event.target.value)}>
                 {colours.map(value => {
-                  const available = sizes.length
-                    ? sizes.some(option => combinationAvailable(option, value))
-                    : combinationAvailable('', value)
+                  const available = sizes.length ? sizes.some(option => combinationAvailable(option, value)) : combinationAvailable('', value)
                   return <option key={value} disabled={!available}>{value}{available ? '' : ' — Sold out'}</option>
                 })}
               </select>
@@ -248,30 +219,91 @@ function MerchCheckoutAction({ product }) {
             <label>
               <span>Quantity</span>
               <select value={Math.min(quantity, maxQuantity)} onChange={event => setQuantity(Number(event.target.value))}>
-                {Array.from({ length: maxQuantity }, (_, index) => index + 1).map(value => (
-                  <option key={value}>{value}</option>
-                ))}
+                {Array.from({ length: maxQuantity }, (_, index) => index + 1).map(value => <option key={value}>{value}</option>)}
               </select>
             </label>
           )}
         </div>
       )}
-      {selectedAvailable ? (
-        <a className="merch-buy-btn" href={href}>Buy Now</a>
-      ) : (
-        <button className="merch-buy-btn disabled" type="button" disabled>
-          Selected Variant Sold Out
-        </button>
-      )}
+      <button
+        className={`merch-buy-btn${selectedAvailable ? '' : ' disabled'}`}
+        type="button"
+        disabled={!selectedAvailable}
+        onClick={() => onAdd({
+          productId: product.id,
+          name: product.name,
+          image: getMediaUrl(product),
+          unitPrice: Number(product.priceGBP || 0),
+          quantity: Math.min(quantity, maxQuantity),
+          variant: { size, colour },
+          stock: selectedStock,
+          trackStock: product.inventory?.trackStock === true && !madeToOrder,
+          madeToOrder,
+          leadTimeMessage: product.fulfilmentOptions?.leadTimeMessage || '',
+        })}
+      >
+        {selectedAvailable ? 'Add to Basket' : 'Selected Variant Sold Out'}
+      </button>
       <small>
-        One secure payment for this product{checkout.provider ? ` via ${checkout.provider}` : ''}.
         {madeToOrder
-          ? ` * ${product.fulfilmentOptions?.leadTimeMessage || 'This item is made to order.'}`
+          ? `* ${product.fulfilmentOptions?.leadTimeMessage || 'This item is made to order.'}`
           : product.inventory?.trackStock
-            ? ` ${selectedStock} available for this selection.`
-            : ''}
+            ? `${selectedStock} available for this selection.`
+            : 'Available for secure checkout.'}
       </small>
     </div>
+  )
+}
+
+function MerchBasket({ basket, currency, busy, error, onQuantity, onRemove, onClear, onCheckout }) {
+  const itemCount = basket.reduce((total, item) => total + item.quantity, 0)
+  const subtotal = basket.reduce((total, item) => total + item.unitPrice * item.quantity, 0)
+  if (!basket.length) return null
+
+  return (
+    <section className="merch-basket" aria-label="Merch basket">
+      <div className="merch-basket-head">
+        <div><span className="eyebrow">Your Basket</span><h2>{itemCount} Item{itemCount === 1 ? '' : 's'}</h2></div>
+        <button type="button" onClick={onClear} disabled={busy}>Clear Basket</button>
+      </div>
+      <div className="merch-basket-items">
+        {basket.map(item => {
+          const max = item.trackStock ? Math.max(1, Math.min(10, item.stock)) : 10
+          return (
+            <article key={basketKey(item)}>
+              {item.image ? <img src={item.image} alt="" /> : <div className="merch-basket-placeholder">MERCH</div>}
+              <div className="merch-basket-copy">
+                <strong>{item.name}</strong>
+                <small>{[item.variant?.size, item.variant?.colour].filter(Boolean).join(' • ') || 'Standard item'}</small>
+                {item.madeToOrder && <small>* {item.leadTimeMessage || 'Made to order'}</small>}
+                <span>{formatPrice(item.unitPrice, currency)} each</span>
+              </div>
+              <label>
+                <span>Qty</span>
+                <select value={item.quantity} disabled={busy} onChange={event => onQuantity(item, Number(event.target.value))}>
+                  {Array.from({ length: max }, (_, index) => index + 1).map(value => <option key={value}>{value}</option>)}
+                </select>
+              </label>
+              <div className="merch-basket-actions">
+                <strong>{formatPrice(item.unitPrice * item.quantity, currency)}</strong>
+                <button type="button" disabled={busy} onClick={() => onRemove(item)}>Remove</button>
+              </div>
+            </article>
+          )
+        })}
+      </div>
+      <div className="merch-basket-total"><span>Basket subtotal</span><strong>{formatPrice(subtotal, currency)}</strong></div>
+      {error && <p role="alert">{error}</p>}
+      <div className="merch-final-actions">
+        <button className="btn primary" type="button" disabled={busy} onClick={() => onCheckout('stripe')}>
+          {busy === 'stripe' ? 'Opening Stripe…' : 'Checkout with Stripe'}
+        </button>
+        <button className="btn ghost" type="button" disabled={busy} onClick={() => onCheckout('paypal')}>
+          {busy === 'paypal' ? 'Opening PayPal…' : 'Checkout with PayPal'}
+        </button>
+      </div>
+      <p className="merch-basket-note">All basket lines are verified again by KSJ Digital before one secure payment is created.</p>
+    </section>
   )
 }
 
@@ -280,18 +312,20 @@ export default function Merch() {
   const [activeCategory, setActiveCategory] = useState('All')
   const [selectedCurrency, setSelectedCurrency] = useState('GBP')
   const [sortBy, setSortBy] = useState('featured')
+  const [basket, setBasket] = useState(loadBasket)
+  const [busy, setBusy] = useState('')
+  const [checkoutError, setCheckoutError] = useState('')
   const products = site.merch?.products?.length ? site.merch.products : fallbackProducts
   const logo = site.assetUrls?.primaryLogo || fallbackLogo
   const discordUrl = site.socials?.discord || 'https://discord.gg/WcbtQPuByd'
   const storeEyebrow = site.merch?.eyebrow || `Official ${site.brand.communityName} Gear`
-  const storeSubtitle =
-    site.merch?.subtitle ||
-    `Official creator apparel, accessories and digital drops for the ${site.brand.communityName}.`
+  const storeSubtitle = site.merch?.subtitle || `Official creator apparel, accessories and digital drops for the ${site.brand.communityName}.`
 
-  const carouselItems = useMemo(
-    () => products.filter(product => product.showInCarousel),
-    [products],
-  )
+  useEffect(() => {
+    localStorage.setItem(BASKET_KEY, JSON.stringify(basket))
+  }, [basket])
+
+  const carouselItems = useMemo(() => products.filter(product => product.showInCarousel), [products])
   const visibleProducts = useMemo(
     () => sortProducts(products.filter(product => productMatchesCategory(product, activeCategory)), sortBy),
     [activeCategory, products, sortBy],
@@ -300,6 +334,47 @@ export default function Merch() {
     () => products.filter(product => getCheckoutState(product).canCheckout).length,
     [products],
   )
+
+  function addToBasket(item) {
+    setCheckoutError('')
+    setBasket(current => {
+      const key = basketKey(item)
+      const existing = current.find(entry => basketKey(entry) === key)
+      if (!existing) return [...current, item]
+      const max = item.trackStock ? Math.max(1, Math.min(10, item.stock)) : 10
+      return current.map(entry => basketKey(entry) === key
+        ? { ...entry, quantity: Math.min(max, entry.quantity + item.quantity) }
+        : entry)
+    })
+  }
+
+  async function checkout(provider) {
+    setBusy(provider)
+    setCheckoutError('')
+    try {
+      const response = await fetch(ksjPublicUrl(`/checkout/basket/${provider}`), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          websiteId: KSJ_SITE_ID,
+          discountCode: localStorage.getItem(DISCOUNT_KEY) || '',
+          items: basket.map(item => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            variant: item.variant,
+          })),
+        }),
+      })
+      const data = await response.json().catch(() => null)
+      if (!response.ok) throw new Error(data?.error || `${provider} checkout could not be started`)
+      const destination = provider === 'stripe' ? data.url : data.approvalUrl
+      if (!destination) throw new Error(`${provider} did not return a checkout link`)
+      window.location.assign(destination)
+    } catch (error) {
+      setCheckoutError(error.message)
+      setBusy('')
+    }
+  }
 
   function resetFilters() {
     setActiveCategory('All')
@@ -327,14 +402,23 @@ export default function Merch() {
       <section className="merch-development-note" aria-label="Store status">
         <span>{availableProductCount > 0 ? '🛒' : '🚧'}</span>
         <div>
-          <strong>{availableProductCount > 0 ? 'Secure Checkout Available' : 'Merch Store Coming Soon'}</strong>
-          <p>
-            {availableProductCount > 0
-              ? `${availableProductCount} product${availableProductCount === 1 ? '' : 's'} can be purchased through direct secure checkout.`
-              : 'Products stay unavailable until checkout is enabled in the client portal.'}
-          </p>
+          <strong>{availableProductCount > 0 ? 'Secure Basket Checkout Available' : 'Merch Store Coming Soon'}</strong>
+          <p>{availableProductCount > 0
+            ? `${availableProductCount} product${availableProductCount === 1 ? '' : 's'} can be combined into one Stripe or PayPal order.`
+            : 'Products stay unavailable until checkout is enabled in the client portal.'}</p>
         </div>
       </section>
+
+      <MerchBasket
+        basket={basket}
+        currency={selectedCurrency}
+        busy={busy}
+        error={checkoutError}
+        onQuantity={(item, quantity) => setBasket(current => current.map(entry => basketKey(entry) === basketKey(item) ? { ...entry, quantity } : entry))}
+        onRemove={item => setBasket(current => current.filter(entry => basketKey(entry) !== basketKey(item)))}
+        onClear={() => setBasket([])}
+        onCheckout={checkout}
+      />
 
       {carouselItems.length > 0 && (
         <section className="merch-carousel" aria-label="Featured merch carousel">
@@ -358,42 +442,27 @@ export default function Merch() {
         <div className="merch-toolbar">
           <div className="merch-tabs" aria-label="Merch categories">
             {merchCategories.map(category => (
-              <button
-                className={activeCategory === category ? 'active' : ''}
-                key={category}
-                type="button"
-                onClick={() => setActiveCategory(category)}
-              >
-                {category}
-              </button>
+              <button className={activeCategory === category ? 'active' : ''} key={category} type="button" onClick={() => setActiveCategory(category)}>{category}</button>
             ))}
           </div>
           <div className="merch-controls">
             <label>
               <span>Currency</span>
               <select value={selectedCurrency} onChange={event => setSelectedCurrency(event.target.value)}>
-                {Object.entries(merchCurrencies).map(([key, currency]) => (
-                  <option key={key} value={key}>{currency.label} {currency.symbol}</option>
-                ))}
+                {Object.entries(merchCurrencies).map(([key, currency]) => <option key={key} value={key}>{currency.label} {currency.symbol}</option>)}
               </select>
             </label>
             <label>
               <span>Sort</span>
               <select value={sortBy} onChange={event => setSortBy(event.target.value)}>
-                {merchSortOptions.map(option => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
+                {merchSortOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
               </select>
             </label>
             <button className="merch-reset-btn" type="button" onClick={resetFilters}>Reset</button>
           </div>
         </div>
         <div className="merch-results-row">
-          <p className="merch-price-note">
-            {selectedCurrency === 'GBP'
-              ? 'Prices shown in GBP.'
-              : `${selectedCurrencyInfo.note} conversion shown for guidance only.`}
-          </p>
+          <p className="merch-price-note">{selectedCurrency === 'GBP' ? 'Prices shown in GBP.' : `${selectedCurrencyInfo.note} conversion shown for guidance only.`}</p>
           <p className="merch-result-count">Showing {visibleProducts.length} of {products.length} products</p>
         </div>
         {visibleProducts.length > 0 ? (
@@ -405,26 +474,20 @@ export default function Merch() {
                   <div className="merch-badges">
                     {product.featured && <span>Featured</span>}
                     {product.limited && <span>Limited</span>}
-                    <span className={checkout.canCheckout ? 'available' : 'unavailable'}>
-                      {getAvailabilityLabel(product)}
-                    </span>
+                    <span className={checkout.canCheckout ? 'available' : 'unavailable'}>{getAvailabilityLabel(product)}</span>
                   </div>
-                  <div className="merch-product-image-wrap">
-                    <MerchProductVisual product={product} logo={logo} />
-                  </div>
+                  <div className="merch-product-image-wrap"><MerchProductVisual product={product} logo={logo} /></div>
                   <div className="merch-product-copy">
                     <h2>{product.name}</h2>
                     <span>{product.type}</span>
                     <p>{product.description}</p>
                     <strong>{formatPrice(product.priceGBP, selectedCurrency)}</strong>
                     <small>{selectedCurrency === 'GBP' ? 'GBP price' : 'Estimated conversion'}</small>
-                    <p className="merch-fulfilment-note">
-                      {isMadeToOrder(product)
-                        ? `* ${product.fulfilmentOptions?.leadTimeMessage || 'This item is made to order.'}`
-                        : product.shippingNote}
-                    </p>
+                    <p className="merch-fulfilment-note">{isMadeToOrder(product)
+                      ? `* ${product.fulfilmentOptions?.leadTimeMessage || 'This item is made to order.'}`
+                      : product.shippingNote}</p>
                   </div>
-                  <MerchCheckoutAction product={product} />
+                  <MerchCheckoutAction product={product} onAdd={addToBasket} />
                 </article>
               )
             })}
@@ -440,15 +503,9 @@ export default function Merch() {
       </section>
 
       <section className="merch-final-cta" aria-label="Merch launch updates">
-        <div>
-          <span className="eyebrow">Stay Updated</span>
-          <h2>Want To Know When Merch Goes Live?</h2>
-          <p>Join {site.brand.communityName} for launch updates.</p>
-        </div>
+        <div><span className="eyebrow">Stay Updated</span><h2>Want To Know When Merch Goes Live?</h2><p>Join {site.brand.communityName} for launch updates.</p></div>
         <div className="merch-final-actions">
-          <a className="btn primary" href={discordUrl} target="_blank" rel="noopener noreferrer">
-            Join {site.brand.communityName}
-          </a>
+          <a className="btn primary" href={discordUrl} target="_blank" rel="noopener noreferrer">Join {site.brand.communityName}</a>
           <Link className="btn ghost" to="/contact">Contact</Link>
         </div>
       </section>
