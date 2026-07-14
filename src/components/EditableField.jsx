@@ -141,10 +141,10 @@ export function EditorBridgeReady() {
     document.documentElement.classList.add('ksj-editor-mode')
     let initialised = false
 
-    function announceReady(type = 'ready') {
+    function announceReady() {
       window.parent.postMessage({
         source: 'ksj-site-editor',
-        type,
+        type: 'ready',
         fieldCount: document.querySelectorAll('[data-ksj-field]').length,
         pathname: window.location.pathname,
       }, '*')
@@ -177,7 +177,7 @@ export function EditorBridgeReady() {
     const timer = window.setTimeout(() => {
       window.parent.postMessage({
         source: 'ksj-site-editor',
-        type: 'page-change',
+        type: 'ready',
         fieldCount: document.querySelectorAll('[data-ksj-field]').length,
         pathname: location.pathname,
       }, '*')
