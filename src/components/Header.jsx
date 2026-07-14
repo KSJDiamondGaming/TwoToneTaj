@@ -2,30 +2,20 @@ import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 import logo from '../assets/logo.png'
 import { useManagedSite } from '../hooks/useManagedSite'
-import EditableField from './EditableField'
-import EditableImage from './EditableImage'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { site } = useManagedSite()
   const closeMenu = () => setIsMenuOpen(false)
-  const brandLogo = site.assetUrls?.primaryLogo || logo
+  const brandLogo = site.brand.primaryLogo || site.assetUrls?.primaryLogo || logo
 
   return (
-    <header className={`site-header${isMenuOpen ? ' site-header--menu-open' : ''}`}>
+    <header className={`site-header${isMenuOpen ? ' site-header--menu-open' : ''}`} data-ksj-global-region="header">
       <Link className="brand" to="/" aria-label={`${site.brand.name} home`} onClick={closeMenu}>
-        <EditableImage
-          fieldId="brand.primaryLogo"
-          label="Primary logo"
-          src={site.brand.primaryLogo || site.assetUrls?.primaryLogo}
-          fallback={logo}
-          alt={`${site.brand.name} logo`}
-          policy={site.editorPolicy}
-        />
-
+        <img src={brandLogo} alt={`${site.brand.name} logo`} />
         <span>
-          <EditableField as="strong" fieldId="brand.name" label="Brand name" value={site.brand.name} policy={site.editorPolicy} />
-          <EditableField as="small" fieldId="brand.tagline" label="Brand tagline" value={site.brand.tagline} policy={site.editorPolicy} />
+          <strong>{site.brand.name}</strong>
+          <small>{site.brand.tagline}</small>
         </span>
       </Link>
 
@@ -44,21 +34,21 @@ export default function Header() {
 
       <div className="header-actions" id="main-navigation">
         <nav aria-label="Main navigation">
-          {site.navigation.map((item, index) =>
+          {site.navigation.map((item) =>
             item.external ? (
               <a key={item.id || `${item.label}-${item.target}`} href={item.target} target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
-                <EditableField fieldId={`engine.navigation.${index}.label`} label={`${item.label} navigation label`} value={item.label} policy={site.editorPolicy} />
+                {item.label}
               </a>
             ) : (
               <NavLink key={item.id || `${item.label}-${item.target}`} to={item.target} end={item.target === '/'} onClick={closeMenu}>
-                <EditableField fieldId={`engine.navigation.${index}.label`} label={`${item.label} navigation label`} value={item.label} policy={site.editorPolicy} />
+                {item.label}
               </NavLink>
             ),
           )}
         </nav>
 
         <a className="join-btn" href={site.socials.discord} target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
-          Join <EditableField fieldId="brand.communityName" label="Community name" value={site.brand.communityName} policy={site.editorPolicy} />
+          Join {site.brand.communityName}
         </a>
       </div>
     </header>
