@@ -44,6 +44,7 @@ function mergeSiteContent(remote = {}) {
   const navigation = content.engine?.navigation || content.navigation || fallbackNavigation
   const theme = content.engine?.theme || content.theme || {}
   const globals = content.engine?.globals || content.globals || {}
+  const pageBlocks = content.engine?.pageBlocks || content.pageBlocks || {}
   const branding = content.branding || {}
   const uploadedPrimaryLogo = assetUrl(latestAsset(assets, 'primaryLogo'))
   return {
@@ -76,6 +77,7 @@ function mergeSiteContent(remote = {}) {
     terms: { ...fallbackPages.terms, ...(content.terms || {}) },
     merch: sanitiseMerch(content.merch),
     navigation: navigation.filter(item => item.visible !== false).sort((a, b) => Number(a.order || 0) - Number(b.order || 0)),
+    pageBlocks,
     theme,
     globals,
     editorPolicy: content.editorPolicy || { fields: {}, sections: {} },
@@ -85,7 +87,7 @@ function mergeSiteContent(remote = {}) {
   }
 }
 
-function sitePath(fieldId) { return fieldId.replace(/^engine\.(navigation|theme|globals)\./, '$1.') }
+function sitePath(fieldId) { return fieldId.replace(/^engine\.(navigation|theme|globals|pageBlocks)\./, '$1.') }
 function setPathValue(source, path, value) { const keys = String(path || '').split('.').filter(Boolean); if (!keys.length) return source; const next = structuredClone(source); let target = next; keys.forEach((key, index) => { if (index === keys.length - 1) target[key] = value; else { const child = target[key]; const nextIsIndex = /^\d+$/.test(keys[index + 1]); target[key] = Array.isArray(child) ? [...child] : child && typeof child === 'object' ? { ...child } : nextIsIndex ? [] : {}; target = target[key] } }); return next }
 function applyTheme(site) { const root = document.documentElement; const theme = site.theme || {}; if (theme.primary) root.style.setProperty('--primary', theme.primary); if (theme.secondary) root.style.setProperty('--secondary', theme.secondary); if (theme.background) root.style.setProperty('--background', theme.background); if (theme.text) root.style.setProperty('--text', theme.text); if (theme.radius !== undefined) root.style.setProperty('--brand-radius', `${theme.radius}px`); if (theme.font) root.style.setProperty('--brand-font', theme.font) }
 
