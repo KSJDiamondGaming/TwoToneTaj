@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { getMailTo } from '../config/siteConfig'
 import { useManagedSite } from '../hooks/useManagedSite'
+import EditableField from './EditableField'
 
 const currentYear = new Date().getFullYear()
 
@@ -12,11 +13,11 @@ export default function Footer() {
       <div className="footer-inner">
         <div className="footer-left">
           <div className="footer-brand">
-            <strong>{site.brand.name}</strong>
-            <small>{site.brand.tagline}</small>
+            <EditableField as="strong" fieldId="brand.name" label="Footer brand name" value={site.brand.name} policy={site.editorPolicy} />
+            <EditableField as="small" fieldId="brand.tagline" label="Footer tagline" value={site.brand.tagline} policy={site.editorPolicy} />
           </div>
 
-          <p>© {currentYear} {site.brand.name}. All rights reserved.</p>
+          <p>© {currentYear} <EditableField fieldId="brand.name" label="Copyright brand name" value={site.brand.name} policy={site.editorPolicy} />. All rights reserved.</p>
         </div>
 
         <div className="footer-right">
@@ -31,7 +32,7 @@ export default function Footer() {
             </a>
           </nav>
 
-          <span className="footer-credit">{site.brand.supportCredit}</span>
+          <EditableField as="span" className="footer-credit" fieldId="brand.supportCredit" label="KSJ Digital footer credit" value={site.brand.supportCredit} policy={site.editorPolicy} />
         </div>
       </div>
     </footer>
