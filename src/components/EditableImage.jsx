@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { ksjAssetUrl } from '../config/ksjApi'
 
 function editorEnabled() {
   return new URLSearchParams(window.location.search).get('ksjEditor') === '1'
@@ -13,6 +14,11 @@ function ruleFor(policy = {}, fieldId) {
     reason: '',
     ...(policy?.fields?.[fieldId] || {}),
   }
+}
+
+function resolvedImage(src, fallback) {
+  if (!src) return fallback
+  return ksjAssetUrl(src)
 }
 
 export default function EditableImage({ fieldId, label, src, fallback, alt = '', policy, className = '' }) {
@@ -47,7 +53,7 @@ export default function EditableImage({ fieldId, label, src, fallback, alt = '',
 
   return (
     <span className={`${enabled ? 'ksjEditableImage' : ''} ${locked ? 'ksjFieldLocked' : ''}`.trim()} onClick={select}>
-      <img className={className} src={src || fallback} alt={alt} data-ksj-field={fieldId} />
+      <img className={className} src={resolvedImage(src, fallback)} alt={alt} data-ksj-field={fieldId} />
       {enabled && <span className="ksjImageBadge" aria-hidden="true">{locked ? '🔒' : '🖼'}</span>}
     </span>
   )
