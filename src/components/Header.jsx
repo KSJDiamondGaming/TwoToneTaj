@@ -3,6 +3,13 @@ import { NavLink, Link } from 'react-router-dom'
 import logo from '../assets/logo.png'
 import { useManagedSite } from '../hooks/useManagedSite'
 
+function internalTarget(pathname) {
+  const search = new URLSearchParams(window.location.search).get('ksjEditor') === '1'
+    ? '?ksjEditor=1'
+    : ''
+  return { pathname, search }
+}
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { site } = useManagedSite()
@@ -11,7 +18,7 @@ export default function Header() {
 
   return (
     <header className={`site-header${isMenuOpen ? ' site-header--menu-open' : ''}`} data-ksj-global-region="header">
-      <Link className="brand" to="/" aria-label={`${site.brand.name} home`} onClick={closeMenu}>
+      <Link className="brand" to={internalTarget('/')} aria-label={`${site.brand.name} home`} onClick={closeMenu}>
         <img src={brandLogo} alt={`${site.brand.name} logo`} />
         <span>
           <strong>{site.brand.name}</strong>
@@ -40,7 +47,7 @@ export default function Header() {
                 {item.label}
               </a>
             ) : (
-              <NavLink key={item.id || `${item.label}-${item.target}`} to={item.target} end={item.target === '/'} onClick={closeMenu}>
+              <NavLink key={item.id || `${item.label}-${item.target}`} to={internalTarget(item.target)} end={item.target === '/'} onClick={closeMenu}>
                 {item.label}
               </NavLink>
             ),
