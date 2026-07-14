@@ -11,6 +11,7 @@ function sectionRule(policy = {}, sectionId, defaultOrder = 0) {
     movable: true,
     deletable: false,
     hidden: false,
+    removed: false,
     order: defaultOrder,
     reason: '',
     ...(policy?.sections?.[sectionId] || {}),
@@ -30,8 +31,8 @@ export default function EditableSection({
   const [role, setRole] = useState('client')
   const rule = sectionRule(policy, sectionId, defaultOrder)
   const locked = role !== 'owner' && rule.access !== 'editable'
-  const hiddenForVisitor = rule.hidden === true && !enabled
-  const hiddenForClientEditor = rule.hidden === true && enabled && role !== 'owner'
+  const hiddenForVisitor = (rule.hidden === true || rule.removed === true) && !enabled
+  const hiddenForClientEditor = (rule.hidden === true || rule.removed === true) && enabled && role !== 'owner'
 
   useEffect(() => {
     if (!enabled) return
@@ -55,15 +56,18 @@ export default function EditableSection({
       section: {
         sectionId,
         label,
+        defaultOrder,
         locked,
         reason: rule.reason,
+        hidden: rule.hidden === true,
+        removed: rule.removed === true,
       },
     }, '*')
   }
 
   return (
     <Tag
-      className={`${className} ${enabled ? 'ksjEditableSection' : ''} ${locked ? 'ksjSectionLocked' : ''} ${rule.hidden ? 'ksjSectionHidden' : ''}`.trim()}
+      className={`${className} ${enabled ? 'ksjEditableSection' : ''} ${locked ? 'ksjSectionLocked' : ''} ${rule.hidden || rule.removed ? 'ksjSectionHidden' : ''}`.trim()}
       data-ksj-section={sectionId}
       style={{ order: Number(rule.order ?? defaultOrder) }}
       onClick={select}
