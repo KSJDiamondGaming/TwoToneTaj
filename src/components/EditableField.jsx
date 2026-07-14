@@ -4,13 +4,29 @@ function editorEnabled() {
   return new URLSearchParams(window.location.search).get('ksjEditor') === '1'
 }
 
-function fieldRule(policy = {}, fieldId) {
+function defaultRule(fieldId) {
+  if (fieldId === 'brand.supportCredit' || fieldId === 'globals.platformCredit') {
+    return {
+      access: 'owner-only',
+      approvalRequired: true,
+      movable: false,
+      deletable: false,
+      reason: 'KSJ Digital platform credit',
+    }
+  }
+
   return {
     access: 'editable',
     approvalRequired: true,
     movable: true,
     deletable: true,
     reason: '',
+  }
+}
+
+function fieldRule(policy = {}, fieldId) {
+  return {
+    ...defaultRule(fieldId),
     ...(policy?.fields?.[fieldId] || {}),
   }
 }
