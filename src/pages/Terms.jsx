@@ -1,4 +1,5 @@
 import EditableField from '../components/EditableField'
+import EditableSection from '../components/EditableSection'
 import { useManagedSite } from '../hooks/useManagedSite'
 import '../styles/terms.css'
 
@@ -21,15 +22,22 @@ export default function Terms() {
 
   return (
     <main className="page terms-page">
-      <section className="terms-hero">
+      <EditableSection sectionId="terms.hero" label="Terms heading" policy={site.editorPolicy} defaultOrder={10} className="terms-hero">
         <EditableField as="p" className="eyebrow" fieldId="terms.eyebrow" label="Terms eyebrow" value={page.eyebrow} policy={site.editorPolicy} />
         <EditableField as="h1" fieldId="terms.title" label="Terms title" value={page.title} policy={site.editorPolicy} />
         <EditableField as="p" fieldId="terms.intro" label="Terms introduction" value={page.intro} policy={site.editorPolicy} kind="textarea" />
-      </section>
+      </EditableSection>
       <section className="terms-card">
-        {sections.map((section, index) => <div key={`${section.title}-${index}`}><EditableField as="h2" fieldId={`terms.sections.${index}.title`} label={`Terms section ${index + 1} title`} value={section.title} policy={site.editorPolicy} /><EditableField as="p" fieldId={`terms.sections.${index}.text`} label={`Terms section ${index + 1} text`} value={section.text} policy={site.editorPolicy} kind="textarea" /></div>)}
-        <p><a href={`mailto:${site.contact.supportEmail}`}>{site.contact.supportEmail}</a></p>
-        <EditableField as="p" className="terms-updated" fieldId="terms.updated" label="Terms last updated" value={page.updated} policy={site.editorPolicy} />
+        {sections.map((section, index) => (
+          <EditableSection as="div" sectionId={`terms.section.${index}`} label={`Terms section ${index + 1}`} policy={site.editorPolicy} defaultOrder={20 + index * 10} key={`${section.title}-${index}`}>
+            <EditableField as="h2" fieldId={`terms.sections.${index}.title`} label={`Terms section ${index + 1} title`} value={section.title} policy={site.editorPolicy} />
+            <EditableField as="p" fieldId={`terms.sections.${index}.text`} label={`Terms section ${index + 1} text`} value={section.text} policy={site.editorPolicy} kind="textarea" />
+          </EditableSection>
+        ))}
+        <EditableSection as="div" sectionId="terms.contact" label="Terms contact" policy={site.editorPolicy} defaultOrder={120}>
+          <p><a href={`mailto:${site.contact.supportEmail}`}>{site.contact.supportEmail}</a></p>
+          <EditableField as="p" className="terms-updated" fieldId="terms.updated" label="Terms last updated" value={page.updated} policy={site.editorPolicy} />
+        </EditableSection>
       </section>
     </main>
   )
