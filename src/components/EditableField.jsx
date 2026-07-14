@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 function editorEnabled() {
   return new URLSearchParams(window.location.search).get('ksjEditor') === '1'
@@ -34,34 +34,95 @@ function fieldRule(policy = {}, fieldId) {
   return { ...defaultRule(fieldId), ...(inheritedRule(policy, fieldId) || {}) }
 }
 
+function plainText(element) {
+  return String(element?.innerText || '').replace(/\u00a0/g, ' ').trim()
+}
+
 export default function EditableField({ fieldId, label, value, policy, kind = 'text', as: Tag = 'span', className = '', children }) {
   const enabled = useMemo(editorEnabled, [])
   const [role, setRole] = useState('client')
+  const elementRef = useRef(null)
+  const editingRef = useRef(false)
   const rule = fieldRule(policy, fieldId)
   const hidden = enabled && role !== 'owner' && ['hidden', 'owner-only'].includes(rule.access)
   const locked = role !== 'owner' && rule.access !== 'editable'
+  const inlineEditable = enabled && !locked && kind !== 'image'
 
   useEffect(() => {
     if (!enabled) return
     function receive(event) {
       if (event.data?.source !== 'ksj-portal-editor') return
       if (event.data.type === 'initialise') setRole(event.data.role || 'client')
+      if (event.data.type === 'patch-field' && event.data.fieldId === fieldId && elementRef.current && !editingRef.current) {
+        elementRef.current.innerText = event.data.value ?? ''
+      }
     }
     window.addEventListener('message', receive)
     return () => window.removeEventListener('message', receive)
-  }, [enabled])
+  }, [enabled, fieldId])
+
+  useEffect(() => {
+    if (!elementRef.current || editingRef.current || children !== undefined) return
+    elementRef.current.innerText = value ?? ''
+  }, [children, value])
 
   if (hidden) return null
 
   function select(event) {
     if (!enabled) return
-    event.preventDefault()
     event.stopPropagation()
-    window.parent.postMessage({ source: 'ksj-site-editor', type: 'select-field', field: { fieldId, label, value, kind, locked, reason: rule.reason } }, '*')
+    if (locked) event.preventDefault()
+    window.parent.postMessage({ source: 'ksj-site-editor', type: 'select-field', field: { fieldId, label, value: plainText(event.currentTarget), kind, locked, reason: rule.reason } }, '*')
+  }
+
+  function startEditing(event) {
+    if (!inlineEditable) return
+    editingRef.current = true
+    select(event)
+  }
+
+  function changeInline(event) {
+    if (!inlineEditable) return
+    const nextValue = plainText(event.currentTarget)
+    window.parent.postMessage({ source: 'ksj-site-editor', type: 'inline-change', field: { fieldId, label, value: nextValue, kind } }, '*')
+  }
+
+  function finishEditing(event) {
+    if (!inlineEditable) return
+    editingRef.current = false
+    const nextValue = plainText(event.currentTarget)
+    window.parent.postMessage({ source: 'ksj-site-editor', type: 'inline-commit', field: { fieldId, label, value: nextValue, kind } }, '*')
+  }
+
+  function keyDown(event) {
+    if (!inlineEditable) return
+    if (kind !== 'textarea' && event.key === 'Enter') {
+      event.preventDefault()
+      event.currentTarget.blur()
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      event.currentTarget.innerText = value ?? ''
+      event.currentTarget.blur()
+    }
   }
 
   return (
-    <Tag className={`${className} ${enabled ? 'ksjEditableField' : ''} ${locked ? 'ksjFieldLocked' : ''}`.trim()} data-ksj-field={fieldId} data-ksj-locked={locked ? 'true' : 'false'} onClick={select} title={enabled ? (locked ? rule.reason || 'Controlled by KSJ Digital' : `Edit ${label}`) : undefined}>
+    <Tag
+      ref={elementRef}
+      className={`${className} ${enabled ? 'ksjEditableField' : ''} ${locked ? 'ksjFieldLocked' : ''} ${inlineEditable ? 'ksjInlineEditable' : ''}`.trim()}
+      data-ksj-field={fieldId}
+      data-ksj-locked={locked ? 'true' : 'false'}
+      contentEditable={inlineEditable}
+      suppressContentEditableWarning
+      spellCheck={inlineEditable}
+      onClick={select}
+      onFocus={startEditing}
+      onInput={changeInline}
+      onBlur={finishEditing}
+      onKeyDown={keyDown}
+      title={enabled ? (locked ? rule.reason || 'Controlled by KSJ Digital' : `Click and type to edit ${label}`) : undefined}
+    >
       {children ?? value}
       {enabled && <span className="ksjEditBadge" aria-hidden="true">{locked ? '🔒' : '✎'}</span>}
     </Tag>
