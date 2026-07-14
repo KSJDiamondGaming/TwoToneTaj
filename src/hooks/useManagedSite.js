@@ -44,9 +44,26 @@ function mergeSiteContent(remote = {}) {
   const navigation = content.engine?.navigation || content.navigation || fallbackNavigation
   const theme = content.engine?.theme || content.theme || {}
   const globals = content.engine?.globals || content.globals || {}
+  const branding = content.branding || {}
+  const uploadedPrimaryLogo = assetUrl(latestAsset(assets, 'primaryLogo'))
   return {
     website: remote.website || null,
-    brand: { name: siteConfig.brandName, tagline: siteConfig.brandTagline, shortTagline: siteConfig.brandShortTagline, ownerName: siteConfig.ownerName, communityName: siteConfig.communityName, supportCredit: siteConfig.studioCredit, ...(content.brand || {}) },
+    brand: {
+      name: siteConfig.brandName,
+      tagline: siteConfig.brandTagline,
+      shortTagline: siteConfig.brandShortTagline,
+      ownerName: siteConfig.ownerName,
+      communityName: siteConfig.communityName,
+      supportCredit: siteConfig.studioCredit,
+      ...(content.brand || {}),
+      primaryLogo: content.brand?.primaryLogo || branding.primaryLogo || uploadedPrimaryLogo,
+    },
+    branding: {
+      headerStyle: 'Contained',
+      footerStyle: 'Simple',
+      showAnnouncement: false,
+      ...branding,
+    },
     contact: { supportEmail: siteConfig.supportEmail, businessEmail: siteConfig.businessEmail, ...(content.contact || {}) },
     socials: { ...siteConfig.socials, ...(content.socials || {}) },
     platforms: { twitchChannel: siteConfig.platforms.twitchChannel, youtubeChannelId: siteConfig.platforms.youtubeChannelId, ...(content.platforms || {}) },
@@ -63,7 +80,7 @@ function mergeSiteContent(remote = {}) {
     globals,
     editorPolicy: content.editorPolicy || { fields: {}, sections: {} },
     assets,
-    assetUrls: { primaryLogo: assetUrl(latestAsset(assets, 'primaryLogo')), favicon: assetUrl(latestAsset(assets, 'favicon')), socialImage: assetUrl(latestAsset(assets, 'socialIcon')) },
+    assetUrls: { primaryLogo: uploadedPrimaryLogo, favicon: assetUrl(latestAsset(assets, 'favicon')), socialImage: assetUrl(latestAsset(assets, 'socialIcon')) },
     publishedAt: remote.publishedAt || content.updatedAt || null,
   }
 }
