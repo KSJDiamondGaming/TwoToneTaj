@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 import logo from '../assets/logo.png'
 import { useManagedSite } from '../hooks/useManagedSite'
+import EditableField from './EditableField'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -15,8 +16,8 @@ export default function Header() {
         <img src={brandLogo} alt={`${site.brand.name} logo`} />
 
         <span>
-          <strong>{site.brand.name}</strong>
-          <small>{site.brand.tagline}</small>
+          <EditableField as="strong" fieldId="brand.name" label="Brand name" value={site.brand.name} policy={site.editorPolicy} />
+          <EditableField as="small" fieldId="brand.tagline" label="Brand tagline" value={site.brand.tagline} policy={site.editorPolicy} />
         </span>
       </Link>
 
@@ -35,38 +36,21 @@ export default function Header() {
 
       <div className="header-actions" id="main-navigation">
         <nav aria-label="Main navigation">
-          {site.navigation.map((item) =>
+          {site.navigation.map((item, index) =>
             item.external ? (
-              <a
-                key={item.id || `${item.label}-${item.target}`}
-                href={item.target}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={closeMenu}
-              >
-                {item.label}
+              <a key={item.id || `${item.label}-${item.target}`} href={item.target} target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+                <EditableField fieldId={`engine.navigation.${index}.label`} label={`${item.label} navigation label`} value={item.label} policy={site.editorPolicy} />
               </a>
             ) : (
-              <NavLink
-                key={item.id || `${item.label}-${item.target}`}
-                to={item.target}
-                end={item.target === '/'}
-                onClick={closeMenu}
-              >
-                {item.label}
+              <NavLink key={item.id || `${item.label}-${item.target}`} to={item.target} end={item.target === '/'} onClick={closeMenu}>
+                <EditableField fieldId={`engine.navigation.${index}.label`} label={`${item.label} navigation label`} value={item.label} policy={site.editorPolicy} />
               </NavLink>
             ),
           )}
         </nav>
 
-        <a
-          className="join-btn"
-          href={site.socials.discord}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={closeMenu}
-        >
-          Join {site.brand.communityName}
+        <a className="join-btn" href={site.socials.discord} target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+          Join <EditableField fieldId="brand.communityName" label="Community name" value={site.brand.communityName} policy={site.editorPolicy} />
         </a>
       </div>
     </header>
