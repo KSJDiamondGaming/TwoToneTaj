@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 function editorEnabled() {
   return new URLSearchParams(window.location.search).get('ksjEditor') === '1'
@@ -133,19 +134,28 @@ export default function EditableField({ fieldId, label, value, policy, kind = 't
 }
 
 export function EditorBridgeReady() {
+  const location = useLocation()
+
   useEffect(() => {
     if (!editorEnabled()) return
     document.documentElement.classList.add('ksj-editor-mode')
     let initialised = false
 
-    function announceReady() {
-      window.parent.postMessage({ source: 'ksj-site-editor', type: 'ready', fieldCount: document.querySelectorAll('[data-ksj-field]').length, pathname: window.location.pathname }, '*')
+    function announceReady(type = 'ready') {
+      window.parent.postMessage({
+        source: 'ksj-site-editor',
+        type,
+        fieldCount: document.querySelectorAll('[data-ksj-field]').length,
+        pathname: window.location.pathname,
+      }, '*')
     }
 
     function receive(event) {
       if (event.data?.source !== 'ksj-portal-editor') return
       if (event.data.type === 'initialise') { initialised = true; announceReady() }
       if (event.data.type === 'ping') announceReady()
+      if (event.data.type === 'history-back') window.history.back()
+      if (event.data.type === 'history-forward') window.history.forward()
     }
 
     window.addEventListener('message', receive)
@@ -161,5 +171,19 @@ export function EditorBridgeReady() {
       document.documentElement.classList.remove('ksj-editor-mode')
     }
   }, [])
+
+  useEffect(() => {
+    if (!editorEnabled()) return
+    const timer = window.setTimeout(() => {
+      window.parent.postMessage({
+        source: 'ksj-site-editor',
+        type: 'page-change',
+        fieldCount: document.querySelectorAll('[data-ksj-field]').length,
+        pathname: location.pathname,
+      }, '*')
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [location.pathname])
+
   return null
 }
