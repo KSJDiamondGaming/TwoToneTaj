@@ -11,18 +11,24 @@ function internalTarget(pathname) {
   return { pathname, search }
 }
 
+function styleClass(value = '') {
+  return value.toLowerCase().replace(/\s+/g, '-')
+}
+
 export default function Footer() {
   const { site } = useManagedSite()
+  const footerStyle = styleClass(site.branding?.footerStyle || 'Simple')
+  const footerText = site.globals?.footerText || `© ${currentYear} ${site.brand.name}. All rights reserved.`
 
   return (
-    <footer className="footer" data-ksj-global-region="footer">
+    <footer className={`footer footer--${footerStyle}`} data-ksj-global-region="footer">
       <div className="footer-inner">
         <div className="footer-left">
           <div className="footer-brand">
             <strong>{site.brand.name}</strong>
             <small>{site.brand.tagline}</small>
           </div>
-          <p>© {currentYear} {site.brand.name}. All rights reserved.</p>
+          <p>{footerText}</p>
         </div>
 
         <div className="footer-right">
