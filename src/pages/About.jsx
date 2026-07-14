@@ -6,6 +6,8 @@ import scales from '../assets/about/scales.png'
 import crowd from '../assets/about/crowd.png'
 import logo from '../assets/logo.png'
 import EditableField from '../components/EditableField'
+import EditableImage from '../components/EditableImage'
+import EditableSection from '../components/EditableSection'
 import { useManagedSite } from '../hooks/useManagedSite'
 
 const art = [squad, controller, microphone, scales, crowd, logo]
@@ -25,7 +27,7 @@ export default function About() {
 
   return (
     <main className="about-page">
-      <section className="about-hero-card">
+      <EditableSection sectionId="about.hero" label="About hero" policy={site.editorPolicy} defaultOrder={10} className="about-hero-card">
         <div className="about-hero-content">
           <EditableField as="h1" fieldId="about.title" label="About title" value={page.title} policy={site.editorPolicy} />
           <EditableField as="p" className="about-subtitle" fieldId="about.subtitle" label="About subtitle" value={page.subtitle} policy={site.editorPolicy} />
@@ -33,21 +35,25 @@ export default function About() {
           <EditableField as="p" className="about-highlight" fieldId="about.quote" label="About quote" value={page.quote} policy={site.editorPolicy} kind="textarea" />
           <p className="about-signature"><strong>— {site.brand.ownerName?.toUpperCase()}</strong></p>
         </div>
-        <img className="about-avatar" src={tajAvatar} alt={`${site.brand.name} avatar`} />
-      </section>
+        <EditableImage fieldId="about.heroImage" label="About hero image" src={page.heroImage} fallback={tajAvatar} alt={`${site.brand.name} avatar`} policy={site.editorPolicy} className="about-avatar" />
+      </EditableSection>
+
       <section className="about-story-grid">
         {sections.map((section, index) => {
           const final = index === sections.length - 1
           const wide = index === 4
-          return <article className={`about-story-card ${final ? 'about-final-card' : wide ? 'about-wide-card' : 'about-image-card'}`} key={`${section.title}-${index}`}>
-            {wide && <img className="about-wide-bg" src={art[index]} alt="" aria-hidden="true" />}
-            {final && <div className="final-logo"><img src={site.assetUrls.primaryLogo || logo} alt={`${site.brand.name} logo`} /></div>}
-            <div className={final ? 'final-copy' : wide ? 'about-card-copy about-wide-copy' : 'about-card-copy'}>
-              <EditableField as="h2" fieldId={`about.sections.${index}.title`} label={`About section ${index + 1} title`} value={section.title} policy={site.editorPolicy} />
-              <EditableField as="p" fieldId={`about.sections.${index}.text`} label={`About section ${index + 1} text`} value={section.text} policy={site.editorPolicy} kind="textarea" />
-            </div>
-            {!final && !wide && <img className={`about-card-art ${index === 0 ? 'about-card-art-squad' : ''}`} src={art[index]} alt="" />}
-          </article>
+          const fallbackArt = art[index]
+          return (
+            <EditableSection as="article" sectionId={`about.story.${index}`} label={`About story ${index + 1}`} policy={site.editorPolicy} defaultOrder={20 + (index * 10)} className={`about-story-card ${final ? 'about-final-card' : wide ? 'about-wide-card' : 'about-image-card'}`} key={`${section.title}-${index}`}>
+              {wide && <EditableImage fieldId={`about.sections.${index}.image`} label={`About story ${index + 1} image`} src={section.image} fallback={fallbackArt} alt="" policy={site.editorPolicy} className="about-wide-bg" />}
+              {final && <div className="final-logo"><EditableImage fieldId={`about.sections.${index}.image`} label="Final About logo" src={section.image || site.brand.primaryLogo} fallback={site.assetUrls.primaryLogo || logo} alt={`${site.brand.name} logo`} policy={site.editorPolicy} /></div>}
+              <div className={final ? 'final-copy' : wide ? 'about-card-copy about-wide-copy' : 'about-card-copy'}>
+                <EditableField as="h2" fieldId={`about.sections.${index}.title`} label={`About section ${index + 1} title`} value={section.title} policy={site.editorPolicy} />
+                <EditableField as="p" fieldId={`about.sections.${index}.text`} label={`About section ${index + 1} text`} value={section.text} policy={site.editorPolicy} kind="textarea" />
+              </div>
+              {!final && !wide && <EditableImage fieldId={`about.sections.${index}.image`} label={`About story ${index + 1} image`} src={section.image} fallback={fallbackArt} alt="" policy={site.editorPolicy} className={`about-card-art ${index === 0 ? 'about-card-art-squad' : ''}`} />}
+            </EditableSection>
+          )
         })}
       </section>
     </main>
