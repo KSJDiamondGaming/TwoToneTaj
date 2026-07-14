@@ -4,32 +4,30 @@ function editorEnabled() {
   return new URLSearchParams(window.location.search).get('ksjEditor') === '1'
 }
 
-function sectionRule(policy = {}, sectionId, defaultOrder = 0) {
-  return {
-    access: 'editable',
-    approvalRequired: true,
-    movable: true,
-    deletable: false,
-    hidden: false,
-    removed: false,
-    order: defaultOrder,
-    reason: '',
-    ...(policy?.sections?.[sectionId] || {}),
-  }
+function legalPath(sectionId = '') {
+  return sectionId === 'privacy' || sectionId.startsWith('privacy.') || sectionId === 'terms' || sectionId.startsWith('terms.')
 }
 
-export default function EditableSection({
-  sectionId,
-  label,
-  policy,
-  defaultOrder = 0,
-  as: Tag = 'section',
-  className = '',
-  children,
-  style,
-  onClick,
-  ...rest
-}) {
+function inheritedRule(policy = {}, sectionId) {
+  const sections = policy?.sections || {}
+  if (sections[sectionId]) return sections[sectionId]
+  const parts = String(sectionId).split('.')
+  while (parts.length > 1) {
+    parts.pop()
+    const parent = parts.join('.')
+    if (sections[parent]) return sections[parent]
+  }
+  return null
+}
+
+function sectionRule(policy = {}, sectionId, defaultOrder = 0) {
+  const base = legalPath(sectionId)
+    ? { access: 'owner-only', approvalRequired: true, movable: false, deletable: false, hidden: false, removed: false, order: defaultOrder, reason: 'Legal content is controlled by KSJ Digital' }
+    : { access: 'editable', approvalRequired: true, movable: true, deletable: false, hidden: false, removed: false, order: defaultOrder, reason: '' }
+  return { ...base, ...(inheritedRule(policy, sectionId) || {}) }
+}
+
+export default function EditableSection({ sectionId, label, policy, defaultOrder = 0, as: Tag = 'section', className = '', children, style, onClick, ...rest }) {
   const enabled = useMemo(editorEnabled, [])
   const [role, setRole] = useState('client')
   const rule = sectionRule(policy, sectionId, defaultOrder)
@@ -53,33 +51,14 @@ export default function EditableSection({
     if (enabled) {
       event.preventDefault()
       event.stopPropagation()
-      window.parent.postMessage({
-        source: 'ksj-site-editor',
-        type: 'select-section',
-        section: {
-          sectionId,
-          label,
-          defaultOrder,
-          locked,
-          reason: rule.reason,
-          hidden: rule.hidden === true,
-          removed: rule.removed === true,
-        },
-      }, '*')
+      window.parent.postMessage({ source: 'ksj-site-editor', type: 'select-section', section: { sectionId, label, defaultOrder, locked, reason: rule.reason, hidden: rule.hidden === true, removed: rule.removed === true } }, '*')
       return
     }
     onClick?.(event)
   }
 
   return (
-    <Tag
-      {...rest}
-      className={`${className} ${enabled ? 'ksjEditableSection' : ''} ${locked ? 'ksjSectionLocked' : ''} ${rule.hidden || rule.removed ? 'ksjSectionHidden' : ''}`.trim()}
-      data-ksj-section={sectionId}
-      style={{ ...style, order: Number(rule.order ?? defaultOrder) }}
-      onClick={select}
-      title={enabled ? (locked ? rule.reason || 'Controlled by KSJ Digital' : `Manage ${label}`) : rest.title}
-    >
+    <Tag {...rest} className={`${className} ${enabled ? 'ksjEditableSection' : ''} ${locked ? 'ksjSectionLocked' : ''} ${rule.hidden || rule.removed ? 'ksjSectionHidden' : ''}`.trim()} data-ksj-section={sectionId} style={{ ...style, order: Number(rule.order ?? defaultOrder) }} onClick={select} title={enabled ? (locked ? rule.reason || 'Controlled by KSJ Digital' : `Manage ${label}`) : rest.title}>
       {children}
       {enabled && <span className="ksjSectionBadge" aria-hidden="true">{locked ? '🔒' : '⋮⋮'}</span>}
     </Tag>
