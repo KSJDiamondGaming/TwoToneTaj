@@ -125,18 +125,34 @@ function mergeSiteContent(remote = {}) {
   }
 }
 
+function sitePath(fieldId) {
+  if (fieldId.startsWith('engine.navigation.')) return fieldId.replace(/^engine\./, '')
+  if (fieldId.startsWith('engine.theme.')) return fieldId.replace(/^engine\./, '')
+  if (fieldId.startsWith('engine.globals.')) return fieldId.replace(/^engine\./, '')
+  return fieldId
+}
+
 function setPathValue(source, path, value) {
   const keys = String(path || '').split('.').filter(Boolean)
   if (!keys.length) return source
   const next = structuredClone(source)
   let target = next
+
   keys.forEach((key, index) => {
-    if (index === keys.length - 1) target[key] = value
-    else {
-      target[key] = target[key] && typeof target[key] === 'object' ? { ...target[key] } : {}
-      target = target[key]
+    if (index === keys.length - 1) {
+      target[key] = value
+      return
     }
+
+    const child = target[key]
+    const nextKey = keys[index + 1]
+    const nextIsIndex = /^\d+$/.test(nextKey)
+    if (Array.isArray(child)) target[key] = [...child]
+    else if (child && typeof child === 'object') target[key] = { ...child }
+    else target[key] = nextIsIndex ? [] : {}
+    target = target[key]
   })
+
   return next
 }
 
@@ -191,7 +207,7 @@ export function useManagedSite() {
       }
       if (event.data.type === 'patch-field' && event.data.fieldId) {
         setSite((current) => {
-          let next = setPathValue(current, event.data.fieldId, event.data.value)
+          let next = setPathValue(current, sitePath(event.data.fieldId), event.data.value)
           if (event.data.rule) {
             next = {
               ...next,
