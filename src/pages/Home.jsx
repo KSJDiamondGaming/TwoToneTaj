@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import YouTubeFeed from '../components/YouTubeFeed'
 import EditableField from '../components/EditableField'
+import EditableImage from '../components/EditableImage'
 import EditableSection from '../components/EditableSection'
 import { getTwitchEmbedUrl } from '../config/siteConfig'
 import { useManagedSite } from '../hooks/useManagedSite'
@@ -50,13 +51,13 @@ export default function Home() {
           <div className="hero-est">Est. 1989</div>
           <EditableField as="p" fieldId="home.heroText" label="Hero description" value={site.home.heroText} policy={site.editorPolicy} kind="textarea" />
         </div>
-        <img className="hero-dragon" src={heroDragon} alt={`${site.brand.name} dragon`} />
+        <EditableImage fieldId="home.heroImage" label="Hero image" src={site.home.heroImage} fallback={heroDragon} alt={`${site.brand.name} dragon`} policy={site.editorPolicy} className="hero-dragon" />
       </EditableSection>
 
       <div className="home-grid">
         <EditableSection as="article" sectionId="home.about" label="About panel" policy={site.editorPolicy} defaultOrder={20} className="panel about-panel">
           <EditableField as="h2" fieldId="home.aboutTitle" label="About section title" value={site.home.aboutTitle} policy={site.editorPolicy}><img src={peopleIcon} alt="" />{site.home.aboutTitle}</EditableField>
-          <img className="about-image" src={setupImage} alt={`${site.brand.name} gaming setup`} />
+          <EditableImage fieldId="home.aboutImage" label="About image" src={site.home.aboutImage} fallback={setupImage} alt={`${site.brand.name} gaming setup`} policy={site.editorPolicy} className="about-image" />
           <EditableField as="p" fieldId="home.aboutText" label="About section text" value={site.home.aboutText} policy={site.editorPolicy} kind="textarea" />
           <Link className="about-link" to="/about">Learn More</Link>
         </EditableSection>
