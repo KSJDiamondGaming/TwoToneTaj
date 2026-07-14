@@ -6,6 +6,7 @@ import Footer from './components/Footer'
 import FloatingNotice from './components/FloatingNotice'
 import AudioControls from './components/AudioControls'
 import MerchDiscountCode from './components/MerchDiscountCode'
+import ManagedPageBlocks from './components/ManagedPageBlocks'
 import { EditorBridgeReady } from './components/EditableField'
 
 // Pages
@@ -30,6 +31,7 @@ import './styles/core.css'
 import './styles/responsive.css'
 import './styles/ksj-editor.css'
 import './styles/managed-site-settings.css'
+import './styles/managed-page-blocks.css'
 
 // Page Styles
 import './styles/home.css'
@@ -48,6 +50,10 @@ import './styles/mobile-audit.css'
 import './styles/home-mobile.css'
 import './styles/remaining-pages-mobile.css'
 
+function ManagedPage({ children }) {
+  return <>{children}<ManagedPageBlocks /></>
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -56,18 +62,18 @@ function App() {
 
       <div className="site-content">
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/content" element={<Content />} />
-          <Route path="/community" element={<Community />} />
-          <Route path="/merch" element={<Merch />} />
+          <Route path="/" element={<ManagedPage><Home /></ManagedPage>} />
+          <Route path="/about" element={<ManagedPage><About /></ManagedPage>} />
+          <Route path="/content" element={<ManagedPage><Content /></ManagedPage>} />
+          <Route path="/community" element={<ManagedPage><Community /></ManagedPage>} />
+          <Route path="/merch" element={<ManagedPage><Merch /></ManagedPage>} />
           <Route path="/merch/success" element={<MerchCheckoutSuccess />} />
           <Route path="/merch/cancelled" element={<MerchCheckoutCancelled />} />
           <Route path="/merch/paypal-return" element={<PayPalCheckoutReturn />} />
           <Route path="/track-order" element={<TrackOrder />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms" element={<Terms />} />
+          <Route path="/contact" element={<ManagedPage><Contact /></ManagedPage>} />
+          <Route path="/privacy" element={<ManagedPage><Privacy /></ManagedPage>} />
+          <Route path="/terms" element={<ManagedPage><Terms /></ManagedPage>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
