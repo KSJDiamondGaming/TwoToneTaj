@@ -85,9 +85,44 @@ export default function EditableField({ fieldId, label, value, policy, kind = 't
 export function EditorBridgeReady() {
   useEffect(() => {
     if (!editorEnabled()) return
+
     document.documentElement.classList.add('ksj-editor-mode')
-    window.parent.postMessage({ source: 'ksj-site-editor', type: 'ready' }, '*')
-    return () => document.documentElement.classList.remove('ksj-editor-mode')
+    let initialised = false
+
+    function announceReady() {
+      window.parent.postMessage({
+        source: 'ksj-site-editor',
+        type: 'ready',
+        fieldCount: document.querySelectorAll('[data-ksj-field]').length,
+        pathname: window.location.pathname,
+      }, '*')
+    }
+
+    function receive(event) {
+      if (event.data?.source !== 'ksj-portal-editor') return
+      if (event.data.type === 'initialise') {
+        initialised = true
+        announceReady()
+      }
+      if (event.data.type === 'ping') announceReady()
+    }
+
+    window.addEventListener('message', receive)
+    window.addEventListener('load', announceReady)
+    window.addEventListener('pageshow', announceReady)
+    announceReady()
+
+    const timer = window.setInterval(() => {
+      if (!initialised) announceReady()
+    }, 750)
+
+    return () => {
+      window.clearInterval(timer)
+      window.removeEventListener('message', receive)
+      window.removeEventListener('load', announceReady)
+      window.removeEventListener('pageshow', announceReady)
+      document.documentElement.classList.remove('ksj-editor-mode')
+    }
   }, [])
   return null
 }
