@@ -35,7 +35,10 @@ function fieldRule(policy = {}, fieldId) {
 }
 
 function plainText(element) {
-  return String(element?.innerText || '').replace(/\u00a0/g, ' ').trim()
+  if (!element) return ''
+  const copy = element.cloneNode(true)
+  copy.querySelectorAll('.ksjEditBadge').forEach(badge => badge.remove())
+  return String(copy.innerText || copy.textContent || '').replace(/\u00a0/g, ' ').trim()
 }
 
 export default function EditableField({ fieldId, label, value, policy, kind = 'text', as: Tag = 'span', className = '', children }) {
@@ -46,20 +49,20 @@ export default function EditableField({ fieldId, label, value, policy, kind = 't
   const rule = fieldRule(policy, fieldId)
   const hidden = enabled && role !== 'owner' && ['hidden', 'owner-only'].includes(rule.access)
   const locked = role !== 'owner' && rule.access !== 'editable'
-  const inlineEditable = enabled && !locked && kind !== 'image'
+  const inlineEditable = enabled && !locked && kind !== 'image' && children === undefined
 
   useEffect(() => {
     if (!enabled) return
     function receive(event) {
       if (event.data?.source !== 'ksj-portal-editor') return
       if (event.data.type === 'initialise') setRole(event.data.role || 'client')
-      if (event.data.type === 'patch-field' && event.data.fieldId === fieldId && elementRef.current && !editingRef.current) {
+      if (event.data.type === 'patch-field' && event.data.fieldId === fieldId && elementRef.current && !editingRef.current && children === undefined) {
         elementRef.current.innerText = event.data.value ?? ''
       }
     }
     window.addEventListener('message', receive)
     return () => window.removeEventListener('message', receive)
-  }, [enabled, fieldId])
+  }, [children, enabled, fieldId])
 
   useEffect(() => {
     if (!elementRef.current || editingRef.current || children !== undefined) return
@@ -72,7 +75,7 @@ export default function EditableField({ fieldId, label, value, policy, kind = 't
     if (!enabled) return
     event.stopPropagation()
     if (locked) event.preventDefault()
-    window.parent.postMessage({ source: 'ksj-site-editor', type: 'select-field', field: { fieldId, label, value: plainText(event.currentTarget), kind, locked, reason: rule.reason } }, '*')
+    window.parent.postMessage({ source: 'ksj-site-editor', type: 'select-field', field: { fieldId, label, value: children === undefined ? plainText(event.currentTarget) : value, kind, locked, reason: rule.reason } }, '*')
   }
 
   function startEditing(event) {
@@ -121,7 +124,7 @@ export default function EditableField({ fieldId, label, value, policy, kind = 't
       onInput={changeInline}
       onBlur={finishEditing}
       onKeyDown={keyDown}
-      title={enabled ? (locked ? rule.reason || 'Controlled by KSJ Digital' : `Click and type to edit ${label}`) : undefined}
+      title={enabled ? (locked ? rule.reason || 'Controlled by KSJ Digital' : inlineEditable ? `Click and type to edit ${label}` : `Edit ${label}`) : undefined}
     >
       {children ?? value}
       {enabled && <span className="ksjEditBadge" aria-hidden="true">{locked ? '🔒' : '✎'}</span>}
