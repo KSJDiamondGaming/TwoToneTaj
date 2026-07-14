@@ -5,6 +5,7 @@ import EditableImage from '../components/EditableImage'
 import EditableSection from '../components/EditableSection'
 import { getTwitchEmbedUrl } from '../config/siteConfig'
 import { useManagedSite } from '../hooks/useManagedSite'
+import { editorRoute } from '../utils/editorRoute'
 
 import heroDragon from '../assets/home/dragon.png'
 import setupImage from '../assets/home/setup.png'
@@ -59,7 +60,7 @@ export default function Home() {
           <EditableField as="h2" fieldId="home.aboutTitle" label="About section title" value={site.home.aboutTitle} policy={site.editorPolicy}><img src={peopleIcon} alt="" />{site.home.aboutTitle}</EditableField>
           <EditableImage fieldId="home.aboutImage" label="About image" src={site.home.aboutImage} fallback={setupImage} alt={`${site.brand.name} gaming setup`} policy={site.editorPolicy} className="about-image" />
           <EditableField as="p" fieldId="home.aboutText" label="About section text" value={site.home.aboutText} policy={site.editorPolicy} kind="textarea" />
-          <Link className="about-link" to="/about">Learn More</Link>
+          <Link className="about-link" to={editorRoute('/about')}>Learn More</Link>
         </EditableSection>
 
         <EditableSection as="article" sectionId="home.schedule" label="Schedule panel" policy={site.editorPolicy} defaultOrder={30} className="panel schedule-panel">
@@ -91,7 +92,7 @@ export default function Home() {
       </EditableSection>
 
       <EditableSection sectionId="home.merch" label="Merch section" policy={site.editorPolicy} defaultOrder={80} className="merch-panel">
-        <div className="merch-card"><div className="merch-content"><span className="merch-eyebrow">Coming Soon</span><EditableField as="h2" fieldId="home.merchTitle" label="Merch section title" value={site.home.merchTitle} policy={site.editorPolicy} /><EditableField as="p" fieldId="home.merchText" label="Merch section text" value={site.home.merchText} policy={site.editorPolicy} kind="textarea" /><div className="merch-actions"><Link to="/merch" className="btn primary">View Merch</Link></div></div></div>
+        <div className="merch-card"><div className="merch-content"><span className="merch-eyebrow">Coming Soon</span><EditableField as="h2" fieldId="home.merchTitle" label="Merch section title" value={site.home.merchTitle} policy={site.editorPolicy} /><EditableField as="p" fieldId="home.merchText" label="Merch section text" value={site.home.merchText} policy={site.editorPolicy} kind="textarea" /><div className="merch-actions"><Link to={editorRoute('/merch')} className="btn primary">View Merch</Link></div></div></div>
       </EditableSection>
     </main>
   )
