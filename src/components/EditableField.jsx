@@ -4,31 +4,34 @@ function editorEnabled() {
   return new URLSearchParams(window.location.search).get('ksjEditor') === '1'
 }
 
+function legalPath(fieldId = '') {
+  return fieldId === 'privacy' || fieldId.startsWith('privacy.') || fieldId === 'terms' || fieldId.startsWith('terms.')
+}
+
+function inheritedRule(policy = {}, fieldId) {
+  const fields = policy?.fields || {}
+  if (fields[fieldId]) return fields[fieldId]
+  const parts = String(fieldId).split('.')
+  while (parts.length > 1) {
+    parts.pop()
+    const parent = parts.join('.')
+    if (fields[parent]) return fields[parent]
+  }
+  return null
+}
+
 function defaultRule(fieldId) {
   if (fieldId === 'brand.supportCredit' || fieldId === 'globals.platformCredit') {
-    return {
-      access: 'owner-only',
-      approvalRequired: true,
-      movable: false,
-      deletable: false,
-      reason: 'KSJ Digital platform credit',
-    }
+    return { access: 'owner-only', approvalRequired: true, movable: false, deletable: false, reason: 'KSJ Digital platform credit' }
   }
-
-  return {
-    access: 'editable',
-    approvalRequired: true,
-    movable: true,
-    deletable: true,
-    reason: '',
+  if (legalPath(fieldId)) {
+    return { access: 'owner-only', approvalRequired: true, movable: false, deletable: false, reason: 'Legal content is controlled by KSJ Digital' }
   }
+  return { access: 'editable', approvalRequired: true, movable: true, deletable: true, reason: '' }
 }
 
 function fieldRule(policy = {}, fieldId) {
-  return {
-    ...defaultRule(fieldId),
-    ...(policy?.fields?.[fieldId] || {}),
-  }
+  return { ...defaultRule(fieldId), ...(inheritedRule(policy, fieldId) || {}) }
 }
 
 export default function EditableField({ fieldId, label, value, policy, kind = 'text', as: Tag = 'span', className = '', children }) {
@@ -54,28 +57,11 @@ export default function EditableField({ fieldId, label, value, policy, kind = 't
     if (!enabled) return
     event.preventDefault()
     event.stopPropagation()
-    window.parent.postMessage({
-      source: 'ksj-site-editor',
-      type: 'select-field',
-      field: {
-        fieldId,
-        label,
-        value,
-        kind,
-        locked,
-        reason: rule.reason,
-      },
-    }, '*')
+    window.parent.postMessage({ source: 'ksj-site-editor', type: 'select-field', field: { fieldId, label, value, kind, locked, reason: rule.reason } }, '*')
   }
 
   return (
-    <Tag
-      className={`${className} ${enabled ? 'ksjEditableField' : ''} ${locked ? 'ksjFieldLocked' : ''}`.trim()}
-      data-ksj-field={fieldId}
-      data-ksj-locked={locked ? 'true' : 'false'}
-      onClick={select}
-      title={enabled ? (locked ? rule.reason || 'Controlled by KSJ Digital' : `Edit ${label}`) : undefined}
-    >
+    <Tag className={`${className} ${enabled ? 'ksjEditableField' : ''} ${locked ? 'ksjFieldLocked' : ''}`.trim()} data-ksj-field={fieldId} data-ksj-locked={locked ? 'true' : 'false'} onClick={select} title={enabled ? (locked ? rule.reason || 'Controlled by KSJ Digital' : `Edit ${label}`) : undefined}>
       {children ?? value}
       {enabled && <span className="ksjEditBadge" aria-hidden="true">{locked ? '🔒' : '✎'}</span>}
     </Tag>
@@ -85,25 +71,16 @@ export default function EditableField({ fieldId, label, value, policy, kind = 't
 export function EditorBridgeReady() {
   useEffect(() => {
     if (!editorEnabled()) return
-
     document.documentElement.classList.add('ksj-editor-mode')
     let initialised = false
 
     function announceReady() {
-      window.parent.postMessage({
-        source: 'ksj-site-editor',
-        type: 'ready',
-        fieldCount: document.querySelectorAll('[data-ksj-field]').length,
-        pathname: window.location.pathname,
-      }, '*')
+      window.parent.postMessage({ source: 'ksj-site-editor', type: 'ready', fieldCount: document.querySelectorAll('[data-ksj-field]').length, pathname: window.location.pathname }, '*')
     }
 
     function receive(event) {
       if (event.data?.source !== 'ksj-portal-editor') return
-      if (event.data.type === 'initialise') {
-        initialised = true
-        announceReady()
-      }
+      if (event.data.type === 'initialise') { initialised = true; announceReady() }
       if (event.data.type === 'ping') announceReady()
     }
 
@@ -111,11 +88,7 @@ export function EditorBridgeReady() {
     window.addEventListener('load', announceReady)
     window.addEventListener('pageshow', announceReady)
     announceReady()
-
-    const timer = window.setInterval(() => {
-      if (!initialised) announceReady()
-    }, 750)
-
+    const timer = window.setInterval(() => { if (!initialised) announceReady() }, 750)
     return () => {
       window.clearInterval(timer)
       window.removeEventListener('message', receive)
