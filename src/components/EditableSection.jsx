@@ -26,6 +26,9 @@ export default function EditableSection({
   as: Tag = 'section',
   className = '',
   children,
+  style,
+  onClick,
+  ...rest
 }) {
   const enabled = useMemo(editorEnabled, [])
   const [role, setRole] = useState('client')
@@ -47,31 +50,35 @@ export default function EditableSection({
   if (hiddenForVisitor || hiddenForClientEditor) return null
 
   function select(event) {
-    if (!enabled) return
-    event.preventDefault()
-    event.stopPropagation()
-    window.parent.postMessage({
-      source: 'ksj-site-editor',
-      type: 'select-section',
-      section: {
-        sectionId,
-        label,
-        defaultOrder,
-        locked,
-        reason: rule.reason,
-        hidden: rule.hidden === true,
-        removed: rule.removed === true,
-      },
-    }, '*')
+    if (enabled) {
+      event.preventDefault()
+      event.stopPropagation()
+      window.parent.postMessage({
+        source: 'ksj-site-editor',
+        type: 'select-section',
+        section: {
+          sectionId,
+          label,
+          defaultOrder,
+          locked,
+          reason: rule.reason,
+          hidden: rule.hidden === true,
+          removed: rule.removed === true,
+        },
+      }, '*')
+      return
+    }
+    onClick?.(event)
   }
 
   return (
     <Tag
+      {...rest}
       className={`${className} ${enabled ? 'ksjEditableSection' : ''} ${locked ? 'ksjSectionLocked' : ''} ${rule.hidden || rule.removed ? 'ksjSectionHidden' : ''}`.trim()}
       data-ksj-section={sectionId}
-      style={{ order: Number(rule.order ?? defaultOrder) }}
+      style={{ ...style, order: Number(rule.order ?? defaultOrder) }}
       onClick={select}
-      title={enabled ? (locked ? rule.reason || 'Controlled by KSJ Digital' : `Manage ${label}`) : undefined}
+      title={enabled ? (locked ? rule.reason || 'Controlled by KSJ Digital' : `Manage ${label}`) : rest.title}
     >
       {children}
       {enabled && <span className="ksjSectionBadge" aria-hidden="true">{locked ? '🔒' : '⋮⋮'}</span>}
