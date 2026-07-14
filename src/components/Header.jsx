@@ -3,6 +3,7 @@ import { NavLink, Link } from 'react-router-dom'
 import logo from '../assets/logo.png'
 import { useManagedSite } from '../hooks/useManagedSite'
 import EditableField from './EditableField'
+import EditableImage from './EditableImage'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -13,7 +14,14 @@ export default function Header() {
   return (
     <header className={`site-header${isMenuOpen ? ' site-header--menu-open' : ''}`}>
       <Link className="brand" to="/" aria-label={`${site.brand.name} home`} onClick={closeMenu}>
-        <img src={brandLogo} alt={`${site.brand.name} logo`} />
+        <EditableImage
+          fieldId="brand.primaryLogo"
+          label="Primary logo"
+          src={site.brand.primaryLogo || site.assetUrls?.primaryLogo}
+          fallback={logo}
+          alt={`${site.brand.name} logo`}
+          policy={site.editorPolicy}
+        />
 
         <span>
           <EditableField as="strong" fieldId="brand.name" label="Brand name" value={site.brand.name} policy={site.editorPolicy} />
