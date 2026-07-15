@@ -2,12 +2,15 @@ import { useEffect, useState } from 'react'
 import { KSJ_API_BASE, KSJ_SITE_ID, ksjAssetUrl, ksjPublicUrl } from '../config/ksjApi'
 import { siteConfig } from '../config/siteConfig'
 
-const fallbackNavigation = [
-  { id: 'home', label: 'Home', target: '/', visible: true, external: false, order: 1 },
-  { id: 'about', label: 'About', target: '/about', visible: true, external: false, order: 2 },
-  { id: 'content', label: 'Content', target: '/content', visible: true, external: false, order: 3 },
-  { id: 'community', label: 'Community', target: '/community', visible: true, external: false, order: 4 },
-  { id: 'merch', label: 'Merch', target: '/merch', visible: true, external: false, order: 5 },
+const fallbackPageRegistry = [
+  { id: 'home', slug: '', path: '/', label: 'Home', type: 'layout', layoutKey: 'home', visible: true, navigable: true, editable: true, order: 1 },
+  { id: 'about', slug: 'about', path: '/about', label: 'About', type: 'layout', layoutKey: 'about', visible: true, navigable: true, editable: true, order: 2 },
+  { id: 'content', slug: 'content', path: '/content', label: 'Content', type: 'layout', layoutKey: 'contentPage', visible: true, navigable: true, editable: true, order: 3 },
+  { id: 'community', slug: 'community', path: '/community', label: 'Community', type: 'layout', layoutKey: 'communityPage', visible: true, navigable: true, editable: true, order: 4 },
+  { id: 'merch', slug: 'merch', path: '/merch', label: 'Merch', type: 'layout', layoutKey: 'merch', visible: true, navigable: true, editable: true, order: 5 },
+  { id: 'contact', slug: 'contact', path: '/contact', label: 'Contact', type: 'layout', layoutKey: 'contactPage', visible: true, navigable: true, editable: true, order: 6 },
+  { id: 'privacy', slug: 'privacy', path: '/privacy', label: 'Privacy', type: 'layout', layoutKey: 'privacy', visible: true, navigable: false, editable: true, order: 7 },
+  { id: 'terms', slug: 'terms', path: '/terms', label: 'Terms', type: 'layout', layoutKey: 'terms', visible: true, navigable: false, editable: true, order: 8 },
 ]
 
 const fallbackPages = {
@@ -38,34 +41,41 @@ function sanitiseMerch(merch) {
   }) }
 }
 
+function customRegistryEntries(pages = []) {
+  return pages.map((page, index) => ({
+    id: page.id || `custom-${page.slug || index}`,
+    slug: page.slug || '',
+    path: page.slug ? `/${page.slug}` : '/',
+    label: page.label || page.title || 'Page',
+    type: 'custom',
+    layoutKey: 'dynamic',
+    visible: page.visible !== false,
+    navigable: page.visible !== false,
+    editable: true,
+    order: 100 + index,
+    customPageId: page.id,
+  }))
+}
+
 function mergeSiteContent(remote = {}) {
   const content = remote.content || remote || {}
   const assets = remote.assets || []
-  const navigation = content.engine?.navigation || content.navigation || fallbackNavigation
+  const customPages = Array.isArray(content.engine?.pages) ? content.engine.pages : Array.isArray(content.pages) ? content.pages : []
+  const configuredRegistry = Array.isArray(content.engine?.pageRegistry) && content.engine.pageRegistry.length ? content.engine.pageRegistry : fallbackPageRegistry
+  const registryIds = new Set(configuredRegistry.map(page => page.id))
+  const pageRegistry = [...configuredRegistry, ...customRegistryEntries(customPages).filter(page => !registryIds.has(page.id))].sort((a, b) => Number(a.order || 0) - Number(b.order || 0))
+  const navigationFallback = pageRegistry.filter(page => page.navigable !== false).map(page => ({ id: page.id, pageId: page.customPageId, label: page.label, target: page.path, visible: page.visible !== false, external: false, order: page.order }))
+  const navigation = content.engine?.navigation || content.navigation || navigationFallback
   const theme = content.engine?.theme || content.theme || {}
   const globals = content.engine?.globals || content.globals || {}
-  const pages = Array.isArray(content.engine?.pages) ? content.engine.pages : Array.isArray(content.pages) ? content.pages : []
   const pageBlocks = content.engine?.pageBlocks || content.pageBlocks || {}
+  const pageSeo = content.engine?.pageSeo || content.pageSeo || {}
   const branding = content.branding || {}
   const uploadedPrimaryLogo = assetUrl(latestAsset(assets, 'primaryLogo'))
   return {
     website: remote.website || null,
-    brand: {
-      name: siteConfig.brandName,
-      tagline: siteConfig.brandTagline,
-      shortTagline: siteConfig.brandShortTagline,
-      ownerName: siteConfig.ownerName,
-      communityName: siteConfig.communityName,
-      supportCredit: siteConfig.studioCredit,
-      ...(content.brand || {}),
-      primaryLogo: content.brand?.primaryLogo || branding.primaryLogo || uploadedPrimaryLogo,
-    },
-    branding: {
-      headerStyle: 'Contained',
-      footerStyle: 'Simple',
-      showAnnouncement: false,
-      ...branding,
-    },
+    brand: { name: siteConfig.brandName, tagline: siteConfig.brandTagline, shortTagline: siteConfig.brandShortTagline, ownerName: siteConfig.ownerName, communityName: siteConfig.communityName, supportCredit: siteConfig.studioCredit, ...(content.brand || {}), primaryLogo: content.brand?.primaryLogo || branding.primaryLogo || uploadedPrimaryLogo },
+    branding: { headerStyle: 'Contained', footerStyle: 'Simple', showAnnouncement: false, ...branding },
     contact: { supportEmail: siteConfig.supportEmail, businessEmail: siteConfig.businessEmail, ...(content.contact || {}) },
     socials: { ...siteConfig.socials, ...(content.socials || {}) },
     platforms: { twitchChannel: siteConfig.platforms.twitchChannel, youtubeChannelId: siteConfig.platforms.youtubeChannelId, ...(content.platforms || {}) },
@@ -78,7 +88,9 @@ function mergeSiteContent(remote = {}) {
     terms: { ...fallbackPages.terms, ...(content.terms || {}) },
     merch: sanitiseMerch(content.merch),
     navigation: navigation.filter(item => item.visible !== false).sort((a, b) => Number(a.order || 0) - Number(b.order || 0)),
-    pages,
+    pageRegistry,
+    pageSeo,
+    pages: customPages,
     pageBlocks,
     theme,
     globals,
@@ -89,7 +101,7 @@ function mergeSiteContent(remote = {}) {
   }
 }
 
-function sitePath(fieldId) { return fieldId.replace(/^engine\.(navigation|theme|globals|pages|pageBlocks)\./, '$1.') }
+function sitePath(fieldId) { return fieldId.replace(/^engine\.(navigation|theme|globals|pages|pageBlocks|pageRegistry|pageSeo)\./, '$1.') }
 function setPathValue(source, path, value) { const keys = String(path || '').split('.').filter(Boolean); if (!keys.length) return source; const next = structuredClone(source); let target = next; keys.forEach((key, index) => { if (index === keys.length - 1) target[key] = value; else { const child = target[key]; const nextIsIndex = /^\d+$/.test(keys[index + 1]); target[key] = Array.isArray(child) ? [...child] : child && typeof child === 'object' ? { ...child } : nextIsIndex ? [] : {}; target = target[key] } }); return next }
 function applyTheme(site) { const root = document.documentElement; const theme = site.theme || {}; if (theme.primary) root.style.setProperty('--primary', theme.primary); if (theme.secondary) root.style.setProperty('--secondary', theme.secondary); if (theme.background) root.style.setProperty('--background', theme.background); if (theme.text) root.style.setProperty('--text', theme.text); if (theme.radius !== undefined) root.style.setProperty('--brand-radius', `${theme.radius}px`); if (theme.font) root.style.setProperty('--brand-font', theme.font) }
 
