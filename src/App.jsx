@@ -7,6 +7,7 @@ import FloatingNotice from './components/FloatingNotice'
 import AudioControls from './components/AudioControls'
 import MerchDiscountCode from './components/MerchDiscountCode'
 import ManagedPageBlocks from './components/ManagedPageBlocks'
+import PageMetadata from './components/PageMetadata'
 import { EditorBridgeReady } from './components/EditableField'
 
 // Pages
@@ -59,6 +60,7 @@ function ManagedPage({ children }) {
 function App() {
   return (
     <BrowserRouter>
+      <PageMetadata />
       <EditorBridgeReady />
       <Header />
 
