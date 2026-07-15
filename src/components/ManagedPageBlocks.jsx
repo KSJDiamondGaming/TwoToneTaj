@@ -59,12 +59,26 @@ function videoEmbedUrl(value = '') {
   return ''
 }
 
+function defaultGalleryItems(block) {
+  return Array.isArray(block.images) && block.images.length
+    ? block.images
+    : Array.from({ length: 4 }, () => ({ src: '', alt: '', caption: '' }))
+}
+
+function defaultFaqItems(block) {
+  return Array.isArray(block.items) && block.items.length
+    ? block.items
+    : Array.from({ length: 4 }, (_, index) => ({ question: `Question ${index + 1}`, answer: 'Add the answer here.' }))
+}
+
 function BlockControls({ block, index, keyName }) {
   const enabled = useMemo(editorEnabled, [])
   const [open, setOpen] = useState(false)
   if (!enabled) return null
 
   const field = name => blockField(keyName, index, name)
+  const galleryItems = defaultGalleryItems(block)
+  const faqItems = defaultFaqItems(block)
 
   return (
     <div className="managedBlockControls" onClick={event => event.stopPropagation()}>
@@ -99,15 +113,21 @@ function BlockControls({ block, index, keyName }) {
             <label className="managedBlockCheck"><input type="checkbox" checked={block.newTab === true} onChange={event => commitBlockSetting(field('newTab'), event.target.checked)} /> Open in new tab</label>
           </>}
 
-          {block.type === 'gallery' && <label>Columns
-            <select value={String(block.columns || 3)} onChange={event => commitBlockSetting(field('columns'), Number(event.target.value))}>
-              <option value="2">2 columns</option><option value="3">3 columns</option><option value="4">4 columns</option>
-            </select>
-          </label>}
+          {block.type === 'gallery' && <>
+            <label>Columns
+              <select value={String(block.columns || 3)} onChange={event => commitBlockSetting(field('columns'), Number(event.target.value))}>
+                <option value="2">2 columns</option><option value="3">3 columns</option><option value="4">4 columns</option>
+              </select>
+            </label>
+            <div className="managedCollectionSummary"><span>{galleryItems.length} images</span><button type="button" onClick={() => commitBlockSetting(field('images'), [...galleryItems, { src: '', alt: '', caption: '' }])}>＋ Add Image</button></div>
+          </>}
 
           {block.type === 'video' && <label>Video URL<input value={block.videoUrl || ''} onChange={event => commitBlockSetting(field('videoUrl'), event.target.value)} placeholder="YouTube or Vimeo URL" /></label>}
 
-          {block.type === 'faq' && <label className="managedBlockCheck"><input type="checkbox" checked={block.openFirst === true} onChange={event => commitBlockSetting(field('openFirst'), event.target.checked)} /> Open first answer by default</label>}
+          {block.type === 'faq' && <>
+            <label className="managedBlockCheck"><input type="checkbox" checked={block.openFirst === true} onChange={event => commitBlockSetting(field('openFirst'), event.target.checked)} /> Open first answer by default</label>
+            <div className="managedCollectionSummary"><span>{faqItems.length} questions</span><button type="button" onClick={() => commitBlockSetting(field('items'), [...faqItems, { question: `Question ${faqItems.length + 1}`, answer: 'Add the answer here.' }])}>＋ Add Question</button></div>
+          </>}
 
           {block.type === 'products' && <>
             <label>Maximum products
@@ -119,6 +139,33 @@ function BlockControls({ block, index, keyName }) {
           </>}
         </div>
       )}
+    </div>
+  )
+}
+
+function CollectionItemControls({ items, index, fieldId, label }) {
+  const enabled = useMemo(editorEnabled, [])
+  if (!enabled) return null
+
+  function move(direction) {
+    const target = index + direction
+    if (target < 0 || target >= items.length) return
+    const next = items.map(item => ({ ...item }))
+    ;[next[index], next[target]] = [next[target], next[index]]
+    commitBlockSetting(fieldId, next)
+  }
+
+  function remove() {
+    if (items.length <= 1) return
+    const next = items.filter((_, itemIndex) => itemIndex !== index)
+    commitBlockSetting(fieldId, next)
+  }
+
+  return (
+    <div className="managedCollectionItemControls" onClick={event => event.stopPropagation()} aria-label={`${label} controls`}>
+      <button type="button" disabled={index === 0} onClick={() => move(-1)} title="Move earlier">↑</button>
+      <button type="button" disabled={index === items.length - 1} onClick={() => move(1)} title="Move later">↓</button>
+      <button type="button" className="danger" disabled={items.length <= 1} onClick={remove} title="Remove">×</button>
     </div>
   )
 }
@@ -144,8 +191,9 @@ function CtaBlock({ block, index, keyName, policy }) {
 }
 
 function GalleryBlock({ block, index, keyName, policy }) {
-  const images = Array.from({ length: 4 }, (_, imageIndex) => block.images?.[imageIndex] || {})
-  return <div className="managedBlock managedBlock--gallery"><BlockControls block={block} index={index} keyName={keyName} /><BlockHeading block={block} index={index} keyName={keyName} policy={policy} fallbackTitle="Gallery" /><div className="managedGalleryGrid" style={{ '--gallery-columns': block.columns || 3 }}>{images.map((image, imageIndex) => <figure key={imageIndex}><EditableImage fieldId={blockField(keyName, index, `images.${imageIndex}.src`)} label={`Gallery image ${imageIndex + 1}`} src={image.src || ''} fallback="" alt={image.alt || ''} policy={policy} /><EditableField as="figcaption" fieldId={blockField(keyName, index, `images.${imageIndex}.caption`)} label={`Gallery caption ${imageIndex + 1}`} value={image.caption || ''} policy={policy} /></figure>)}</div></div>
+  const images = defaultGalleryItems(block)
+  const imagesField = blockField(keyName, index, 'images')
+  return <div className="managedBlock managedBlock--gallery"><BlockControls block={block} index={index} keyName={keyName} /><BlockHeading block={block} index={index} keyName={keyName} policy={policy} fallbackTitle="Gallery" /><div className="managedGalleryGrid" style={{ '--gallery-columns': block.columns || 3 }}>{images.map((image, imageIndex) => <figure key={`${image.src || 'image'}-${imageIndex}`}><CollectionItemControls items={images} index={imageIndex} fieldId={imagesField} label={`Gallery image ${imageIndex + 1}`} /><EditableImage fieldId={blockField(keyName, index, `images.${imageIndex}.src`)} label={`Gallery image ${imageIndex + 1}`} src={image.src || ''} fallback="" alt={image.alt || ''} policy={policy} /><EditableField as="figcaption" fieldId={blockField(keyName, index, `images.${imageIndex}.caption`)} label={`Gallery caption ${imageIndex + 1}`} value={image.caption || ''} policy={policy} /></figure>)}</div></div>
 }
 
 function VideoBlock({ block, index, keyName, policy }) {
@@ -154,8 +202,9 @@ function VideoBlock({ block, index, keyName, policy }) {
 }
 
 function FaqBlock({ block, index, keyName, policy }) {
-  const items = Array.from({ length: 4 }, (_, itemIndex) => block.items?.[itemIndex] || {})
-  return <div className="managedBlock managedBlock--faq"><BlockControls block={block} index={index} keyName={keyName} /><BlockHeading block={block} index={index} keyName={keyName} policy={policy} fallbackTitle="Frequently asked questions" /><div className="managedFaqList">{items.map((item, itemIndex) => <details key={itemIndex} open={block.openFirst === true && itemIndex === 0}><summary><EditableField as="span" fieldId={blockField(keyName, index, `items.${itemIndex}.question`)} label={`FAQ question ${itemIndex + 1}`} value={item.question || `Question ${itemIndex + 1}`} policy={policy} /></summary><EditableField as="p" fieldId={blockField(keyName, index, `items.${itemIndex}.answer`)} label={`FAQ answer ${itemIndex + 1}`} value={item.answer || 'Add the answer here.'} policy={policy} kind="textarea" /></details>)}</div></div>
+  const items = defaultFaqItems(block)
+  const itemsField = blockField(keyName, index, 'items')
+  return <div className="managedBlock managedBlock--faq"><BlockControls block={block} index={index} keyName={keyName} /><BlockHeading block={block} index={index} keyName={keyName} policy={policy} fallbackTitle="Frequently asked questions" /><div className="managedFaqList">{items.map((item, itemIndex) => <div className="managedFaqItem" key={`${item.question || 'question'}-${itemIndex}`}><CollectionItemControls items={items} index={itemIndex} fieldId={itemsField} label={`FAQ item ${itemIndex + 1}`} /><details open={block.openFirst === true && itemIndex === 0}><summary><EditableField as="span" fieldId={blockField(keyName, index, `items.${itemIndex}.question`)} label={`FAQ question ${itemIndex + 1}`} value={item.question || `Question ${itemIndex + 1}`} policy={policy} /></summary><EditableField as="p" fieldId={blockField(keyName, index, `items.${itemIndex}.answer`)} label={`FAQ answer ${itemIndex + 1}`} value={item.answer || 'Add the answer here.'} policy={policy} kind="textarea" /></details></div>)}</div></div>
 }
 
 function ProductsBlock({ block, index, keyName, policy, products = [] }) {
