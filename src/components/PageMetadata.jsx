@@ -2,19 +2,11 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useManagedSite } from '../hooks/useManagedSite'
 
-const builtInPageContent = {
-  '/': site => ({ title: site.home?.heroTitle || site.brand?.name, description: site.home?.heroText }),
-  '/about': site => ({ title: site.about?.title || 'About', description: site.about?.intro }),
-  '/content': site => ({ title: site.contentPage?.title || 'Content', description: site.contentPage?.intro }),
-  '/community': site => ({ title: site.communityPage?.title || 'Community', description: site.communityPage?.intro }),
-  '/merch': site => ({ title: site.merch?.heading || site.home?.merchTitle || 'Merch', description: site.merch?.description || site.home?.merchText }),
-  '/contact': site => ({ title: site.contactPage?.title || 'Contact', description: site.contactPage?.intro }),
-  '/privacy': site => ({ title: site.privacy?.title || 'Privacy Policy', description: site.privacy?.intro, noIndex: false }),
-  '/terms': site => ({ title: site.terms?.title || 'Terms of Use', description: site.terms?.intro, noIndex: false }),
-  '/track-order': () => ({ title: 'Track Order', description: 'Track the progress of your TwoToneTaj merchandise order.', noIndex: true }),
-  '/merch/success': () => ({ title: 'Order Confirmed', description: 'Your TwoToneTaj order has been confirmed.', noIndex: true }),
-  '/merch/cancelled': () => ({ title: 'Checkout Cancelled', description: 'Your checkout was cancelled and no payment was completed.', noIndex: true }),
-  '/merch/paypal-return': () => ({ title: 'Completing PayPal Payment', description: 'Completing your TwoToneTaj PayPal payment.', noIndex: true }),
+const protectedRoutes = {
+  '/track-order': { title: 'Track Order', description: 'Track the progress of your order.', noIndex: true },
+  '/merch/success': { title: 'Order Confirmed', description: 'Your order has been confirmed.', noIndex: true },
+  '/merch/cancelled': { title: 'Checkout Cancelled', description: 'Your checkout was cancelled and no payment was completed.', noIndex: true },
+  '/merch/paypal-return': { title: 'Completing PayPal Payment', description: 'Completing your PayPal payment.', noIndex: true },
 }
 
 function setMeta(selector, attribute, value) {
@@ -46,23 +38,28 @@ function clean(value, fallback = '') {
   return String(value || fallback).replace(/\s+/g, ' ').trim()
 }
 
+function contentFallback(site, entry) {
+  if (!entry) return {}
+  const source = entry.layoutKey ? site[entry.layoutKey] : null
+  const custom = entry.customPageId ? site.pages?.find(page => page.id === entry.customPageId) : site.pages?.find(page => page.slug === entry.slug)
+  if (custom) return { title: custom.title || custom.label, description: custom.intro, image: custom.seo?.image, noIndex: custom.seo?.noIndex }
+  if (entry.id === 'home') return { title: site.home?.heroTitle || site.brand?.name, description: site.home?.heroText }
+  if (entry.id === 'merch') return { title: site.merch?.heading || site.home?.merchTitle || entry.label, description: site.merch?.description || site.home?.merchText }
+  return { title: source?.title || entry.label, description: source?.intro || source?.description }
+}
+
 function pageMetadata(site, pathname) {
-  const customSlug = pathname.replace(/^\//, '')
-  const customPage = site.pages?.find(page => page.slug === customSlug || page.target === pathname)
+  if (protectedRoutes[pathname]) return protectedRoutes[pathname]
+  const entry = site.pageRegistry?.find(page => page.path === pathname || `/${page.slug || ''}` === pathname)
+  if (!entry) return { title: site.brand?.name, description: site.brand?.shortTagline || site.brand?.tagline, noIndex: true }
 
-  if (customPage) {
-    return {
-      title: customPage.seo?.title || customPage.title || customPage.label,
-      description: customPage.seo?.description || customPage.intro,
-      image: customPage.seo?.image,
-      noIndex: customPage.seo?.noIndex === true || customPage.visible === false,
-    }
-  }
-
-  return builtInPageContent[pathname]?.(site) || {
-    title: site.brand?.name,
-    description: site.brand?.shortTagline || site.brand?.tagline,
-    noIndex: true,
+  const registrySeo = site.pageSeo?.[entry.id] || {}
+  const fallback = contentFallback(site, entry)
+  return {
+    title: registrySeo.title || fallback.title || entry.label,
+    description: registrySeo.description || fallback.description,
+    image: registrySeo.image || fallback.image,
+    noIndex: registrySeo.noIndex === true || fallback.noIndex === true || entry.visible === false,
   }
 }
 
@@ -71,7 +68,7 @@ export default function PageMetadata() {
   const { site } = useManagedSite()
 
   useEffect(() => {
-    const brandName = clean(site.brand?.name, 'TwoToneTaj')
+    const brandName = clean(site.brand?.name, 'Website')
     const metadata = pageMetadata(site, pathname)
     const pageTitle = clean(metadata.title, brandName)
     const title = pageTitle === brandName ? brandName : `${pageTitle} | ${brandName}`
