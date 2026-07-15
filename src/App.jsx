@@ -24,6 +24,7 @@ import TrackOrder from './pages/TrackOrder'
 import Contact from './pages/Contact'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
+import DynamicPage from './pages/DynamicPage'
 
 // Global Styles
 import './styles/theme.css'
@@ -32,6 +33,7 @@ import './styles/responsive.css'
 import './styles/ksj-editor.css'
 import './styles/managed-site-settings.css'
 import './styles/managed-page-blocks.css'
+import './styles/dynamic-page.css'
 
 // Page Styles
 import './styles/home.css'
@@ -74,6 +76,7 @@ function App() {
           <Route path="/contact" element={<ManagedPage><Contact /></ManagedPage>} />
           <Route path="/privacy" element={<ManagedPage><Privacy /></ManagedPage>} />
           <Route path="/terms" element={<ManagedPage><Terms /></ManagedPage>} />
+          <Route path="/:pageSlug" element={<ManagedPage><DynamicPage /></ManagedPage>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
