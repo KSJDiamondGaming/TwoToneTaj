@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 function editorEnabled() {
   return new URLSearchParams(window.location.search).get('ksjEditor') === '1'
@@ -40,6 +40,11 @@ function plainText(element) {
   const copy = element.cloneNode(true)
   copy.querySelectorAll('.ksjEditBadge').forEach(badge => badge.remove())
   return String(copy.innerText || copy.textContent || '').replace(/\u00a0/g, ' ').trim()
+}
+
+function editorUrl(pathname = '/') {
+  const safePath = pathname.startsWith('/') ? pathname : `/${pathname}`
+  return `${safePath}?ksjEditor=1`
 }
 
 export default function EditableField({ fieldId, label, value, policy, kind = 'text', as: Tag = 'span', className = '', children }) {
@@ -135,7 +140,6 @@ export default function EditableField({ fieldId, label, value, policy, kind = 't
 
 export function EditorBridgeReady() {
   const location = useLocation()
-  const navigate = useNavigate()
 
   useEffect(() => {
     if (!editorEnabled()) return
@@ -158,8 +162,10 @@ export function EditorBridgeReady() {
       if (event.data.type === 'history-back') window.history.back()
       if (event.data.type === 'history-forward') window.history.forward()
       if (event.data.type === 'navigate' && typeof event.data.pathname === 'string') {
-        const pathname = event.data.pathname.startsWith('/') ? event.data.pathname : `/${event.data.pathname}`
-        navigate({ pathname, search: '?ksjEditor=1' })
+        const target = editorUrl(event.data.pathname)
+        const current = `${window.location.pathname}${window.location.search}`
+        if (current !== target) window.location.assign(target)
+        else announceReady('page-change')
       }
     }
 
@@ -175,7 +181,7 @@ export function EditorBridgeReady() {
       window.removeEventListener('pageshow', announceReady)
       document.documentElement.classList.remove('ksj-editor-mode')
     }
-  }, [navigate])
+  }, [])
 
   useEffect(() => {
     if (!editorEnabled()) return
