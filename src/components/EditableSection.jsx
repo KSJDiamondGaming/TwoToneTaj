@@ -29,12 +29,21 @@ function sectionRule(policy = {}, sectionId, defaultOrder = 0) {
   return { ...base, ...(inheritedRule(policy, sectionId) || {}) }
 }
 
+function renderedOrder(ruleOrder, defaultOrder) {
+  const order = Number(ruleOrder ?? defaultOrder)
+  const original = Number(defaultOrder)
+  if (order < original) return order - 0.1
+  if (order > original) return order + 0.1
+  return order
+}
+
 export default function EditableSection({ sectionId, label, policy, defaultOrder = 0, as: Tag = 'section', className = '', children, style, onClick, ...rest }) {
   const enabled = useMemo(editorEnabled, [])
   const [role, setRole] = useState('client')
   const [dragging, setDragging] = useState(false)
   const [dropTarget, setDropTarget] = useState(false)
   const rule = sectionRule(policy, sectionId, defaultOrder)
+  const effectiveOrder = renderedOrder(rule.order, defaultOrder)
   const locked = role !== 'owner' && rule.access !== 'editable'
   const draggable = enabled && !locked && rule.movable !== false && rule.hidden !== true && rule.removed !== true
   const hiddenForVisitor = (rule.hidden === true || rule.removed === true) && !enabled
@@ -121,7 +130,7 @@ export default function EditableSection({ sectionId, label, policy, defaultOrder
       {...rest}
       className={`${className} ${enabled ? 'ksjEditableSection' : ''} ${locked ? 'ksjSectionLocked' : ''} ${rule.hidden || rule.removed ? 'ksjSectionHidden' : ''} ${dragging ? 'ksjSectionDragging' : ''} ${dropTarget ? 'ksjSectionDropTarget' : ''}`.trim()}
       data-ksj-section={sectionId}
-      style={{ ...style, order: Number(rule.order ?? defaultOrder) }}
+      style={{ ...style, order: effectiveOrder }}
       onClick={select}
       draggable={draggable}
       onDragStart={dragStart}
