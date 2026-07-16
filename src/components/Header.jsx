@@ -20,6 +20,9 @@ export default function Header() {
   const closeMenu = () => setIsMenuOpen(false)
   const brandLogo = site.brand.primaryLogo || site.assetUrls?.primaryLogo || logo
   const headerStyle = styleClass(site.branding?.headerStyle || 'Contained')
+  const actionText = site.globals?.headerActionText || `Join ${site.brand.communityName || 'Community'}`
+  const actionUrl = site.globals?.headerActionUrl || site.socials.discord
+  const showAction = site.branding?.showHeaderAction !== false && Boolean(actionUrl)
 
   return (
     <>
@@ -31,7 +34,7 @@ export default function Header() {
           <img src={brandLogo} alt={`${site.brand.name} logo`} />
           <span>
             <strong>{site.brand.name}</strong>
-            <small>{site.brand.tagline}</small>
+            {site.brand.tagline && <small>{site.brand.tagline}</small>}
           </span>
         </Link>
 
@@ -41,7 +44,7 @@ export default function Header() {
           aria-expanded={isMenuOpen}
           aria-controls="main-navigation"
           aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-          onClick={() => setIsMenuOpen((current) => !current)}
+          onClick={() => setIsMenuOpen(current => !current)}
         >
           <span />
           <span />
@@ -50,22 +53,16 @@ export default function Header() {
 
         <div className="header-actions" id="main-navigation">
           <nav aria-label="Main navigation">
-            {site.navigation.map((item) =>
+            {site.navigation.map(item =>
               item.external ? (
-                <a key={item.id || `${item.label}-${item.target}`} href={item.target} target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
-                  {item.label}
-                </a>
+                <a key={item.id || `${item.label}-${item.target}`} href={item.target} target="_blank" rel="noopener noreferrer" onClick={closeMenu}>{item.label}</a>
               ) : (
-                <NavLink key={item.id || `${item.label}-${item.target}`} to={internalTarget(item.target)} end={item.target === '/'} onClick={closeMenu}>
-                  {item.label}
-                </NavLink>
+                <NavLink key={item.id || `${item.label}-${item.target}`} to={internalTarget(item.target)} end={item.target === '/'} onClick={closeMenu}>{item.label}</NavLink>
               ),
             )}
           </nav>
 
-          <a className="join-btn" href={site.socials.discord} target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
-            Join {site.brand.communityName}
-          </a>
+          {showAction && <a className="join-btn" href={actionUrl} target="_blank" rel="noopener noreferrer" onClick={closeMenu}>{actionText}</a>}
         </div>
       </header>
     </>
