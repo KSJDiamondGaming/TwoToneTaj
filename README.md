@@ -6,7 +6,7 @@
 
 ## 🌐 Welcome to TwoToneTaj
 
-A bold gaming, streaming, and creator brand built around community, content, and chaos.
+A gaming, streaming, and creator brand built around community, content, and chaos.
 
 This is the home of the **TajSquad**.
 
