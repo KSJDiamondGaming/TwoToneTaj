@@ -19,10 +19,14 @@ import youtubeIcon from '../assets/home/youtube.png'
 import kIcon from '../assets/home/k.png'
 import instaIcon from '../assets/home/insta.png'
 
-const streamSchedule = [
-  ['Mon', '7:00 PM - 11:00 PM'], ['Tue', '7:00 PM - 11:00 PM'], ['Wed', 'Offline'],
-  ['Thu', '7:00 PM - 11:00 PM'], ['Fri', '7:00 PM - 12:00 AM'],
-  ['Sat', '12:00 PM - 12:00 AM'], ['Sun', '12:00 PM - 10:00 PM'],
+const fallbackSchedule = [
+  { day: 'Mon', time: '7:00 PM - 11:00 PM' },
+  { day: 'Tue', time: '7:00 PM - 11:00 PM' },
+  { day: 'Wed', time: 'Offline' },
+  { day: 'Thu', time: '7:00 PM - 11:00 PM' },
+  { day: 'Fri', time: '7:00 PM - 12:00 AM' },
+  { day: 'Sat', time: '12:00 PM - 12:00 AM' },
+  { day: 'Sun', time: '12:00 PM - 10:00 PM' },
 ]
 
 const expectCards = [
@@ -35,6 +39,7 @@ const expectCards = [
 export default function Home() {
   const { site } = useManagedSite()
   const twitchEmbedUrl = getTwitchEmbedUrl(site.platforms.twitchChannel)
+  const schedule = Array.isArray(site.home.schedule) && site.home.schedule.length ? site.home.schedule : fallbackSchedule
   const socialLinks = [
     [twitchIcon, 'Twitch', site.brand.name, site.socials.twitch],
     [tiktokIcon, 'TikTok', site.brand.name, site.socials.tiktok],
@@ -65,8 +70,19 @@ export default function Home() {
 
         <EditableSection as="article" sectionId="home.schedule" label="Schedule panel" policy={site.editorPolicy} defaultOrder={30} className="panel schedule-panel">
           <EditableField as="h2" fieldId="home.scheduleTitle" label="Schedule section title" value={site.home.scheduleTitle} policy={site.editorPolicy}><img src={playIcon} alt="" />{site.home.scheduleTitle}</EditableField>
-          <div className="schedule-list">{streamSchedule.map(([day, time]) => <p key={day}><strong>{day}</strong><span>{time}</span></p>)}</div>
-          <div className="schedule-timezone"><small>Times shown in</small><strong>GMT</strong><p>Schedule is subject to change. Follow on social media for updates!</p></div>
+          <div className="schedule-list">
+            {schedule.map((entry, index) => (
+              <p key={`${entry.day}-${index}`}>
+                <EditableField as="strong" fieldId={`home.schedule.${index}.day`} label={`Schedule day ${index + 1}`} value={entry.day} policy={site.editorPolicy} />
+                <EditableField as="span" fieldId={`home.schedule.${index}.time`} label={`${entry.day || `Day ${index + 1}`} stream time`} value={entry.time} policy={site.editorPolicy} />
+              </p>
+            ))}
+          </div>
+          <div className="schedule-timezone">
+            <small>Times shown in</small>
+            <EditableField as="strong" fieldId="home.scheduleTimezone" label="Schedule timezone" value={site.home.scheduleTimezone || 'GMT'} policy={site.editorPolicy} />
+            <EditableField as="p" fieldId="home.scheduleNote" label="Schedule note" value={site.home.scheduleNote || 'Schedule is subject to change. Follow on social media for updates!'} policy={site.editorPolicy} kind="textarea" />
+          </div>
         </EditableSection>
 
         <EditableSection as="article" sectionId="home.twitch" label="Twitch panel" policy={site.editorPolicy} defaultOrder={40} className="panel twitch-panel">
