@@ -212,6 +212,32 @@ function ProductsBlock({ block, index, keyName, policy, products = [] }) {
   return <div className="managedBlock managedBlock--products"><BlockControls block={block} index={index} keyName={keyName} /><BlockHeading block={block} index={index} keyName={keyName} policy={policy} fallbackTitle="Featured products" />{available.length ? <div className="managedProductGrid">{available.map(product => <article key={product.id}><div className="managedProductImage">{product.image ? <img src={product.image} alt={product.imageAlt || product.name || ''} /> : <span>No image</span>}</div><h3>{product.name}</h3><p>{product.description}</p><strong>£{Number(product.priceGBP || 0).toFixed(2)}</strong></article>)}</div> : <div className="managedVideoPlaceholder">No matching products are currently available.</div>}<Link className="btn ghost" to={editorRoute('/merch')}>View all merchandise</Link></div>
 }
 
+const MANAGED_BLOCK_RENDERERS = Object.freeze({
+  text: TextBlock,
+  image: ImageBlock,
+  cta: CtaBlock,
+  gallery: GalleryBlock,
+  video: VideoBlock,
+  faq: FaqBlock,
+  products: ProductsBlock,
+})
+
+function UnsupportedBlock({ block }) {
+  return (
+    <div className="managedBlock managedBlock--unsupported" role="status">
+      <span className="managedBlockEyebrow">Unsupported Section</span>
+      <h2>{block.title || 'This section cannot be displayed'}</h2>
+      <p>This website contains a managed section that this version cannot render.</p>
+    </div>
+  )
+}
+
+export function ManagedBlockRenderer({ block, ...props }) {
+  const rendererKey = String(block?.renderer || block?.type || 'text')
+  const Renderer = MANAGED_BLOCK_RENDERERS[rendererKey]
+  return Renderer ? <Renderer block={block} {...props} /> : <UnsupportedBlock block={block || {}} />
+}
+
 export default function ManagedPageBlocks() {
   const location = useLocation()
   const { site } = useManagedSite()
@@ -221,15 +247,8 @@ export default function ManagedPageBlocks() {
 
   return <section className="managedPageBlocks" aria-label="Additional page sections">{blocks.map((block, index) => ({ block, index })).sort((left, right) => Number(left.block.order || 0) - Number(right.block.order || 0)).map(({ block, index }) => {
     const sectionId = `pageBlocks.${keyName}.${block.id}`
-    const common = { block, index, keyName, policy: site.editorPolicy }
     return <EditableSection key={block.id} sectionId={sectionId} label={block.title || `${block.type} block`} policy={site.editorPolicy} defaultOrder={Number(block.order || (index + 1) * 10)} className="managedPageBlockSection" data-ksj-block-id={block.id} data-ksj-block-index={index} data-ksj-page-key={keyName}>
-      {block.type === 'image' && <ImageBlock {...common} />}
-      {block.type === 'cta' && <CtaBlock {...common} />}
-      {block.type === 'gallery' && <GalleryBlock {...common} />}
-      {block.type === 'video' && <VideoBlock {...common} />}
-      {block.type === 'faq' && <FaqBlock {...common} />}
-      {block.type === 'products' && <ProductsBlock {...common} products={site.merch?.products || []} />}
-      {(!block.type || block.type === 'text') && <TextBlock {...common} />}
+      <ManagedBlockRenderer block={block} index={index} keyName={keyName} policy={site.editorPolicy} products={site.merch?.products || []} />
     </EditableSection>
   })}</section>
 }
