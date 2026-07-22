@@ -22,14 +22,15 @@ const fallbackPages = {
   terms: { eyebrow: 'Legal', title: 'Terms of Use', intro: 'These terms outline the guidelines for using this website.', sections: [], updated: 'Last updated: June 2026' },
 }
 
+function objectRecords(value) { return Array.isArray(value) ? value.filter(item => item && typeof item === 'object' && !Array.isArray(item)) : [] }
 function assetUrl(asset) { return ksjAssetUrl(asset?.url || '') }
-function latestAsset(assets = [], slotId) { return assets.filter(asset => asset.slotId === slotId).sort((a, b) => Number(b.version || 0) - Number(a.version || 0))[0] }
+function latestAsset(assets = [], slotId) { return objectRecords(assets).filter(asset => asset.slotId === slotId).sort((a, b) => Number(b.version || 0) - Number(a.version || 0))[0] }
 function validCheckoutUrl(value = '') { try { const url = new URL(value); return url.protocol === 'https:' || (url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname)) } catch { return false } }
 function providerCheckoutUrl(provider, productId) { const normalised = provider?.trim().toLowerCase(); if (!['stripe', 'paypal'].includes(normalised) || !productId) return ''; return `${KSJ_API_BASE}/checkout/${normalised}/start?${new URLSearchParams({ websiteId: KSJ_SITE_ID, productId, quantity: '1' })}` }
 
 function sanitiseMerch(merch) {
   if (!merch || !Array.isArray(merch.products)) return null
-  return { ...merch, products: merch.products.map(product => {
+  return { ...merch, products: objectRecords(merch.products).map(product => {
     const checkout = product.checkout || {}
     const providerUrl = providerCheckoutUrl(checkout.provider, product.id)
     const url = providerUrl || checkout.url?.trim() || ''
@@ -37,12 +38,12 @@ function sanitiseMerch(merch) {
     const leadTimeMessage = product.fulfilmentOptions?.leadTimeMessage?.trim() || ''
     const stock = Math.max(0, Number(product.inventory?.quantity || product.inventory?.stock || 0))
     const checkoutReady = checkout.enabled === true && product.availability === 'available' && Number(product.priceGBP) > 0 && Boolean(product.name?.trim()) && Boolean(product.description?.trim()) && Boolean(product.shippingNote?.trim()) && (!madeToOrder || Boolean(leadTimeMessage)) && (checkout.mode === 'managed' || validCheckoutUrl(url))
-    return { ...product, shippingNote: madeToOrder ? `* ${leadTimeMessage}` : product.shippingNote, fulfilmentOptions: { madeToOrder, leadTimeMessage }, inventory: { ...(product.inventory || {}), trackStock: madeToOrder ? false : product.inventory?.trackStock === true, readyStock: stock, quantity: stock, stock, variants: Array.isArray(product.inventory?.variants) ? product.inventory.variants : [] }, checkout: { ...checkout, enabled: checkoutReady, url: checkoutReady ? url : '' } }
+    return { ...product, shippingNote: madeToOrder ? `* ${leadTimeMessage}` : product.shippingNote, fulfilmentOptions: { madeToOrder, leadTimeMessage }, inventory: { ...(product.inventory || {}), trackStock: madeToOrder ? false : product.inventory?.trackStock === true, readyStock: stock, quantity: stock, stock, variants: objectRecords(product.inventory?.variants) }, checkout: { ...checkout, enabled: checkoutReady, url: checkoutReady ? url : '' } }
   }) }
 }
 
 function customRegistryEntries(pages = []) {
-  return pages.map((page, index) => ({
+  return objectRecords(pages).map((page, index) => ({
     id: page.id || `custom-${page.slug || index}`,
     slug: page.slug || '',
     path: page.slug ? `/${page.slug}` : '/',
@@ -59,19 +60,23 @@ function customRegistryEntries(pages = []) {
 
 function mergeSiteContent(remote = {}) {
   const content = remote.content || remote || {}
-  const assets = remote.assets || []
-  const customPages = Array.isArray(content.engine?.pages) ? content.engine.pages : Array.isArray(content.pages) ? content.pages : []
-  const configuredRegistry = Array.isArray(content.engine?.pageRegistry) && content.engine.pageRegistry.length ? content.engine.pageRegistry : fallbackPageRegistry
-  const registryIds = new Set(configuredRegistry.map(page => page.id))
+  const assets = objectRecords(remote.assets)
+  const customPages = objectRecords(Array.isArray(content.engine?.pages) ? content.engine.pages : content.pages)
+  const storedRegistry = objectRecords(content.engine?.pageRegistry)
+  const configuredRegistry = storedRegistry.length ? storedRegistry : fallbackPageRegistry
+  const registryIds = new Set(configuredRegistry.map(page => page.id).filter(Boolean))
   const pageRegistry = [...configuredRegistry, ...customRegistryEntries(customPages).filter(page => !registryIds.has(page.id))].sort((a, b) => Number(a.order || 0) - Number(b.order || 0))
   const navigationFallback = pageRegistry.filter(page => page.navigable !== false).map(page => ({ id: page.id, pageId: page.customPageId, label: page.label, target: page.path, visible: page.visible !== false, external: false, order: page.order }))
-  const navigation = content.engine?.navigation || content.navigation || navigationFallback
+  const storedNavigation = objectRecords(content.engine?.navigation).length ? objectRecords(content.engine.navigation) : objectRecords(content.navigation)
+  const navigation = storedNavigation.length ? storedNavigation : navigationFallback
   const theme = content.engine?.theme || content.theme || {}
   const globals = content.engine?.globals || content.globals || {}
   const pageBlocks = content.engine?.pageBlocks || content.pageBlocks || {}
   const pageSeo = content.engine?.pageSeo || content.pageSeo || {}
   const branding = content.branding || {}
   const uploadedPrimaryLogo = assetUrl(latestAsset(assets, 'primaryLogo'))
+  const home = { heroTitle: siteConfig.brandName, heroText: 'TwoToneTaj, an average gamer with a passion for games, a pure heart, good laughs, and an awesome community.', aboutTitle: 'About Me', aboutText: 'I’ve been gaming since 1989 and I’m here for the fun, the challenge, and the community.', scheduleTitle: 'Stream Schedule', twitchTitle: 'Live on Twitch', youtubeTitle: 'Latest YouTube Videos', socialsTitle: 'Stay Connected', expectTitle: 'What to Expect', merchTitle: `Official ${siteConfig.brandName} Merch`, merchText: `Exclusive ${siteConfig.communityName} merchandise is in development.`, ...(content.home || {}) }
+  if (Array.isArray(home.schedule)) home.schedule = objectRecords(home.schedule)
   return {
     website: remote.website || null,
     brand: { name: siteConfig.brandName, tagline: siteConfig.brandTagline, shortTagline: siteConfig.brandShortTagline, ownerName: siteConfig.ownerName, communityName: siteConfig.communityName, supportCredit: siteConfig.studioCredit, ...(content.brand || {}), primaryLogo: content.brand?.primaryLogo || branding.primaryLogo || uploadedPrimaryLogo },
@@ -79,15 +84,15 @@ function mergeSiteContent(remote = {}) {
     contact: { supportEmail: siteConfig.supportEmail, businessEmail: siteConfig.businessEmail, ...(content.contact || {}) },
     socials: { ...siteConfig.socials, ...(content.socials || {}) },
     platforms: { twitchChannel: siteConfig.platforms.twitchChannel, youtubeChannelId: siteConfig.platforms.youtubeChannelId, ...(content.platforms || {}) },
-    home: { heroTitle: siteConfig.brandName, heroText: 'TwoToneTaj, an average gamer with a passion for games, a pure heart, good laughs, and an awesome community.', aboutTitle: 'About Me', aboutText: 'I’ve been gaming since 1989 and I’m here for the fun, the challenge, and the community.', scheduleTitle: 'Stream Schedule', twitchTitle: 'Live on Twitch', youtubeTitle: 'Latest YouTube Videos', socialsTitle: 'Stay Connected', expectTitle: 'What to Expect', merchTitle: `Official ${siteConfig.brandName} Merch`, merchText: `Exclusive ${siteConfig.communityName} merchandise is in development.`, ...(content.home || {}) },
-    about: { ...fallbackPages.about, ...(content.about || {}) },
+    home,
+    about: { ...fallbackPages.about, ...(content.about || {}), sections: objectRecords(content.about?.sections || fallbackPages.about.sections) },
     contentPage: { ...fallbackPages.contentPage, ...(content.contentPage || {}) },
     communityPage: { ...fallbackPages.communityPage, ...(content.communityPage || {}) },
     contactPage: { ...fallbackPages.contactPage, ...(content.contactPage || {}) },
-    privacy: { ...fallbackPages.privacy, ...(content.privacy || {}) },
-    terms: { ...fallbackPages.terms, ...(content.terms || {}) },
+    privacy: { ...fallbackPages.privacy, ...(content.privacy || {}), sections: objectRecords(content.privacy?.sections || fallbackPages.privacy.sections) },
+    terms: { ...fallbackPages.terms, ...(content.terms || {}), sections: objectRecords(content.terms?.sections || fallbackPages.terms.sections) },
     merch: sanitiseMerch(content.merch),
-    navigation: navigation.filter(item => item.visible !== false).sort((a, b) => Number(a.order || 0) - Number(b.order || 0)),
+    navigation: navigation.filter(item => item.editorOnly !== true && item.visible !== false).sort((a, b) => Number(a.order || 0) - Number(b.order || 0)),
     pageRegistry,
     pageSeo,
     pages: customPages,
