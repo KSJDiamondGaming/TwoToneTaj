@@ -157,7 +157,7 @@ export function EditorBridgeReady() {
 
     function receive(event) {
       if (event.data?.source !== 'ksj-portal-editor') return
-      if (event.data.type === 'initialise') { initialised = true; announceReady() }
+      if (event.data.type === 'initialise') initialised = true
       if (event.data.type === 'ping') announceReady()
       if (event.data.type === 'history-back') window.history.back()
       if (event.data.type === 'history-forward') window.history.forward()
