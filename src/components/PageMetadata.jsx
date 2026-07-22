@@ -34,8 +34,38 @@ function setCanonical(url) {
   element.href = url
 }
 
+function setStructuredData(value) {
+  const id = 'site-structured-data'
+  let element = document.head.querySelector(`#${id}`)
+
+  if (!value) {
+    element?.remove()
+    return
+  }
+
+  if (!element) {
+    element = document.createElement('script')
+    element.id = id
+    element.type = 'application/ld+json'
+    document.head.appendChild(element)
+  }
+
+  element.textContent = JSON.stringify(value)
+}
+
 function clean(value, fallback = '') {
   return String(value || fallback).replace(/\s+/g, ' ').trim()
+}
+
+function absoluteUrl(value, baseUrl) {
+  const cleaned = clean(value)
+  if (!cleaned) return ''
+
+  try {
+    return new URL(cleaned, baseUrl).toString()
+  } catch {
+    return ''
+  }
 }
 
 function contentFallback(site, entry) {
@@ -73,8 +103,10 @@ export default function PageMetadata() {
     const pageTitle = clean(metadata.title, brandName)
     const title = pageTitle === brandName ? brandName : `${pageTitle} | ${brandName}`
     const description = clean(metadata.description, site.brand?.shortTagline || site.brand?.tagline).slice(0, 200)
-    const image = clean(metadata.image || site.assetUrls?.socialImage || site.branding?.socialIcon)
-    const canonical = new URL(pathname, site.website?.domain || window.location.origin).toString()
+    const baseUrl = absoluteUrl(site.website?.domain, window.location.origin) || window.location.origin
+    const canonical = new URL(pathname, baseUrl).toString()
+    const image = absoluteUrl(metadata.image || site.assetUrls?.socialImage || site.branding?.socialIcon, baseUrl)
+    const logo = absoluteUrl(site.branding?.logo || site.assetUrls?.logo || site.branding?.socialIcon, baseUrl)
     const robots = metadata.noIndex ? 'noindex, nofollow' : 'index, follow'
 
     document.title = title
@@ -91,6 +123,35 @@ export default function PageMetadata() {
     setMeta('meta[name="twitter:description"]', 'content', description)
     setMeta('meta[name="twitter:image"]', 'content', image)
     setCanonical(canonical)
+    setStructuredData({
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'Organization',
+          '@id': `${baseUrl.replace(/\/$/, '')}/#organization`,
+          name: brandName,
+          url: baseUrl,
+          ...(logo ? { logo } : {}),
+        },
+        {
+          '@type': 'WebSite',
+          '@id': `${baseUrl.replace(/\/$/, '')}/#website`,
+          url: baseUrl,
+          name: brandName,
+          description,
+          publisher: { '@id': `${baseUrl.replace(/\/$/, '')}/#organization` },
+        },
+        {
+          '@type': 'WebPage',
+          '@id': `${canonical}#webpage`,
+          url: canonical,
+          name: title,
+          description,
+          isPartOf: { '@id': `${baseUrl.replace(/\/$/, '')}/#website` },
+          ...(image ? { primaryImageOfPage: { '@type': 'ImageObject', url: image } } : {}),
+        },
+      ],
+    })
   }, [pathname, site])
 
   return null
