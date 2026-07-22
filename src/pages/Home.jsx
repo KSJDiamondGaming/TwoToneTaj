@@ -39,7 +39,10 @@ const expectCards = [
 export default function Home() {
   const { site } = useManagedSite()
   const twitchEmbedUrl = getTwitchEmbedUrl(site.platforms.twitchChannel)
-  const schedule = Array.isArray(site.home.schedule) && site.home.schedule.length ? site.home.schedule : fallbackSchedule
+  const savedSchedule = Array.isArray(site.home.schedule)
+    ? site.home.schedule.filter(entry => entry && typeof entry === 'object')
+    : []
+  const schedule = savedSchedule.length ? savedSchedule : fallbackSchedule
   const socialLinks = [
     [twitchIcon, 'Twitch', site.brand.name, site.socials.twitch],
     [tiktokIcon, 'TikTok', site.brand.name, site.socials.tiktok],
@@ -72,9 +75,9 @@ export default function Home() {
           <EditableField as="h2" fieldId="home.scheduleTitle" label="Schedule section title" value={site.home.scheduleTitle} policy={site.editorPolicy}><img src={playIcon} alt="" />{site.home.scheduleTitle}</EditableField>
           <div className="schedule-list">
             {schedule.map((entry, index) => (
-              <p key={`${entry.day}-${index}`}>
-                <EditableField as="strong" fieldId={`home.schedule.${index}.day`} label={`Schedule day ${index + 1}`} value={entry.day} policy={site.editorPolicy} />
-                <EditableField as="span" fieldId={`home.schedule.${index}.time`} label={`${entry.day || `Day ${index + 1}`} stream time`} value={entry.time} policy={site.editorPolicy} />
+              <p key={`${entry.day || 'day'}-${index}`}>
+                <EditableField as="strong" fieldId={`home.schedule.${index}.day`} label={`Schedule day ${index + 1}`} value={entry.day || ''} policy={site.editorPolicy} />
+                <EditableField as="span" fieldId={`home.schedule.${index}.time`} label={`${entry.day || `Day ${index + 1}`} stream time`} value={entry.time || ''} policy={site.editorPolicy} />
               </p>
             ))}
           </div>
