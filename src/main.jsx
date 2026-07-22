@@ -9,6 +9,7 @@ function editorEnabled() {
 function installEditorBootstrap() {
   if (!editorEnabled() || window.__ksjEditorBootstrapInstalled) return
   window.__ksjEditorBootstrapInstalled = true
+  let initialised = false
 
   function announce(type = 'ready') {
     window.parent.postMessage({
@@ -21,12 +22,19 @@ function installEditorBootstrap() {
 
   window.addEventListener('message', event => {
     if (event.data?.source !== 'ksj-portal-editor') return
-    if (event.data.type === 'ping' || event.data.type === 'initialise') announce()
+    if (event.data.type === 'initialise') initialised = true
+    if (event.data.type === 'ping') announce()
   })
   window.addEventListener('load', () => announce())
   window.addEventListener('pageshow', () => announce())
   announce()
-  window.setInterval(announce, 750)
+  const timer = window.setInterval(() => {
+    if (initialised) {
+      window.clearInterval(timer)
+      return
+    }
+    announce()
+  }, 750)
 }
 
 class RenderErrorBoundary extends React.Component {
