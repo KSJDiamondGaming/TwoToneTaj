@@ -6,6 +6,7 @@ import Footer from './components/Footer'
 import FloatingNotice from './components/FloatingNotice'
 import AudioControls from './components/AudioControls'
 import MerchDiscountCode from './components/MerchDiscountCode'
+import MerchLiveEditor from './components/MerchLiveEditor'
 import ManagedPageBlocks from './components/ManagedPageBlocks'
 import PageMetadata from './components/PageMetadata'
 import { EditorBridgeReady } from './components/EditableField'
@@ -62,6 +63,7 @@ function App() {
     <BrowserRouter>
       <PageMetadata />
       <EditorBridgeReady />
+      <MerchLiveEditor />
       <Header />
 
       <div className="site-content">
