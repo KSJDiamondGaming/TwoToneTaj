@@ -28,10 +28,11 @@ function assetUrl(asset) { return ksjAssetUrl(asset?.url || '') }
 function latestAsset(assets = [], slotId) { return objectRecords(assets).filter(asset => asset.slotId === slotId).sort((a, b) => Number(b.version || 0) - Number(a.version || 0))[0] }
 function validCheckoutUrl(value = '') { try { const url = new URL(value); return url.protocol === 'https:' || (url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname)) } catch { return false } }
 function providerCheckoutUrl(provider, productId) { const normalised = provider?.trim().toLowerCase(); if (!['stripe', 'paypal'].includes(normalised) || !productId) return ''; return `${KSJ_API_BASE}/checkout/${normalised}/start?${new URLSearchParams({ websiteId: KSJ_SITE_ID, productId, quantity: '1' })}` }
+function editorEnabled() { return typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('ksjEditor') === '1' }
 
 function sanitiseMerch(merch) {
   if (!merch || !Array.isArray(merch.products)) return null
-  return { ...merch, products: objectRecords(merch.products).map(product => {
+  const products = objectRecords(merch.products).map(product => {
     const checkout = product.checkout || {}
     const providerUrl = providerCheckoutUrl(checkout.provider, product.id)
     const url = providerUrl || checkout.url?.trim() || ''
@@ -50,7 +51,8 @@ function sanitiseMerch(merch) {
       inventory: { ...(product.inventory || {}), trackStock: madeToOrder ? false : product.inventory?.trackStock === true, readyStock: stock, quantity: stock, stock, variants: objectRecords(product.inventory?.variants) },
       checkout: { ...checkout, enabled: checkoutReady, url: checkoutReady ? url : '' },
     }
-  }) }
+  })
+  return { ...merch, products: editorEnabled() ? products : products.filter(product => product.visible) }
 }
 
 function customRegistryEntries(pages = []) {
