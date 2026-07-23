@@ -23,6 +23,7 @@ const fallbackPages = {
 }
 
 function objectRecords(value) { return Array.isArray(value) ? value.filter(item => item && typeof item === 'object' && !Array.isArray(item)) : [] }
+function booleanValue(value, fallback = false) { if (value === undefined || value === null || value === '') return fallback; if (typeof value === 'boolean') return value; return String(value).trim().toLowerCase() === 'true' }
 function assetUrl(asset) { return ksjAssetUrl(asset?.url || '') }
 function latestAsset(assets = [], slotId) { return objectRecords(assets).filter(asset => asset.slotId === slotId).sort((a, b) => Number(b.version || 0) - Number(a.version || 0))[0] }
 function validCheckoutUrl(value = '') { try { const url = new URL(value); return url.protocol === 'https:' || (url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname)) } catch { return false } }
@@ -38,7 +39,17 @@ function sanitiseMerch(merch) {
     const leadTimeMessage = product.fulfilmentOptions?.leadTimeMessage?.trim() || ''
     const stock = Math.max(0, Number(product.inventory?.quantity || product.inventory?.stock || 0))
     const checkoutReady = checkout.enabled === true && product.availability === 'available' && Number(product.priceGBP) > 0 && Boolean(product.name?.trim()) && Boolean(product.description?.trim()) && Boolean(product.shippingNote?.trim()) && (!madeToOrder || Boolean(leadTimeMessage)) && (checkout.mode === 'managed' || validCheckoutUrl(url))
-    return { ...product, shippingNote: madeToOrder ? `* ${leadTimeMessage}` : product.shippingNote, fulfilmentOptions: { madeToOrder, leadTimeMessage }, inventory: { ...(product.inventory || {}), trackStock: madeToOrder ? false : product.inventory?.trackStock === true, readyStock: stock, quantity: stock, stock, variants: objectRecords(product.inventory?.variants) }, checkout: { ...checkout, enabled: checkoutReady, url: checkoutReady ? url : '' } }
+    return {
+      ...product,
+      featured: booleanValue(product.featured),
+      limited: booleanValue(product.limited),
+      showInCarousel: booleanValue(product.showInCarousel),
+      visible: booleanValue(product.visible, true),
+      shippingNote: madeToOrder ? `* ${leadTimeMessage}` : product.shippingNote,
+      fulfilmentOptions: { madeToOrder, leadTimeMessage },
+      inventory: { ...(product.inventory || {}), trackStock: madeToOrder ? false : product.inventory?.trackStock === true, readyStock: stock, quantity: stock, stock, variants: objectRecords(product.inventory?.variants) },
+      checkout: { ...checkout, enabled: checkoutReady, url: checkoutReady ? url : '' },
+    }
   }) }
 }
 
