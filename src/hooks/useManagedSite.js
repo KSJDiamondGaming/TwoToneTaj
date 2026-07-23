@@ -32,6 +32,15 @@ function editorEnabled() { return typeof window !== 'undefined' && new URLSearch
 
 function sanitiseMerch(merch) {
   if (!merch || !Array.isArray(merch.products)) return null
+  const collections = objectRecords(merch.collections).map((collection, index) => ({
+    ...collection,
+    id: collection.id || `collection-${index + 1}`,
+    name: collection.name?.trim() || 'Collection',
+    slug: collection.slug?.trim() || '',
+    visible: booleanValue(collection.visible, true),
+    order: Number(collection.order || index + 1),
+  })).sort((a, b) => a.order - b.order)
+  const collectionIds = new Set(collections.map(collection => collection.id))
   const products = objectRecords(merch.products).map(product => {
     const checkout = product.checkout || {}
     const providerUrl = providerCheckoutUrl(checkout.provider, product.id)
@@ -46,13 +55,15 @@ function sanitiseMerch(merch) {
       limited: booleanValue(product.limited),
       showInCarousel: booleanValue(product.showInCarousel),
       visible: booleanValue(product.visible, true),
+      collections: Array.isArray(product.collections) ? [...new Set(product.collections.filter(id => collectionIds.has(id)))] : [],
       shippingNote: madeToOrder ? `* ${leadTimeMessage}` : product.shippingNote,
       fulfilmentOptions: { madeToOrder, leadTimeMessage },
       inventory: { ...(product.inventory || {}), trackStock: madeToOrder ? false : product.inventory?.trackStock === true, readyStock: stock, quantity: stock, stock, variants: objectRecords(product.inventory?.variants) },
       checkout: { ...checkout, enabled: checkoutReady, url: checkoutReady ? url : '' },
     }
   })
-  return { ...merch, products: editorEnabled() ? products : products.filter(product => product.visible) }
+  const visibleCollections = editorEnabled() ? collections : collections.filter(collection => collection.visible)
+  return { ...merch, collections: visibleCollections, products: editorEnabled() ? products : products.filter(product => product.visible) }
 }
 
 function customRegistryEntries(pages = []) {
