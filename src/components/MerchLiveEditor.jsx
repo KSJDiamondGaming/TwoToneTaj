@@ -264,23 +264,11 @@ export default function MerchLiveEditor() {
     document.addEventListener('focusout', blur, true)
     document.addEventListener('keydown', keydown, true)
 
-    const observer = new MutationObserver(() => {
-      window.clearTimeout(observer.timer)
-      observer.timer = window.setTimeout(() => {
-        post('page-change', { pathname: location.pathname, fieldCount: document.querySelectorAll('[data-ksj-field]').length })
-      }, 50)
-    })
-    observer.observe(document.querySelector('.merch-page') || document.body, { childList: true, subtree: true })
-
-    post('page-change', { pathname: location.pathname, fieldCount: document.querySelectorAll('[data-ksj-field]').length })
-
     return () => {
       document.removeEventListener('click', click, true)
       document.removeEventListener('input', input, true)
       document.removeEventListener('focusout', blur, true)
       document.removeEventListener('keydown', keydown, true)
-      observer.disconnect()
-      window.clearTimeout(observer.timer)
       touched.forEach(element => {
         element.hidden = false
         delete element.dataset.ksjField
