@@ -63,6 +63,66 @@ function productIndex(products, productId, fallbackName = '') {
   return products.findIndex(product => String(product?.name || '').trim() === String(fallbackName).trim())
 }
 
+function csv(value) {
+  if (Array.isArray(value)) return value.filter(Boolean).join(', ')
+  return String(value || '')
+}
+
+function truthy(value) {
+  return value === true || String(value).toLowerCase() === 'true'
+}
+
+function ensureEditorStyles() {
+  if (document.getElementById('ksj-merch-editor-controls')) return
+  const style = document.createElement('style')
+  style.id = 'ksj-merch-editor-controls'
+  style.textContent = `
+    .ksjMerchProductControls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0 0;
+      padding: 9px;
+      border: 1px dashed rgba(0, 255, 150, .65);
+      border-radius: 10px;
+      background: rgba(0, 20, 14, .88);
+      position: relative;
+      z-index: 6;
+    }
+    .ksjMerchProductControls::before {
+      content: 'PRODUCT SETTINGS';
+      width: 100%;
+      color: #00ef8f;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+    }
+    .ksjMerchProductControl {
+      appearance: none;
+      border: 1px solid rgba(0, 239, 143, .55);
+      border-radius: 7px;
+      background: #07110e;
+      color: #fff;
+      font: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 6px 8px;
+      cursor: pointer;
+    }
+    .ksjMerchProductControl:hover,
+    .ksjMerchProductControl.active {
+      background: rgba(0, 239, 143, .18);
+      border-color: #00ef8f;
+    }
+    .ksjMerchProductControl[data-boolean='true']::after {
+      content: attr(data-state);
+      margin-left: 5px;
+      color: #00ef8f;
+    }
+  `
+  document.head.appendChild(style)
+}
+
 export default function MerchLiveEditor() {
   const location = useLocation()
   const { site } = useManagedSite()
@@ -83,9 +143,11 @@ export default function MerchLiveEditor() {
   useEffect(() => {
     if (!enabled || location.pathname !== '/merch') return undefined
 
+    ensureEditorStyles()
     const policy = site.editorPolicy || {}
     const products = Array.isArray(site.merch?.products) ? site.merch.products : []
     const touched = new Set()
+    const injected = []
 
     function markField(element, { fieldId, label, value, kind = 'text', inline = true }) {
       if (!element || !fieldId) return
@@ -142,6 +204,45 @@ export default function MerchLiveEditor() {
       touched.add(element)
     }
 
+    function settingsButton({ label, fieldId, value, boolean = false }) {
+      const button = document.createElement('button')
+      button.type = 'button'
+      button.className = 'ksjMerchProductControl'
+      button.textContent = label
+      button.dataset.ksjField = fieldId
+      button.dataset.ksjLabel = label
+      button.dataset.ksjKind = 'text'
+      button.dataset.ksjValue = boolean ? String(truthy(value)) : csv(value)
+      button.dataset.ksjLocked = 'false'
+      button.dataset.ksjReason = ''
+      if (boolean) {
+        button.dataset.boolean = 'true'
+        button.dataset.state = truthy(value) ? 'ON' : 'OFF'
+        button.classList.toggle('active', truthy(value))
+      }
+      return button
+    }
+
+    function injectProductSettings(card, product, index) {
+      const copy = card.querySelector('.merch-product-copy') || card
+      const controls = document.createElement('div')
+      controls.className = 'ksjMerchProductControls'
+      controls.dataset.ksjEditorUi = 'true'
+
+      const fields = [
+        { label: 'Sizes', fieldId: `merch.products.${index}.variants.sizes`, value: product.variants?.sizes },
+        { label: 'Colours', fieldId: `merch.products.${index}.variants.colours`, value: product.variants?.colours },
+        { label: 'Category', fieldId: `merch.products.${index}.category`, value: product.category },
+        { label: 'Availability', fieldId: `merch.products.${index}.availability`, value: product.availability },
+        { label: 'Featured', fieldId: `merch.products.${index}.featured`, value: product.featured, boolean: true },
+        { label: 'Carousel', fieldId: `merch.products.${index}.showInCarousel`, value: product.showInCarousel, boolean: true },
+        { label: 'Limited', fieldId: `merch.products.${index}.limited`, value: product.limited, boolean: true },
+      ]
+      fields.forEach(field => controls.appendChild(settingsButton(field)))
+      copy.appendChild(controls)
+      injected.push(controls)
+    }
+
     const staticFields = [
       ['.merch-hero-copy .eyebrow', 'merch.eyebrow', 'Store eyebrow', site.merch?.eyebrow, 'text', true],
       ['.merch-hero-copy h1', 'brand.name', 'Store brand name', site.brand?.name, 'text', false],
@@ -183,6 +284,7 @@ export default function MerchLiveEditor() {
       markField(card.querySelector('.merch-fulfilment-note'), { fieldId: `merch.products.${index}.shippingNote`, label: `Product ${index + 1} shipping note`, value: product.shippingNote, kind: 'textarea' })
       const visual = card.querySelector('.merch-product-image-wrap img, .merch-product-image-wrap .merch-image-placeholder')
       markImage(visual, `merch.products.${index}.image.url`, `Product ${index + 1} image`, product.image?.url || '')
+      injectProductSettings(card, product, index)
     })
 
     document.querySelectorAll('.merch-carousel-item').forEach(item => {
@@ -204,11 +306,19 @@ export default function MerchLiveEditor() {
       if (field) {
         event.preventDefault()
         event.stopPropagation()
+        if (field.dataset.boolean === 'true') {
+          const next = field.dataset.ksjValue === 'true' ? 'false' : 'true'
+          field.dataset.ksjValue = next
+          field.dataset.state = next === 'true' ? 'ON' : 'OFF'
+          field.classList.toggle('active', next === 'true')
+          post('inline-commit', { field: { fieldId: field.dataset.ksjField, label: field.dataset.ksjLabel, value: next, kind: 'text' } })
+          return
+        }
         post('select-field', {
           field: {
             fieldId: field.dataset.ksjField,
             label: field.dataset.ksjLabel || 'Website field',
-            value: field.dataset.ksjKind === 'image' ? field.dataset.ksjValue || '' : textValue(field),
+            value: field.dataset.ksjKind === 'image' ? field.dataset.ksjValue || '' : (field.dataset.ksjValue || textValue(field)),
             kind: field.dataset.ksjKind || 'text',
             locked: field.dataset.ksjLocked === 'true',
             reason: field.dataset.ksjReason || '',
@@ -217,7 +327,7 @@ export default function MerchLiveEditor() {
         return
       }
       const section = event.target.closest('[data-ksj-section]')
-      if (!section) return
+      if (!section || event.target.closest('[data-ksj-editor-ui]')) return
       event.preventDefault()
       event.stopPropagation()
       post('select-section', {
@@ -269,6 +379,7 @@ export default function MerchLiveEditor() {
       document.removeEventListener('input', input, true)
       document.removeEventListener('focusout', blur, true)
       document.removeEventListener('keydown', keydown, true)
+      injected.forEach(element => element.remove())
       touched.forEach(element => {
         element.hidden = false
         delete element.dataset.ksjField
