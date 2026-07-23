@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { ksjAssetUrl } from '../config/ksjApi'
 import { useManagedSite } from '../hooks/useManagedSite'
@@ -49,15 +49,18 @@ function post(type, payload) {
   window.parent.postMessage({ source: 'ksj-site-editor', type, ...payload }, '*')
 }
 
-function findProductIndex(products, card) {
-  const name = textValue(card.querySelector('.merch-product-copy h2'))
-  return products.findIndex(product => String(product?.name || '').trim() === name)
-}
-
 function setText(element, value) {
   if (!element || document.activeElement === element || value == null) return
   const next = String(value)
   if (textValue(element) !== next) element.textContent = next
+}
+
+function productIndex(products, productId, fallbackName = '') {
+  if (productId) {
+    const byId = products.findIndex(product => String(product?.id || '') === String(productId))
+    if (byId >= 0) return byId
+  }
+  return products.findIndex(product => String(product?.name || '').trim() === String(fallbackName).trim())
 }
 
 export default function MerchLiveEditor() {
@@ -65,7 +68,6 @@ export default function MerchLiveEditor() {
   const { site } = useManagedSite()
   const enabled = useMemo(editorEnabled, [])
   const [role, setRole] = useState('client')
-  const cleanupRef = useRef([])
 
   useEffect(() => {
     if (!enabled) return undefined
@@ -79,127 +81,65 @@ export default function MerchLiveEditor() {
   }, [enabled])
 
   useEffect(() => {
-    cleanupRef.current.forEach(cleanup => cleanup())
-    cleanupRef.current = []
-    if (location.pathname !== '/merch') return undefined
+    if (!enabled || location.pathname !== '/merch') return undefined
 
     const policy = site.editorPolicy || {}
     const products = Array.isArray(site.merch?.products) ? site.merch.products : []
-    const cleanups = cleanupRef.current
+    const touched = new Set()
 
-    function listen(element, eventName, handler) {
-      element.addEventListener(eventName, handler)
-      cleanups.push(() => element.removeEventListener(eventName, handler))
-    }
-
-    function wireField(element, { fieldId, label, value, kind = 'text', inline = true }) {
+    function markField(element, { fieldId, label, value, kind = 'text', inline = true }) {
       if (!element || !fieldId) return
       const rule = fieldRule(policy, fieldId)
       const locked = role !== 'owner' && rule.access !== 'editable'
-      const hidden = enabled && role !== 'owner' && ['hidden', 'owner-only'].includes(rule.access)
+      const hidden = role !== 'owner' && ['hidden', 'owner-only'].includes(rule.access)
       if (hidden) {
         element.hidden = true
-        cleanups.push(() => { element.hidden = false })
+        touched.add(element)
         return
       }
-
       element.dataset.ksjField = fieldId
-      element.classList.toggle('ksjEditableField', enabled)
-      element.classList.toggle('ksjFieldLocked', enabled && locked)
-
-      if (!enabled) return
-
-      const canInline = inline && !locked && kind !== 'image'
-      if (canInline) {
+      element.dataset.ksjLabel = label
+      element.dataset.ksjKind = kind
+      element.dataset.ksjValue = value ?? ''
+      element.dataset.ksjLocked = locked ? 'true' : 'false'
+      element.dataset.ksjReason = rule.reason || ''
+      element.classList.add(kind === 'image' ? 'ksjEditableImage' : 'ksjEditableField')
+      if (locked) element.classList.add('ksjFieldLocked')
+      if (inline && !locked && kind !== 'image') {
         element.contentEditable = 'true'
         element.spellcheck = true
         element.classList.add('ksjInlineEditable')
       }
-
-      function select(event) {
-        event.stopPropagation()
-        if (locked) event.preventDefault()
-        post('select-field', { field: { fieldId, label, value: kind === 'image' ? value || '' : textValue(element), kind, locked, reason: rule.reason } })
-      }
-      function input(event) {
-        if (!canInline) return
-        post('inline-change', { field: { fieldId, label, value: textValue(event.currentTarget), kind } })
-      }
-      function commit(event) {
-        if (!canInline) return
-        post('inline-commit', { field: { fieldId, label, value: textValue(event.currentTarget), kind } })
-      }
-      function keydown(event) {
-        if (!canInline) return
-        if (kind !== 'textarea' && event.key === 'Enter') {
-          event.preventDefault()
-          event.currentTarget.blur()
-        }
-        if (event.key === 'Escape') {
-          event.preventDefault()
-          setText(event.currentTarget, value)
-          event.currentTarget.blur()
-        }
-      }
-
-      listen(element, 'click', select)
-      listen(element, 'input', input)
-      listen(element, 'blur', commit)
-      listen(element, 'keydown', keydown)
-      cleanups.push(() => {
-        delete element.dataset.ksjField
-        element.removeAttribute('contenteditable')
-        element.classList.remove('ksjEditableField', 'ksjFieldLocked', 'ksjInlineEditable')
-      })
+      touched.add(element)
     }
 
-    function wireImage(element, fieldId, label, value) {
+    function markImage(element, fieldId, label, value) {
       if (!element) return
-      const rule = fieldRule(policy, fieldId)
-      const locked = role !== 'owner' && rule.access !== 'editable'
-      element.dataset.ksjField = fieldId
-      element.classList.toggle('ksjEditableImage', enabled)
-      element.classList.toggle('ksjFieldLocked', enabled && locked)
-      if (value) element.src = ksjAssetUrl(value)
-      if (!enabled) return
-      listen(element, 'click', event => {
-        event.preventDefault()
-        event.stopPropagation()
-        post('select-field', { field: { fieldId, label, value: value || '', kind: 'image', locked, reason: rule.reason } })
-      })
-      cleanups.push(() => {
-        delete element.dataset.ksjField
-        element.classList.remove('ksjEditableImage', 'ksjFieldLocked')
-      })
+      if (element.tagName === 'IMG' && value) element.src = ksjAssetUrl(value)
+      markField(element, { fieldId, label, value, kind: 'image', inline: false })
     }
 
-    function wireSection(element, sectionId, label, defaultOrder) {
+    function markSection(element, sectionId, label, defaultOrder) {
       if (!element) return
       const rule = sectionRule(policy, sectionId, defaultOrder)
       const locked = role !== 'owner' && rule.access !== 'editable'
       const hidden = rule.hidden === true || rule.removed === true
-      if (hidden && (!enabled || role !== 'owner')) {
+      if (hidden && role !== 'owner') {
         element.hidden = true
-        cleanups.push(() => { element.hidden = false })
+        touched.add(element)
         return
       }
       element.dataset.ksjSection = sectionId
+      element.dataset.ksjSectionLabel = label
+      element.dataset.ksjSectionOrder = String(defaultOrder)
+      element.dataset.ksjSectionLocked = locked ? 'true' : 'false'
+      element.dataset.ksjSectionReason = rule.reason || ''
+      element.dataset.ksjSectionHidden = rule.hidden === true ? 'true' : 'false'
+      element.dataset.ksjSectionRemoved = rule.removed === true ? 'true' : 'false'
       element.style.order = String(Number(rule.order ?? defaultOrder))
-      element.classList.toggle('ksjEditableSection', enabled)
-      element.classList.toggle('ksjSectionLocked', enabled && locked)
-      if (enabled) {
-        listen(element, 'click', event => {
-          if (event.target.closest('[data-ksj-field]')) return
-          event.preventDefault()
-          event.stopPropagation()
-          post('select-section', { section: { sectionId, label, defaultOrder, locked, reason: rule.reason, hidden: rule.hidden === true, removed: rule.removed === true } })
-        })
-      }
-      cleanups.push(() => {
-        delete element.dataset.ksjSection
-        element.style.removeProperty('order')
-        element.classList.remove('ksjEditableSection', 'ksjSectionLocked')
-      })
+      element.classList.add('ksjEditableSection')
+      if (locked) element.classList.add('ksjSectionLocked')
+      touched.add(element)
     }
 
     const staticFields = [
@@ -208,6 +148,8 @@ export default function MerchLiveEditor() {
       ['.merch-subtitle', 'merch.subtitle', 'Store introduction', site.merch?.subtitle, 'textarea', true],
       ['.merch-hero-brand strong', 'merch.brandLabel', 'Store brand label', site.merch?.brandLabel || site.brand?.tagline?.split('•')[0]?.trim(), 'text', true],
       ['.merch-hero-brand small', 'merch.brandEstablished', 'Store established text', site.merch?.brandEstablished || site.brand?.tagline?.split('•')[1]?.trim(), 'text', true],
+      ['.merch-development-note strong', 'merch.statusTitle', 'Store status title', site.merch?.statusTitle, 'text', true],
+      ['.merch-development-note p', 'merch.statusText', 'Store status text', site.merch?.statusText, 'textarea', true],
       ['.merch-carousel-head strong', 'merch.featuredTitle', 'Featured products title', site.merch?.featuredTitle || 'Featured Drops', 'text', true],
       ['.merch-section-head .eyebrow', 'merch.browseEyebrow', 'Product section eyebrow', site.merch?.browseEyebrow || 'Browse The Drop', 'text', true],
       ['.merch-section-head h2', 'merch.browseTitle', 'Product section title', site.merch?.browseTitle || 'Product Preview', 'text', true],
@@ -221,44 +163,143 @@ export default function MerchLiveEditor() {
       const element = document.querySelector(selector)
       if (!element) return
       if (fieldId.startsWith('merch.') && value != null) setText(element, value)
-      wireField(element, { fieldId, label, value, kind, inline })
+      markField(element, { fieldId, label, value, kind, inline })
     })
 
-    wireImage(document.querySelector('.merch-hero-brand img'), 'brand.primaryLogo', 'Store logo', site.brand?.primaryLogo || site.assetUrls?.primaryLogo || '')
+    markImage(document.querySelector('.merch-hero-brand img'), 'brand.primaryLogo', 'Store logo', site.brand?.primaryLogo || site.assetUrls?.primaryLogo || '')
 
     document.querySelectorAll('.merch-product-card').forEach(card => {
-      const index = findProductIndex(products, card)
+      const id = card.getAttribute('data-product-id') || ''
+      const name = textValue(card.querySelector('.merch-product-copy h2'))
+      const index = productIndex(products, id, name)
       if (index < 0) return
       const product = products[index]
-      wireSection(card, `merch.products.${index}`, `${product.name || 'Product'} card`, 100 + index)
-      wireField(card.querySelector('.merch-product-copy h2'), { fieldId: `merch.products.${index}.name`, label: `Product ${index + 1} name`, value: product.name })
-      wireField(card.querySelector('.merch-product-copy > span'), { fieldId: `merch.products.${index}.type`, label: `Product ${index + 1} type`, value: product.type })
-      wireField(card.querySelector('.merch-product-copy > p:not(.merch-fulfilment-note)'), { fieldId: `merch.products.${index}.description`, label: `Product ${index + 1} description`, value: product.description, kind: 'textarea' })
-      wireField(card.querySelector('.merch-product-copy > strong'), { fieldId: `merch.products.${index}.priceGBP`, label: `Product ${index + 1} GBP price`, value: product.priceGBP, inline: false })
-      wireField(card.querySelector('.merch-fulfilment-note'), { fieldId: `merch.products.${index}.shippingNote`, label: `Product ${index + 1} shipping note`, value: product.shippingNote, kind: 'textarea' })
-      wireImage(card.querySelector('.merch-product-image-wrap img'), `merch.products.${index}.image.url`, `Product ${index + 1} image`, product.image?.url || '')
+      card.dataset.productId = product.id || ''
+      markSection(card, `merch.products.${index}`, `${product.name || 'Product'} card`, 100 + index)
+      markField(card.querySelector('.merch-product-copy h2'), { fieldId: `merch.products.${index}.name`, label: `Product ${index + 1} name`, value: product.name })
+      markField(card.querySelector('.merch-product-copy > span'), { fieldId: `merch.products.${index}.type`, label: `Product ${index + 1} type`, value: product.type })
+      markField(card.querySelector('.merch-product-copy > p:not(.merch-fulfilment-note)'), { fieldId: `merch.products.${index}.description`, label: `Product ${index + 1} description`, value: product.description, kind: 'textarea' })
+      markField(card.querySelector('.merch-product-copy > strong'), { fieldId: `merch.products.${index}.priceGBP`, label: `Product ${index + 1} GBP price`, value: product.priceGBP, inline: false })
+      markField(card.querySelector('.merch-fulfilment-note'), { fieldId: `merch.products.${index}.shippingNote`, label: `Product ${index + 1} shipping note`, value: product.shippingNote, kind: 'textarea' })
+      const visual = card.querySelector('.merch-product-image-wrap img, .merch-product-image-wrap .merch-image-placeholder')
+      markImage(visual, `merch.products.${index}.image.url`, `Product ${index + 1} image`, product.image?.url || '')
     })
 
     document.querySelectorAll('.merch-carousel-item').forEach(item => {
       const type = textValue(item.querySelector(':scope > span'))
       const index = products.findIndex(product => String(product?.type || '').trim() === type)
-      if (index >= 0) wireImage(item.querySelector('img'), `merch.products.${index}.image.url`, `${products[index].name || 'Featured product'} image`, products[index].image?.url || '')
+      if (index < 0) return
+      const visual = item.querySelector('img, .merch-image-placeholder')
+      markImage(visual, `merch.products.${index}.image.url`, `${products[index].name || 'Featured product'} image`, products[index].image?.url || '')
     })
 
-    wireSection(document.querySelector('.merch-hero'), 'merch.hero', 'Merch hero', 10)
-    wireSection(document.querySelector('.merch-development-note'), 'merch.status', 'Store status', 20)
-    wireSection(document.querySelector('.merch-carousel'), 'merch.featured', 'Featured products', 30)
-    wireSection(document.querySelector('.merch-section'), 'merch.catalogue', 'Product catalogue', 40)
-    wireSection(document.querySelector('.merch-final-cta'), 'merch.finalCta', 'Final call to action', 50)
+    markSection(document.querySelector('.merch-hero'), 'merch.hero', 'Merch hero', 10)
+    markSection(document.querySelector('.merch-development-note'), 'merch.status', 'Store status', 20)
+    markSection(document.querySelector('.merch-carousel'), 'merch.featured', 'Featured products', 30)
+    markSection(document.querySelector('.merch-section'), 'merch.catalogue', 'Product catalogue', 40)
+    markSection(document.querySelector('.merch-final-cta'), 'merch.finalCta', 'Final call to action', 50)
 
-    const announce = window.setTimeout(() => post('page-change', {
-      pathname: location.pathname,
-      fieldCount: document.querySelectorAll('[data-ksj-field]').length,
-    }), 0)
-    cleanups.push(() => window.clearTimeout(announce))
+    function click(event) {
+      const field = event.target.closest('[data-ksj-field]')
+      if (field) {
+        event.preventDefault()
+        event.stopPropagation()
+        post('select-field', {
+          field: {
+            fieldId: field.dataset.ksjField,
+            label: field.dataset.ksjLabel || 'Website field',
+            value: field.dataset.ksjKind === 'image' ? field.dataset.ksjValue || '' : textValue(field),
+            kind: field.dataset.ksjKind || 'text',
+            locked: field.dataset.ksjLocked === 'true',
+            reason: field.dataset.ksjReason || '',
+          },
+        })
+        return
+      }
+      const section = event.target.closest('[data-ksj-section]')
+      if (!section) return
+      event.preventDefault()
+      event.stopPropagation()
+      post('select-section', {
+        section: {
+          sectionId: section.dataset.ksjSection,
+          label: section.dataset.ksjSectionLabel || 'Website section',
+          defaultOrder: Number(section.dataset.ksjSectionOrder || 0),
+          locked: section.dataset.ksjSectionLocked === 'true',
+          reason: section.dataset.ksjSectionReason || '',
+          hidden: section.dataset.ksjSectionHidden === 'true',
+          removed: section.dataset.ksjSectionRemoved === 'true',
+        },
+      })
+    }
+
+    function input(event) {
+      const field = event.target.closest('[data-ksj-field]')
+      if (!field || field.dataset.ksjKind === 'image' || field.dataset.ksjLocked === 'true' || field.contentEditable !== 'true') return
+      post('inline-change', { field: { fieldId: field.dataset.ksjField, label: field.dataset.ksjLabel, value: textValue(field), kind: field.dataset.ksjKind || 'text' } })
+    }
+
+    function blur(event) {
+      const field = event.target.closest('[data-ksj-field]')
+      if (!field || field.dataset.ksjKind === 'image' || field.dataset.ksjLocked === 'true' || field.contentEditable !== 'true') return
+      post('inline-commit', { field: { fieldId: field.dataset.ksjField, label: field.dataset.ksjLabel, value: textValue(field), kind: field.dataset.ksjKind || 'text' } })
+    }
+
+    function keydown(event) {
+      const field = event.target.closest('[data-ksj-field]')
+      if (!field || field.contentEditable !== 'true') return
+      if (field.dataset.ksjKind !== 'textarea' && event.key === 'Enter') {
+        event.preventDefault()
+        field.blur()
+      }
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setText(field, field.dataset.ksjValue || '')
+        field.blur()
+      }
+    }
+
+    document.addEventListener('click', click, true)
+    document.addEventListener('input', input, true)
+    document.addEventListener('focusout', blur, true)
+    document.addEventListener('keydown', keydown, true)
+
+    const observer = new MutationObserver(() => {
+      window.clearTimeout(observer.timer)
+      observer.timer = window.setTimeout(() => {
+        post('page-change', { pathname: location.pathname, fieldCount: document.querySelectorAll('[data-ksj-field]').length })
+      }, 50)
+    })
+    observer.observe(document.querySelector('.merch-page') || document.body, { childList: true, subtree: true })
+
+    post('page-change', { pathname: location.pathname, fieldCount: document.querySelectorAll('[data-ksj-field]').length })
 
     return () => {
-      cleanups.splice(0).forEach(cleanup => cleanup())
+      document.removeEventListener('click', click, true)
+      document.removeEventListener('input', input, true)
+      document.removeEventListener('focusout', blur, true)
+      document.removeEventListener('keydown', keydown, true)
+      observer.disconnect()
+      window.clearTimeout(observer.timer)
+      touched.forEach(element => {
+        element.hidden = false
+        delete element.dataset.ksjField
+        delete element.dataset.ksjLabel
+        delete element.dataset.ksjKind
+        delete element.dataset.ksjValue
+        delete element.dataset.ksjLocked
+        delete element.dataset.ksjReason
+        delete element.dataset.ksjSection
+        delete element.dataset.ksjSectionLabel
+        delete element.dataset.ksjSectionOrder
+        delete element.dataset.ksjSectionLocked
+        delete element.dataset.ksjSectionReason
+        delete element.dataset.ksjSectionHidden
+        delete element.dataset.ksjSectionRemoved
+        element.removeAttribute('contenteditable')
+        element.style.removeProperty('order')
+        element.classList.remove('ksjEditableField', 'ksjEditableImage', 'ksjFieldLocked', 'ksjInlineEditable', 'ksjEditableSection', 'ksjSectionLocked')
+      })
     }
   }, [enabled, location.pathname, role, site])
 
